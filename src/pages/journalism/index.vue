@@ -156,7 +156,7 @@ export default {
     data(){
         return {
             keyValue:"",
-            current_scroll:"推荐",
+            current_scroll:"",
             current:"homepage",
             showPopup:false,
             num:0,
@@ -209,6 +209,7 @@ export default {
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         this.contentTypeCode = options.contentTypeCode;
+        console.log('contentTypeCode',this.contentTypeCode)
         this.pageNumber = 1;
         // this.selectList = [];
         this.isEdit = false;
@@ -264,6 +265,7 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.tagLists= res.rows;
+                this.current_scroll = this.tagLists[0].ItemName;
             })
         },
         getQuery(){
