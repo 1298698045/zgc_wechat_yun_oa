@@ -294,6 +294,9 @@ export default {
             }else if(item.id==20500){
                 const url = '/pages/workNotice/main';
                 wx.navigateTo({url:url});
+            }else if(item.id==5003){
+                const url = '/pages/meeting/notice/main';
+                wx.navigateTo({url:url})
             }
         },
         getOpenPhoto(){
