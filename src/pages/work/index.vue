@@ -9,7 +9,8 @@
                 更换封面
             </span>
         </div>
-        <div class="nav padding">
+        <!-- 管理员控制台 -->
+        <!-- <div class="nav padding">
             <p>管理员控制台<span>（仅管理员可见）</span></p>
             <p>应用管理</p>
         </div>
@@ -40,13 +41,17 @@
                     <p>设置工作台</p>
                 </div>
             </div>
-        </div>
+        </div> -->
         <div class="center">
             <h3 class="padding">最近使用</h3>
             <div class="box">
-                <p class="imgBox" :class="{'acitve':item.icon==''}" v-for="(item,index) in rowImgs" :key="index" @click="getRouter(item,0)">
-                    <img :src="imgUrl+item.icon" alt="">
-                </p>
+                <div class="box_img" v-for="(item,index) in rowImgs" :key="index" @click="getRouter(item,0)">
+                    <p class="imgBox" :class="{'acitve':item.icon==''}">
+                        <img :src="imgUrl+item.icon" alt="">
+                    </p>
+                    <p class="label">{{item.label}}</p>
+                </div>
+                
             </div>
         </div>
         <div>
@@ -116,6 +121,9 @@ export default {
         this.getLatelyModule();
         this.getQuery();
     },
+    onShow(){
+        wx.hideTabBar();
+    },
     computed:{
         ...mapState({
             imgUrl:state=>{
@@ -144,7 +152,7 @@ export default {
                     SessionKey:this.sessionkey
                 }
             }).then(res=>{
-                this.rowImgs = res.data;
+                this.rowImgs = res.data.slice(0,4);
             })
         },
         getBanner(){
@@ -414,20 +422,30 @@ export default {
             .box{
                 display: flex;
                 padding: 20rpx 0;
-                .imgBox{
-                    width: 75rpx;
-                    height: 75rpx;
-                    margin-left: 44rpx;
-                    img{
-                        width: 100%;
-                        height: 100%;
-                        vertical-align: middle;
+                .box_img{
+                    width: 25%;
+                    .imgBox{
+                        width: 116rpx;
+                        height: 116rpx;
+                        margin: 0 auto;
+                        img{
+                            width: 100%;
+                            height: 100%;
+                            vertical-align: middle;
+                        }
+                    }
+                    .imgBox.acitve{
+                        background: #eef0f2;
+                        border-radius: 15rpx;
+                    }
+                    .label{
+                        font-size: 24rpx;
+                        color: #333333;
+                        text-align: center;
+                        margin-top: 20rpx;
                     }
                 }
-                .imgBox.acitve{
-                    background: #eef0f2;
-                    border-radius: 15rpx;
-                }
+                
             }
         }
         .content:last-child{

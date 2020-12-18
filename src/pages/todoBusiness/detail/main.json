@@ -30,7 +30,9 @@
         "van-checkbox-group": "/static/vant/checkbox-group/index",
         "van-cell-group": "/static/vant/cell-group/index",
         "van-cell": "/static/vant/cell/index",
-        "van-swipe-cell": "/static/vant/swipe-cell/index"
+        "van-swipe-cell": "/static/vant/swipe-cell/index",
+        "van-dropdown-menu":"/static/vant/dropdown-menu/index",
+        "van-dropdown-item":"/static/vant/dropdown-item/index"
 
     }
 }

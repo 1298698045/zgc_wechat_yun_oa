@@ -351,7 +351,7 @@ export default {
             }).then(res=>{
                 let data = res.data[0];
                 // data.CreatedOn = getDate(data.CreatedOn.replace(/-/g,'/'));
-                let mDate = new Date(data.CreatedOn);
+                let mDate = new Date(data.CreatedOn.replace(/-/g,'/'));
                 let y = mDate.getFullYear();
                 let m = mDate.getMonth()+1;
                 let d = mDate.getDate();

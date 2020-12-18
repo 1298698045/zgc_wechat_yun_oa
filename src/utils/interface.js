@@ -109,6 +109,7 @@ const api = {
         getFile: "file.attachfiles.getlist", // 获取附件
         delete: "entity.info.delete",
         edit: "entity.save", // 修改
+        leaveQuery:"stringmap.getlist"
     },
     my: {
         Avatar: "sys.user.uploadavatar",
@@ -186,7 +187,8 @@ const api = {
     },
     hr:{
         payList: "salary.pay.app.paylist",
-        payempdetail :"salary.pay.app.payempdetail"
+        payempdetail :"salary.pay.app.payempdetail",
+        holidayaccount:"attendance.holidayaccount.personal.getlist", //  获取当前用户所有假期账户列表
     }
 }
 export default api;

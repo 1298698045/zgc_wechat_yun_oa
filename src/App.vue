@@ -44,7 +44,7 @@ console.log(options.scene)
     }
     let openid = wx.getStorageSync('openid');
     if(openid!=''){
-      const url = '/pages/messages/main';
+      const url = '/pages/work/main';
       wx.switchTab({url:url});
     }
   },

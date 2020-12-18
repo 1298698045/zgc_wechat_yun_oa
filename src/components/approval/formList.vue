@@ -4,6 +4,7 @@
             <van-cell-group v-if="item.type=='S'||item.type=='E'||item.type=='N'||item.type=='H'" custom-class="cell">
                 <van-field
                     :value="item.value"
+                    input-class="inpClass"
                     custom-style="font-size:34rpx;color:#333333"
                     :required="item.require||false"
                     :label="item.label"
@@ -123,7 +124,7 @@
             <van-cell-group custom-class="cell" v-if="item.type=='U'">
                 <van-cell value-class="cellValue" title-style="font-size:34rpx;" :title="item.label" is-link :value="item.value" @click="!disabled?getOpenModal(item,index):''" />
             </van-cell-group>
-            <div class="switch" v-if="item.type=='H'">
+            <div class="switch" v-if="item.type=='H'||item.type=='MC'">
                 <p>
                     {{item.label}}
                 </p>
@@ -131,9 +132,19 @@
                     <van-switch :disabled="disabled" :checked="item.value" @change="(val)=>{changeSwitch(val,item)}" size="24px" />
                 </p>
             </div>
-            <div class="row" v-if="item.type=='UC'">
-                <p class="title">*<span>内容</span></p>
-                <textarea :disabled="disabled" v-model="item.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" placeholder="请输入"></textarea>
+            <div class="row" v-if="item.type=='UCS'||item.type=='X'||item.type=='J'">
+                <div class="title">
+                    <span>{{item.label}}</span>
+                    <van-dropdown-menu z-index="9999" v-if="item.type=='UCS'&&!item.readonly">
+                        <van-dropdown-item :value="value1" :options="option1" @change="(e)=>{changeDropDown(e,item)}" />
+                    </van-dropdown-menu>
+                </div>
+                <div class="list_textarea">
+                    <p v-for="(v,idx) in item.item" :key="idx">
+                        [  {{v.UserName}} ({{v.DeptName}}) {{v.Comment}} {{v.CreateTime}}  ]
+                    </p>
+                </div>
+                <textarea :disabled="item.readonly" v-model="item.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="!item.readonly?'请输入':''"></textarea>
             </div>
             <div class="parentWrap" v-if="item.type=='RelatedList'">
                 <h3>{{item.label}}</h3>
@@ -250,7 +261,16 @@ export default {
                 },
             },
             testLists:[],
-            disabled:true
+            disabled:true,
+            fields:{},
+            option1: [
+                {text:'请选择',value:0},
+                { text: '同意', value: 1 },
+                { text: '不同意', value: 2 },
+                { text: '复核完毕，请提交正式纸质版，等待签订', value: 3 },
+                { text: '提交院领导或科技处的批复意见', value: 4 },
+            ],
+            value1:0
         }
     },
     computed:{
@@ -266,12 +286,46 @@ export default {
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         this.params.processId = this.ProcessId;
-        this.getQueryFrom();
+        // this.getQueryFrom();
         this.$nextTick(()=>{
             this.getLayoutData();
         })
     },
     methods:{
+        changeDropDown(e,item){
+            console.log(e,item)
+            let index = e.mp.detail;
+            if(index!=0){
+                item.value = this.option1[index].text;
+                this.fields[item.id] = item.value;
+            }
+        },
+        // 同意保存表单
+        getSaverecord(){
+            let obj = {
+            actions:[
+              {
+                params:{
+                  processId:this.ProcessId,
+                  ruleLogId:this.RuleLogId,
+                  parentRecord:{
+                    id:this.ProcessInstanceId,
+                    fields:this.fields
+                  }
+                }
+              }
+            ]
+          }
+          this.$httpWX.post({
+              url:this.$api.message.queryList+'?method='+this.$api.approval.saverecord,
+              data:{
+                  SessionKey:this.sessionkey,
+                  message:JSON.stringify(obj)
+              }
+          }).then(res=>{
+              
+          })
+        },
         getQueryFrom(){
             this.$httpWX.get({
                 url:this.$api.message.queryList,
@@ -304,17 +358,31 @@ export default {
                 }
             }).then(res=>{
                 console.log(res);
+                this.list = res.actions[0].returnValue.fields;
+                this.list.forEach(item=>{
+                    this.$set(item,'value','');
+                    this.$set(item,'require',false);
+                    if(item.type=='L'){
+                        this.$set(item,'index','');
+                    }
+                })
                 this.currenData = res.actions[0].returnValue.masterRecord.picklistValuesMap;
                 this.record = res.actions[0].returnValue.masterRecord.record;
                 this.list.forEach(item=>{
                     if( this.record[item.name] instanceof Object){
                         item.value = this.record[item.name].Name;
-                    }
-                    else if(item.type=='L'||item.type=='DT'||item.type=='LT'){
-                       item.index = this.currenData[item.id].findIndex(v=>v.value==this.record[item.name])
-                    }
-                    else {
+                        this.fields[item.id] = this.record[item.name].Name;
+                        if(item.type=='UCS'){
+                            // item.value = this.record[item.id].comments!=''?this.record[item.id].comments[0].Comment:'';
+                            // this.fields[item.id] = this.record[item.id].comments!=''?this.record[item.id].comments[0].Comment:'';
+                            item.item = this.record[item.id].comments;
+                        }
+                    }else if(item.type=='L'||item.type=='DT'||item.type=='LT'){
+                       item.index = this.currenData[item.id].findIndex(v=>v.value==this.record[item.name]);
+                       this.fields[item.id] = this.currenData[item.id][item.index].value;
+                    }else {
                         item.value = this.record[item.name];
+                        this.fields[item.id] = this.record[item.name];
                     }
                     
                 })
@@ -446,6 +514,9 @@ export default {
         width: 100%;
         height: 100%;
         overflow: hidden;
+        .inpClass{
+            color: #333333;
+        }
         .parentWrap{
             width: 100%;
             height: auto;
@@ -504,6 +575,10 @@ export default {
             padding:15rpx;
             .title{
                 color: #ff6666;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding-right: 20rpx;
                 span{
                     font-size: 34rpx;
                     color: #333333;
@@ -541,6 +616,10 @@ export default {
                         vertical-align: middle;
                     }
                 }
+            }
+            .list_textarea{
+                height: 100rpx;
+                padding-bottom: 20rpx;
             }
         }
         .footer{

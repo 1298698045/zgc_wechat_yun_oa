@@ -4,6 +4,7 @@
             <van-cell-group v-if="item.type=='S'||item.type=='E'||item.type=='N'||item.type=='H'" custom-class="cell">
                 <van-field
                     :value="item.value"
+                    :disabled="item.readonly"
                     custom-style="font-size:34rpx;color:#333333"
                     :required="item.require||false"
                     :label="item.label"
@@ -13,7 +14,7 @@
                 />
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='L'||item.type=='DT'||item.type=='LT'">
-                <picker @change="(val)=>{bindPickerChange(val,item)}" :value="item.index" range-key="label" :range="currenData[item.id]">
+                <picker :disabled="item.readonly" @change="(val)=>{bindPickerChange(val,item)}" :value="item.index" range-key="label" :range="currenData[item.id]">
                     <van-field
                         :value="currenData[item.id][item.index]?currenData[item.id][item.index].label:''"
                         input-class="inp"
@@ -28,7 +29,7 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='D'">
-                <picker mode="date" :value="item.value" @change="function(val){bindDateChange(val,item)}">
+                <picker :disabled="item.readonly" mode="date" :value="item.value" @change="function(val){bindDateChange(val,item)}">
                     <van-field
                         :value="item.value"
                         title-width="110px"
@@ -44,7 +45,7 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='F'">
-                <picker class="picker" mode="multiSelector" :value="item.multiIndex" @change="((val)=>{bindMultiPickerChange(val,item)})"
+                <picker :disabled="item.readonly" class="picker" mode="multiSelector" :value="item.multiIndex" @change="((val)=>{bindMultiPickerChange(val,item)})"
                     :range="newMultiArrayList">
                     <van-field
                         :value="item.value"
@@ -60,7 +61,7 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='Year'">
-                <picker mode="date" :value="item.value" fields="year"  @change="((e)=>{bindYear(e,item)})">
+                <picker :disabled="item.readonly" mode="date" :value="item.value" fields="year"  @change="((e)=>{bindYear(e,item)})">
                     <van-field
                         :value="item.value"
                         input-class="inp"
@@ -75,7 +76,7 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='Month'">
-                <picker mode="date" :value="item.value" fields="month"  @change="((e)=>{bindYMonth(e,item)})">
+                <picker :disabled="item.readonly" mode="date" :value="item.value" fields="month"  @change="((e)=>{bindYMonth(e,item)})">
                     <van-field
                         :value="item.value"
                         input-class="inp"
@@ -91,7 +92,7 @@
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='G'">
                 <div class="checkWrap">
-                    <van-checkbox-group :value="item.result" @change="((e)=>{changeCheckTag(e,item)})">
+                    <van-checkbox-group :disabled="item.readonly" :value="item.result" @change="((e)=>{changeCheckTag(e,item)})">
                         <div class="checkboxGroup">
                             <van-checkbox :name="v" v-for="(v,i) in item.value" :key="i" custom-class="check" label-class="labels"  shape="square">
                                 <p class="tag">{{v}}</p>
@@ -123,10 +124,10 @@
                     </van-cell>
                 </van-cell-group>
             </van-checkbox-group> -->
-            <van-cell-group custom-class="cell" v-if="item.type=='U'">
-                <van-cell value-class="cellValue" :title="item.label" is-link :value="item.value" @click="getOpenModal(item,index)" />
+            <van-cell-group custom-class="cell" v-if="item.type=='U'||item.type=='O'">
+                <van-cell value-class="cellValue" :title="item.label" is-link :value="item.value" @click="!item.readonly?getOpenModal(item,index):''" />
             </van-cell-group>
-            <div class="switch" v-if="item.type=='H'">
+            <div class="switch" v-if="item.type=='H'||item.type=='MC'">
                 <p>
                     {{item.label}}
                 </p>
@@ -134,9 +135,9 @@
                     <van-switch :checked="item.value" @change="(val)=>{changeSwitch(val,item)}" size="24px" />
                 </p>
             </div>
-            <div class="row" v-if="item.type=='UCS'">
-                <p class="title">*<span>{{item.label}}</span></p>
-                <textarea :v-model="item.value" @input="function(val){changeText(val,item,index)}" name="" id="" cols="30" rows="10" placeholder-class="placeholder" placeholder="请输入"></textarea>
+            <div class="row" v-if="item.type=='UCS'||item.type=='X'||item.type=='J'">
+                <p class="title"><span>{{item.label}}</span></p>
+                <textarea :disabled="item.readonly" :v-model="item.value" @input="function(val){changeText(val,item,index)}" name="" id="" cols="30" rows="10" placeholder-class="placeholder" placeholder="请输入"></textarea>
             </div>
             <div class="parentWrap" v-if="item.type=='RelatedList'">
                 <h3>{{item.label}}</h3>
@@ -168,7 +169,7 @@
                             </picker>
                     </van-cell-group> -->
                     <van-cell-group custom-class="cell" v-if="v.type=='D'">
-                        <picker mode="date" :value="v.value" @change="function(val){bindDateChange(val,v)}">
+                        <picker :disabled="item.readonly" mode="date" :value="v.value" @change="function(val){bindDateChange(val,v)}">
                             <van-field
                                 :value="v.value"
                                 title-width="110px"
@@ -184,11 +185,11 @@
                         </picker>
                     </van-cell-group>
                     <van-cell-group custom-class="cell" v-if="v.type=='O'">
-                        <van-cell value-class="cellValue" :title="v.label" is-link :value="v.value" @click="getOpenModal(v,i)" />
+                        <van-cell value-class="cellValue" :title="v.label" is-link :value="v.value" @click="!item.readonly?getOpenModal(v,i):''" />
                     </van-cell-group>
                     <div class="row" v-if="v.type=='UC'">
                         <p class="title">*<span>{{v.label}}</span></p>
-                        <textarea v-model="v.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="v.helpText"></textarea>
+                        <textarea :disabled="item.readonly" v-model="v.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="v.helpText"></textarea>
                     </div>
                 </div>
             </div>
@@ -255,17 +256,20 @@
             <div class="agreeWrap">
                 <div class="header">
                     <div>
-                        <p class="radius">{{fullName}}</p>
+                        <p class="radius">{{createdByName}}</p>
                     </div>
                     <div>
-                        <h3>{{fullName}}提交的流程申请表</h3>
-                        <p><span>标题：</span>生物医学研究伦理审查审批表</p>
+                        <h3>{{createdByName}}提交的流程申请表</h3>
+                        <p><span>标题：</span>{{processIdName}}</p>
                     </div>
                 </div>  
                 <div class="cont">
                     <div v-for="(item,index) in testLists" :key="index">
                         <h3>
-                            <van-checkbox :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item)}">{{item.ToActivityName}}</van-checkbox>
+                            <!-- <van-checkbox :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item)}">{{item.ToActivityName}}</van-checkbox> -->
+                            <van-checkbox  custom-class="checkbox" :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item,index)}">
+                                {{item.ToActivityName}}
+                            </van-checkbox>
                         </h3>
                         <div class="box">
                             <div class="row" v-for="(v,i) in item.ParticipantMember" :key="i">
@@ -294,7 +298,7 @@
                             </p>
                         </div>
                         <div class="text">
-                            流程事务:[ 05 绍兴第二医院医共体分院招标关于采购事项的审批单 信息中心 崔曼 ]，请您查阅！
+                            流程事务:{{processIdName}}，请您查阅！
                         </div>
                     </div>  
                     <div class="textarea">
@@ -353,7 +357,10 @@ export default {
                 },
             },
             testLists:[],
-            fromActivityId:""
+            fromActivityId:"",
+            createdByName:"",
+            processIdName:"",
+            SplitType:""
         }
     },
     computed:{
@@ -363,9 +370,9 @@ export default {
         newMultiArrayList(){
             return newMultiArray();
         },
-        ToActivityId(){
-            return wx.getStorageSync('ToActivityId');
-        },
+        // ToActivityId(){
+        //     return wx.getStorageSync('ToActivityId');
+        // },
         ...mapState({
             selectListName:state=>{
                 console.log(state.mailList.selectListName);
@@ -374,20 +381,23 @@ export default {
         }),
         processList(){
             let temp = [];
-            let index = this.testLists.findIndex(v=>v.ToActivityId===this.ToActivityId);
+            // console.log(this.testLists,this.ToActivityId,'testListstestLists')
+            let ToActivityId = wx.getStorageSync('ToActivityId');
+            let index = this.testLists.findIndex(v=>v.ToActivityId===ToActivityId);
             if(this.selectListName!=''){
                 this.selectListName.forEach(item=>{
-                    console.log(this.testLists[index],this.ToActivityId,'this.testLists[this.ToActivityId]');
+                    // console.log(this.testLists[index],this.ToActivityId,'this.testLists[this.ToActivityId]');
                     this.testLists[index].ParticipantMember.push({
                         UserId:item.id,
                         FullName:item.FullName,
                         Selected:true,
                         BusinessUnitIdName:item.DeptName
                     })
+                    this.testLists[index].Selected = true;
                 })
             }
             temp = this.testLists;
-            console.log(temp,'temptemp')
+            // console.log(temp,'temptemp')
             return temp;
         }
         // filterObj(){
@@ -405,6 +415,7 @@ export default {
     },
     onLoad(options){
         Object.assign(this.$data,this.$options.data());
+        this.getClear([]);
         // this.testLists = testList.listData;
         console.log(mockData,dataList,testList,'mockData');
         console.log(serachList,'serachList');
@@ -418,10 +429,13 @@ export default {
         console.log(list,'123');
         this.params.processId = options.ProcessId;
         this.params.parentRecord.id = options.ProcessInstanceId;
+        this.createdByName = wx.getStorageSync('fullName');
+        this.processIdName = options.name;
         // this.list = list.listData;
         // this.getLayoutQuery();
-        this.getQueryFrom();
+        // this.getQueryFrom();
         this.getLayoutData();
+        wx.removeStorageSync('ToActivityId');
         // this.list = mockData;
         // this.currenData = dataList.actions[0].returnValue.masterRecord.picklistValuesMap;
         // this.record = dataList.actions[0].returnValue.masterRecord.record;
@@ -461,7 +475,7 @@ export default {
                 data:{
                     method:this.$api.approval.mobileform,
                     SessionKey:this.sessionkey,
-                    ProcessId:this.ProcessId
+                    ProcessId:this.ProcessId,
                 }
             }).then(res=>{
                 console.log(res);
@@ -497,13 +511,39 @@ export default {
                     method:this.$api.approval.layoutData,
                     SessionKey:this.sessionkey,
                     processId:this.ProcessId,
-                    ProcessInstanceId:"08034d4f-914e-48c1-9f55-d97bc01e21c8",
+                    ProcessInstanceId:this.ProcessInstanceId,
                     RuleLogId:this.RuleLogId
                 }
             }).then(res=>{
-                console.log(res);
+                this.list = res.actions[0].returnValue.fields;
                 this.currenData = res.actions[0].returnValue.masterRecord.picklistValuesMap;
                 this.record = res.actions[0].returnValue.masterRecord.record;
+                this.list.forEach(item=>{
+                    this.$set(item,'value','');
+                    this.$set(item,'index','');
+                    if(item.type=='F'){
+                        let multiIndex = this.getIndex(currentTime());
+                        item.multiIndex = multiIndex;
+                    }
+                    if(!item.readonly){
+                        var obj = item.id;
+                        // console.log(obj,this.record[obj],' this.record[item.type]')
+                        if(this.record[obj] instanceof Object){
+                            item.value = this.record[obj].Name;
+                            this.params.parentRecord.fields[item.id] = {Id:this.record[obj].Id};
+                        }
+                        // if(obj=='UserId'){
+                        //     item.value = this.record[obj].Name;
+                        //     this.params.parentRecord.fields[item.id] = {Id:this.record[obj].Id};
+                        // }else if(obj=='DeptId'){
+                        //     item.value = this.record[obj].Name;
+                        //     this.params.parentRecord.fields[item.id] = {Id:this.record[obj].Id};
+                        // }
+                        else {
+                            item.value = this.record[obj];
+                        }
+                    }
+                })
             })
         },
         getIndex(startTime){
@@ -583,7 +623,7 @@ export default {
             this.record[this.searchId] = item;
             this.isShow = false;
             this.list[this.searchIdx].value = item.Name;
-            this.params.parentRecord.fields[this.searchId] = item.ID;
+            this.params.parentRecord.fields[this.searchId] = {Id:item.ID};
         },
         changeSwitch(e,item){
             console.log(e,item);
@@ -644,7 +684,7 @@ export default {
                     if(index+1==idx){
                         let isBook = true;
                     }
-                    if(item.value==''){
+                    if(item.value=='' && item.readonly==false){
                         wx.showToast({
                             title:`请输入${item.label}`,
                             icon:"success",
@@ -705,7 +745,7 @@ export default {
                     
                     const tempFilePaths = res.tempFilePaths;
                     that.imgList = tempFilePaths;
-                    let url = `${that.$api.upload.url}?method=${that.$api.approval.upload}&SessionKey=${that.sessionkey}&pid=${that.ProcessId}&objTypeCode=${'122'}`
+                    let url = `${that.$api.upload.url}?method=${that.$api.approval.upload}&SessionKey=${that.sessionkey}&pid=${that.ProcessInstanceId}&objTypeCode=${'122'}`
                     wx.uploadFile({
                         url:url,
                         // url: "https://oa.zgchospital.com/rest?method="+'flow.files.upload'+'&SessionKey=' + that.sessionkey+'&pid='+that.ProcessId+'&objTypeCode='+'122',
@@ -735,19 +775,31 @@ export default {
                 console.log(res);
                 this.testLists = res.transitions;
                 this.fromActivityId = res.fromActivityId;
+                this.SplitType = res.SplitType;
             })
         },
         changeAll(e,item){
-            console.log(e,item);
             item.Selected = e.mp.detail;
-            item.ParticipantMember.forEach(v=>{
-                v.Selected = item.Selected;
-            })
+            // item.ParticipantMember.forEach(v=>{
+            //     v.Selected = item.Selected;
+            // })
+            if (!item.Selected) {
+                item.ParticipantMember.forEach(v=>{
+                    v.Selected = false;
+                })
+                if (this.SplitType == 'or') {
+                    if (item.Selected) {
+                        item.ParticipantMember.forEach((v, idx) => {
+                            if (idx != index) {
+                                v.Selected = false;
+                            }
+                        })
+                    }
+                }
+            }
         },
         changeItem(e,item,v){
-            console.log(e);
             v.Selected = e.mp.detail;
-            console.log(item,'-------------')
             console.log(item.ParticipantMember.every(one=>one.Selected==true))
             for(let i=0;i<item.ParticipantMember.length;i++){
                 if(item.ParticipantMember[i].Selected){
@@ -768,61 +820,74 @@ export default {
             this.agreeShow = false;
         },
         getSubmitStep(){
-            for(let k=0;k<this.testLists.length;k++){
-                if(this.testLists[k].Selected){
-                    break;
-                }else {
-                    console.log('23123123')
-                    wx.showToast({
-                        title:"请添加办理人员",
-                        icon:"none",
-                        duration:2000
-                    })
-                    return false;
-                }
-            }
-            const data = {
-                actions:[]
-            };
             let temp = [];
-            for(let i=0;i<this.testLists.length;i++){
-                for(let j=0; j<this.testLists[i].ParticipantMember.length;j++){
-                    if(this.testLists[i].ParticipantMember[j].Selected){
-                        temp.push(this.testLists[i].ParticipantMember[j].UserId);
+            let isBook = this.testLists.some(d=>d.Selected);
+            if(isBook){
+                this.testLists.forEach((item,index)=>{
+                    if(item.Selected){
+                        temp.push({
+                            toActivityId:item.ToActivityId,
+                            transitionId:item.TransitionId,
+                            participators:[]
+                        })
+                        let is = item.ParticipantMember.some(c=>c.Selected);
+                        if(is){
+                            for(let i=0; i<item.ParticipantMember.length;i++){
+                                if(item.ParticipantMember[i].Selected){
+                                    temp[temp.length-1].participators.push(item.ParticipantMember[i].UserId);
+                                }
+                            }
+                        }else {
+                            wx.showToast({
+                                title:"人员不能为空",
+                                icon:'none',
+                                duration:2000
+                            })
+                            throw Error('error');
+                        }
+                    }
+                })
+                for(let i=0;i<temp.length;i++){
+                    if(temp[i].participators==''){
+                        temp.splice(i,1)
                     }
                 }
+                let obj = {
+                    actions:[
+                        {
+                            params:{
+                                processId:this.processId,
+                                name:this.title,
+                                processInstanceId:this.ProcessInstanceId,
+                                ruleLogId:this.RuleLogId,
+                                fromActivityId:this.fromActivityId,
+                                description:this.description,
+                                transitions:temp
+                            }
+                        }
+                    ]
+                }
+                this.$httpWX.post({
+                        url:this.$api.message.queryList+'?method='+this.$api.approval.accept,
+                        data:{
+                            SessionKey:this.sessionkey,
+                            message:JSON.stringify(obj)
+                        }
+                    }).then(res=>{
+                        console.log(res);
+                        wx.navigateBack({
+                            delta:2
+                        })
+                    })
+            }else {
+                wx.showToast({
+                        title:"人员不能为空",
+                        icon:'none',
+                        duration:2000
+                    })
             }
-            let transitions = this.testLists.map(item=>({
-                toActivityId: item.ToActivityId,
-                transitionId: item.TransitionId,
-                participators: temp
-            }))
-            console.log(transitions,'transitions')
-            data.actions.push({
-                params:{
-                    processId: this.processId,
-                    name: this.title,
-                    processInstanceId: this.ProcessInstanceId,
-                    ruleLogId: this.RuleLogId,
-                    fromActivityId: this.fromActivityId,
-                    description: this.description,
-                    transitions: transitions
-                }
-            });
-            console.log(data,'data');
-            this.$httpWX.post({
-                url:this.$api.message.queryList+'?method='+this.$api.approval.accept,
-                data:{
-                    // method:this.$api.approval.accept,
-                    SessionKey:this.sessionkey,
-                    message:JSON.stringify(data)
-                }
-            }).then(res=>{
-                console.log(res);
-                wx.navigateBack({
-                    delta:2
-                })
-            })
+
+            
         }
     }
 }

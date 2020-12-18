@@ -64,7 +64,7 @@
             <div class="content" v-if="!isBlock||isBlock&&childShow==0" v-for="(item,index) in list" :key="index" @click="getDetail(item)">
                 <div class="row">
                     <div class="lBox">
-                        <p>{{item.createdByName}}</p>
+                        <p>{{item.newName}}</p>
                     </div>
                     <div class="rBox">
                         <div class="title">
@@ -213,9 +213,12 @@ export default {
                 this.list = result;
                 // this.list = res.listData;
                 this.list.forEach(item=>{
+                    const name = item.createdByName.length>2?item.createdByName.substr(1):item.createdByName;
+                    item.newName = name;
                     let className = item.stateCode==1?'approvalIng':item.stateCode==3?'tag':item.stateCode==5?'error':item.stateCode==4?'revoke'
                     :item.stateCode==0?'draft':item.stateCode==2?'挂起':'';
                     this.$set(item,'className',className);
+                    return item;
                 })
             })
         },
@@ -228,7 +231,7 @@ export default {
                 sign = 'btnOff'
             }
             this.updateInstanceId(item.instanceId);
-            const url = '/pages/todoBusiness/detail/main?processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&sign='+sign+'&RuleLogId='+item.id;
+            const url = '/pages/todoBusiness/detail/main?processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&sign='+sign+'&RuleLogId='+item.id+'&createdByName='+item.createdByName+'&processIdName='+item.processIdName;
             wx.navigateTo({
                 url:url
             })
@@ -264,6 +267,11 @@ export default {
                     result = this.listData.concat(res.listData);
                 }
                 this.list = result;
+                this.list.map(item=>{
+                    const name = item.createdByName.length>2?item.createdByName.substr(1):item.createdByName;
+                    item.newName = name;
+                    return item;
+                })
             })
         },
         handleChange(e){

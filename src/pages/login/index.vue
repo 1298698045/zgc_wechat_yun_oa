@@ -177,6 +177,7 @@ export default {
                 wx.setStorageSync('organizationName',res.organizationName);
                 wx.setStorageSync('fullName',res.fullName);
                 wx.setStorageSync('userId',res.userId);
+                wx.setStorageSync('businessUnitName',res.businessUnitName)
                 this.openid = res.openid;
                 this.sessionkey = res.sessionkey;
                 this.userId = res.userId;
@@ -186,7 +187,7 @@ export default {
                 this.updateUserId(res.userId);
                 this.updateFullName(res.fullName);
                 if(res.status*1===1){
-                    const url = '/pages/messages/main';
+                    const url = '/pages/work/main';
                     wx.switchTab({url:url});
                 }else {
                     wx.showToast({

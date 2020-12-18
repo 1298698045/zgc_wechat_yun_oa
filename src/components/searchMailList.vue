@@ -21,7 +21,7 @@
                             <div class="contRow" :style="{'width':width+'px'}">
                                 <div class="l">
                                     <p>
-                                        {{item.FullName}}
+                                        {{item.newName}}
                                     </p>
                                 </div>
                                 <div class="r">
@@ -148,10 +148,13 @@ export default {
                 if(this.searchValue!=''){
                     const Reg = new RegExp(this.searchValue, 'i');
                     this.list.map(item=>{
+                        const name = item.FullName.length>2?item.FullName.substr(1):item.FullName;
+                        item.newName = name;
                         const v = item.FullName.replace(Reg, `<span style="color: #3399ff;">${this.searchValue}</span>`);
                         this.$nextTick(()=>{
                             
                         })
+                        return item;
                     })
                 }
             })

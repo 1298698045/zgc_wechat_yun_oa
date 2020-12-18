@@ -1,110 +1,144 @@
 <template>
   <div class="wrap">
-    <picker @change="pickerLeave" :value="leaveIdx" range-key="name" :range="leaveList">
-      <div class="rowWrap">
-        <p class="label">
-          请假类型
-          <span>*</span>
-        </p>
-        <p class="name">
-          <span
-            :class="leaveList[leaveIdx]?'active':''"
-          >{{leaveList[leaveIdx]?leaveList[leaveIdx].name:'请选择'}}</span>
-          <i-icon type="enter" color="#cccccc" />
-        </p>
-      </div>
-    </picker>
-    <h3>假期余额</h3>
-    <div class="content">
-      <picker
-        @change="pickerStartTime"
-        mode="multiSelector"
-        :value="multiIndex"
-        :range="newMultiArray"
-      >
-        <div class="row">
-          <p class="label">
-            开始时间
+    <div class="navTabs">
+      <van-tabs :active="current" color="#3399ff" @change="onChange">
+        <van-tab title="发起提交"></van-tab>
+        <van-tab title="查看数据"></van-tab>
+      </van-tabs>
+    </div>
+    <div class="container" v-if="current==0">
+        <picker @change="pickerLeave" :value="leaveIdx" range-key="label" :range="leaveList">
+          <div class="rowWrap">
+            <p class="label">
+              请假类型
+              <span>*</span>
+            </p>
+            <p class="name">
+              <span
+                :class="leaveList[leaveIdx]?'active':''"
+              >{{leaveList[leaveIdx]?leaveList[leaveIdx].label:'请选择'}}</span>
+              <i-icon type="enter" color="#cccccc" />
+            </p>
+          </div>
+        </picker>
+        <h3>假期余额</h3>
+        <div class="content">
+          <picker
+            @change="pickerStartTime"
+            mode="multiSelector"
+            :value="multiIndex"
+            :range="newMultiArray"
+          >
+            <div class="row">
+              <p class="label">
+                开始时间
+                <span>*</span>
+              </p>
+              <p class="name">
+                <span style="color:#333">{{startTime}}</span>
+                <i-icon type="enter" color="#cccccc" />
+              </p>
+            </div>
+          </picker>
+          <picker
+            @change="pickerEndTime"
+            mode="multiSelector"
+            :value="endMultiIndex"
+            :range="newMultiArray"
+          >
+            <div class="row">
+              <p class="label">
+                结束时间
+                <span>*</span>
+              </p>
+              <p class="name">
+                <span style="color:#333">{{endTime}}</span>
+                <i-icon type="enter" color="#cccccc" />
+              </p>
+            </div>
+          </picker>
+          <div class="row">
+            <p class="label">
+              时长(天)
+              <span>*</span>
+            </p>
+            <p class="name">
+              <input
+                v-model="LeaveDuration"
+                type="text"
+                placeholder-style="text-align:right;color: #ababab;"
+                selection-end="-1"
+                placeholder="请输入时长"
+              />
+            </p>
+          </div>
+          <div class="rowBottom">
+            <p>
+              根据排班自动计算时长
+              <span>查看明细</span>
+            </p>
+          </div>
+        </div>
+        <div class="leaveComment">
+          <p>
+            请假事由
             <span>*</span>
           </p>
-          <p class="name">
-            <span>{{startTime}}</span>
-            <i-icon type="enter" color="#cccccc" />
-          </p>
+          <div class="box">
+            <textarea v-model="Description" name id cols="30" rows="10"></textarea>
+          </div>
         </div>
-      </picker>
-      <picker
-        @change="pickerEndTime"
-        mode="multiSelector"
-        :value="endMultiIndex"
-        :range="newMultiArray"
-      >
-        <div class="row">
-          <p class="label">
-            结束时间
-            <span>*</span>
-          </p>
-          <p class="name">
-            <span>{{endTime}}</span>
-            <i-icon type="enter" color="#cccccc" />
-          </p>
+        <div class="imgContent">
+          <div class="head" @click="handleSelPhoto">
+            <p>图片</p>
+            <p>
+              <i class="iconfont icon-tupian"></i>
+            </p>
+          </div>
+          <div class="cont" v-if="imgList!=''">
+            <p class="imgWrap" v-for="(item,index) in imgList" :key="index">
+              <img :src="item" alt />
+              <span class="close" @click="getCloseImg(index)">
+                <i-icon type="close" color="#fff" size="12" />
+              </span>
+            </p>
+          </div>
         </div>
-      </picker>
-      <div class="row">
-        <p class="label">
-          时长(天)
-          <span>*</span>
-        </p>
-        <p class="name">
-          <input
-            type="text"
-            placeholder-style="text-align:right;color: #ababab;"
-            selection-end="-1"
-            placeholder="请输入时长"
-          />
-        </p>
-      </div>
-      <div class="rowBottom">
-        <p>
-          根据排班自动计算时长
-          <span>查看明细</span>
-        </p>
-      </div>
+        <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
+            <div class="btn">
+                <van-button type="info" block @click="getSave">提交</van-button>
+            </div>
+        </div>
     </div>
-    <div class="leaveComment">
-      <p>
-        请假事由
-        <span>*</span>
-      </p>
-      <div class="box">
-        <textarea name id cols="30" rows="10"></textarea>
+    <!-- 查看数据 -->
+    <div class="dataWrap" v-if="current==1">
+      <div class="search">
+        <van-search :value="value" placeholder="搜索标题、编号、正文内容" />
       </div>
-    </div>
-    <div class="imgContent">
-      <div class="head" @click="handleSelPhoto">
-        <p>图片</p>
-        <p>
-          <i class="iconfont icon-tupian"></i>
-        </p>
-      </div>
-      <div class="cont" v-if="imgList!=''">
-        <p class="imgWrap" v-for="(item,index) in imgList" :key="index">
-          <img :src="item" alt />
-          <span class="close" @click="getCloseImg(index)">
-            <i-icon type="close" color="#fff" size="12" />
-          </span>
-        </p>
+      <div class="contentList">
+        <div class="box_wrap">
+          <div class="row">
+            <p class="title">XX提交的请假</p>
+            <div class="time">2020-10-10</div>
+          </div>
+          <p class="desc">请假类型：年假</p>
+          <p class="desc">开始时间：2002-10-10 上午</p>
+          <p class="desc">结束时间：2002-10-10 下午</p>
+          <div class="tagFot">
+            <p class="tag">
+              <span>测试</span>
+              由XX提交
+            </p>
+            <p class="status">XXX处理中</p>
+          </div>
+        </div>
       </div>
     </div>
     <!-- 审批人 -->
     <div class="approved">
       
     </div>
-    <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
-        <div class="btn">
-            <van-button type="info" block @click="getSubmit">提交</van-button>
-        </div>
-    </div>
+    
     <van-popup
             :show="agreeShow"
             position="bottom"
@@ -164,11 +198,11 @@
                         <textarea v-model="description" name="" placeholder="请输入内容" id="" cols="30" rows="10"></textarea>
                     </div>
                 </div>
-                <div class="fot" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
+                <div class="fot" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}" style="z-Index:9999">
                     <div class="box">
                         <p @click="onCloseAgree">取消</p>  
                         <!-- <p>上一环节</p> -->
-                        <p @click="getSubmit">提交</p>  
+                        <p @click="getSubmitStep">提交</p>  
                     </div>
                 </div> 
             </div>
@@ -177,60 +211,16 @@
 </template>
 <script>
 import { getTotal } from '@/utils/iDays';
+import {mapState} from 'vuex';
 export default {
   data() {
     return {
       leaveIdx: "",
-      leaveList: [
-        {
-          id: "",
-          name: "年假"
-        },
-        {
-          id: "",
-          name: "事假"
-        },
-        {
-          id: "",
-          name: "病假"
-        },
-        {
-          id: "",
-          name: "调休"
-        },
-        {
-          id: "",
-          name: "产假/公休"
-        },
-        {
-          id: "",
-          name: "陪产假"
-        },
-        {
-          id: "",
-          name: "婚假"
-        },
-        {
-          id: "",
-          name: "工伤假"
-        },
-        {
-          id: "",
-          name: "丧假"
-        },
-        {
-          id: "",
-          name: "哺乳假"
-        },
-        {
-          id: "",
-          name: "计生假"
-        },
-        {
-          id: "",
-          name: "探亲假"
-        }
-      ],
+      leaveList:[{label:"事假",value:"1"},{label:"病假",value:"2"},{label:"产假",value:"3"},
+      {label:"婚假",value:"4"},{label:"探亲假",value:"5"},{label:"年假",value:"6"},
+      {label:"公伤假",value:"7"},{label:"丧假",value:"8"},{label:"人流假",value:"13"},
+      {label:"补休",value:"17"},{label:"计生假",value:"18"},{label:"本地外出",value:"27"},
+      {label:"外地出差",value:"28"}],
       multiIndex: [0, 0, 0, 0, 0],
       endMultiIndex: [0, 0, 0, 0, 0],
       startTime: "",
@@ -238,10 +228,18 @@ export default {
       imgList: [],
       agreeShow:false,
       stepList:[],
-      createdByName:"测试"
+      createdByName:"测试",
+      ProcessId:"2442350c-257f-446d-9a44-28a31bfb6ccb",
+      current:0,
+      ProcessInstanceId:'',
+      leaveType:'', // 请假类型
+      RuleLogId:''
     };
   },
   computed: {
+    sessionkey(){
+      return wx.getStorageSync('sessionkey');
+    },
     newMultiArray: () => {
       let array = [];
       const date = new Date();
@@ -326,12 +324,235 @@ export default {
       let min = date.getMinutes();
       let s = date.getSeconds();
       return `${y}-${m}-${day} ${h}:${min}:${s}`;
+    },
+    ToActivityId(){
+        return wx.getStorageSync('ToActivityId');
+    },
+    ...mapState({
+        selectListName:state=>{
+            return state.mailList.selectListName;
+        }
+    }),
+    processList(){
+        let temp = [];
+        console.log(this.ToActivityId,'stepList')
+        let index = this.stepList.findIndex(v=>v.ToActivityId===this.ToActivityId);
+        console.log(index,'index,index')
+        if(this.selectListName!=''){
+            this.selectListName.forEach(item=>{
+                console.log(this.stepList[index],this.ToActivityId,'this.testLists[this.ToActivityId]');
+                this.stepList[index].ParticipantMember.push({
+                    UserId:item.id,
+                    FullName:item.FullName,
+                    Selected:true,
+                    BusinessUnitIdName:item.DeptName
+                })
+            })
+        }
+        temp = this.stepList;
+        console.log(temp,'temptemp')
+        return temp;
     }
+  },
+  watch:{
+    ToActivityId:{
+      deep: true,
+      handler: function(newVal, oldVal) {
+        this.$nextTick(() => {
+          this.ToActivityId = newVal;
+        });
+      }
+    },
   },
   onLoad(){
     this.getCurrent();
+    this.queryLeave();
   },
   methods: {
+    queryLeave(){
+      this.$httpWX.get({
+        url:this.$api.message.queryList,
+        data:{
+          SessionKey:this.sessionkey,
+          method:this.$api.public.leaveQuery,
+          objectTypeCode:30022,
+          name:"LeaveType"
+        }
+      }).then(res=>{
+        this.leaveList = res;
+      })
+    },
+    onChange(e){
+      this.current = e.mp.detail.index;
+    },
+    // 创建实例
+    async getCreateExample(){
+      let dataParams = {
+          params:{
+              recordRep:{
+                  fields:{
+                      ProcessId:this.ProcessId,
+                      Name:'请假审批单'+wx.getStorageSync('businessUnitName') + ' ' + wx.getStorageSync('fullName'),
+                      Deadline:1,
+                      Priority:0
+                  }
+              }
+          }
+      }
+      const ret = await this.$httpWX.post({
+          url:this.$api.message.queryList+'?method='+this.$api.approval.create,
+          method:this.$api.approval.create,
+          data:{
+              SessionKey:this.sessionkey,
+              message:JSON.stringify(dataParams)
+          }
+      }).then(res=>{
+          if(res.actions[0].state=='SUCCESS'){
+              this.ProcessInstanceId = res.actions[0].returnValue.ProcessInstanceId;
+              this.RuleLogId = res.actions[0].returnValue.RuleLogId;
+          }
+      })
+      return ret;
+    },
+    // 保存表单
+    getSave(){
+      if(this.leaveType==''){
+        wx.showToast({
+          title:"请假类型不能为空",
+          icon:"none",
+          duration:2000
+        })
+      }else if(this.startTime==''){
+        wx.showToast({
+          title:"开始时间不能为空",
+          icon:"none",
+          duration:2000
+        })
+      }else if(this.endTime==''){
+        wx.showToast({
+          title:"结束时间不能为空",
+          icon:"none",
+          duration:2000
+        })
+      }else if(this.LeaveDuration==''){
+        wx.showToast({
+          title:"时长不能为空",
+          icon:"none",
+          duration:2000
+        })
+      }else if(this.Description==''){
+        wx.showToast({
+          title:"请假事由不能为空",
+          icon:"none",
+          duration:2000
+        })
+      }else {
+        this.getCreateExample().then(res=>{
+          let obj = {
+            actions:[
+              {
+                params:{
+                  processId:this.processId,
+                  parentRecord:{
+                    id:this.ProcessInstanceId,
+                    objTypeCode:30022,
+                    fields:{
+                      LeaveType:this.leaveType,
+                      StartTime:this.startTime,
+                      EndTime:this.endTime,
+                      LeaveDuration:this.LeaveDuration,
+                      Description:this.Description,
+                      // Location:""
+                    }
+                  }
+                }
+              }
+            ]
+          }
+          this.$httpWX.post({
+              url:this.$api.message.queryList+'?method='+this.$api.approval.saverecord,
+              data:{
+                  SessionKey:this.sessionkey,
+                  message:JSON.stringify(obj)
+              }
+          }).then(res=>{
+            this.agreeShow = true;
+            this.getStepQuery();
+          })
+        })
+      }
+    },
+    getStepQuery(){
+        this.$httpWX.get({
+            url:this.$api.message.queryList,
+            data:{
+                method:this.$api.approval.stepList,
+                SessionKey:this.sessionkey,
+                RuleLogId:this.RuleLogId,
+                ProcessInstanceId:this.ProcessInstanceId
+            }
+        }).then(res=>{
+            this.stepList = res.transitions;
+        })
+    },
+    getSubmitStep(){
+        for(let k=0;k<this.stepList.length;k++){
+            if(this.stepList[k].Selected){
+                break;
+            }else {
+                wx.showToast({
+                    title:"请添加办理人员",
+                    icon:"none",
+                    duration:2000
+                })
+                return false;
+            }
+        }
+        const data = {
+            actions:[]
+        };
+        let temp = [];
+        for(let i=0;i<this.stepList.length;i++){
+            for(let j=0; j<this.stepList[i].ParticipantMember.length;j++){
+                if(this.stepList[i].ParticipantMember[j].Selected){
+                    temp.push(this.stepList[i].ParticipantMember[j].UserId);
+                }
+            }
+        }
+        let transitions = this.stepList.map(item=>({
+            toActivityId: item.ToActivityId,
+            transitionId: item.TransitionId,
+            participators: temp
+        }))
+        console.log(transitions,'transitions')
+        data.actions.push({
+            params:{
+                processId: this.processId,
+                name: '',
+                processInstanceId: this.ProcessInstanceId,
+                ruleLogId: this.RuleLogId,
+                fromActivityId: this.fromActivityId,
+                description: this.Description,
+                transitions: transitions
+            }
+        });
+        console.log(data,'data');
+        this.$httpWX.post({
+            url:this.$api.message.queryList+'?method='+this.$api.approval.accept,
+            data:{
+                // method:this.$api.approval.accept,
+                SessionKey:this.sessionkey,
+                message:JSON.stringify(data)
+            }
+        }).then(res=>{
+            this.agreeShow = false;
+        })
+    },
+    getAddPeople(item){
+        wx.setStorageSync('ToActivityId',item.ToActivityId)
+        const url = '/pages/publics/mailList/main?sign='+'process';
+        wx.navigateTo({url:url});
+    },
     getCurrent(){
         let date = new Date(this.time.replace(/-/g,'/'));
         let years = date.getFullYear();
@@ -359,6 +580,7 @@ export default {
     },
     pickerLeave(e) {
       this.leaveIdx = e.mp.detail.value;
+      this.leaveType = this.leaveList[this.leaveIdx].value;
     },
     pickerStartTime(e) {
       this.multiIndex = e.target.value;
@@ -393,6 +615,7 @@ export default {
           excludeDates: []
         });
       console.log(iDays,'iDays');
+      // this.LeaveDuration = iDays;
     },
     // 正则去除汉字
     RemoveChinese(strValue) {
@@ -476,6 +699,9 @@ export default {
 @import "../../../../static/css/public.scss";
 @import "../../../../static/css/icon.css";
 .wrap {
+  .navTabs{
+    border-bottom: 1rpx solid #e2e3e5;
+  }
   .rowWrap {
     display: flex;
     justify-content: space-between;
@@ -791,6 +1017,61 @@ export default {
     background: #fff;
     .btn {
       padding: 20rpx;
+    }
+  }
+  .dataWrap{
+    .contentList{
+      padding: 0 20rpx;
+      .box_wrap{
+        width: 100%;
+        height: auto;
+        background: #fff;
+        box-shadow: 0 2rpx 6rpx 0 rgba(0,0,0,.06);
+        margin-top: 20rpx;
+        padding: 25rpx 20rpx;
+        border-radius: 10rpx;
+        .row{
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-bottom: 15rpx;
+          .title{
+
+          }
+          .time{
+            font-size: 20rpx;
+            color: #ababab;
+          }
+        }
+        .desc{
+          font-size: 24rpx;
+          color: #ababab;
+        }
+        .tagFot{
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-top: 15rpx;
+          .tag{
+            display: flex;
+            align-items: center;
+            span{
+              display: inline-block;
+              width: 40rpx;
+              height: 40rpx;
+              line-height: 40rpx;
+              text-align: center;
+              background: #3399ff;
+              color: #fff;
+              font-size: 14rpx;
+              margin-right: 10rpx;
+            }
+          }
+          .status{
+            color: #f09951;
+          }
+        }
+      }
     }
   }
 }

@@ -13,7 +13,7 @@
             <p>查看TA的历史记录</p>
             <p><i-icon type="enter" size="20" color="#cccccc" /></p>
         </div> -->
-        <FormList v-if="current=='tab1'" :ProcessId="processId" :ProcessInstanceId="processInstanceId" :RuleLogId="RuleLogId" />
+        <FormList ref="refChild" v-if="current=='tab1'" :ProcessId="processId" :ProcessInstanceId="processInstanceId" :RuleLogId="RuleLogId" />
         <!-- 表单 -->
         <!-- <div class="center margin padding"  v-if="current=='tab1'">
            <div class="steps">
@@ -164,6 +164,7 @@
         <van-popup
             :show="agreeShow"
             position="bottom"
+            z-index="9999"
             custom-style="width:100%;height: auto;"
             @close="onCloseAgree"
             overlay-style="background: #333;opacity: .5;">
@@ -174,7 +175,7 @@
                     </div>
                     <div>
                         <h3>{{createdByName}}提交的流程申请表</h3>
-                        <p><span>标题：</span>生物医学研究伦理审查审批表</p>
+                        <p><span>标题：</span>{{processIdName}}</p>
                     </div>
                 </div>  
                 <div class="cont">
@@ -215,7 +216,8 @@
                             </p>
                         </div>
                         <div class="text">
-                            流程事务:[ 05 绍兴第二医院医共体分院招标关于采购事项的审批单 信息中心 崔曼 ]，请您查阅！
+                            流程事务: {{processIdName}} ，请您查阅！
+                            <!-- [ 05 绍兴第二医院医共体分院招标关于采购事项的审批单 信息中心 崔曼 ]，请您查阅！ -->
                         </div>
                     </div>  
                     <div class="textarea">
@@ -311,7 +313,9 @@ export default {
             stateCode:'',
             statusCurrent:"",
             jurisdiction:"", // 权限
-            SplitType:''
+            SplitType:'',
+            processIdName:'',
+            isFinal:false
         }
     },
     computed:{
@@ -332,24 +336,28 @@ export default {
         // },
         processList(){
             let temp = [];
-            console.log(this.stepList,this.ToActivityId,'========')
+            // console.log(this.stepList,this.ToActivityId,'========')
             let index = this.stepList.findIndex(v=>v.ToActivityId===this.ToActivityId);
-            console.log(index,'index')
+            // console.log(index,'index')
             if(this.selectListName!=''&&!wx.getStorageSync('forward')){
                 this.selectListName.forEach(item=>{
-                    console.log(this.stepList[index],this.ToActivityId,'this.stepList[this.ToActivityId]');
+                    // console.log(this.stepList[index],this.ToActivityId,'this.stepList[this.ToActivityId]');
                     this.stepList[index].ParticipantMember.push({
                         UserId:item.id,
                         FullName:item.FullName,
                         Selected:true,
                         BusinessUnitIdName:item.DeptName
                     })
+                    this.stepList[index].Selected = true;
                 })
             }
             temp = this.stepList;
             console.log(temp,'temptemp')
             return temp;
         }
+    },
+    onUnload(){
+        this.getClear([]);
     },
     onLoad(options){
         Object.assign(this.$data,this.$options.data());
@@ -369,6 +377,7 @@ export default {
         this.sign = options.sign;
         this.RuleLogId = options.RuleLogId;
         this.createdByName = options.createdByName;
+        this.processIdName = options.processIdName;
         this.ToActivityId = options.toActivityId;
         this.fromActivityId = options.fromActivityId;
         if(options.toActivityId!=undefined){
@@ -591,8 +600,74 @@ export default {
         // 同意-提交
         getSubmit(){
             let temp = [];
-            let isBook = this.stepList.some(d=>d.Selected);
-            if(isBook){
+            if(!this.isFinal){
+                let isBook = this.stepList.some(d=>d.Selected);
+                if(isBook){
+                    this.stepList.forEach((item,index)=>{
+                        if(item.Selected){
+                            temp.push({
+                                toActivityId:item.ToActivityId,
+                                transitionId:item.TransitionId,
+                                participators:[]
+                            })
+                            let is = item.ParticipantMember.some(c=>c.Selected);
+                            if(is){
+                                for(let i=0; i<item.ParticipantMember.length;i++){
+                                    if(item.ParticipantMember[i].Selected){
+                                        temp[temp.length-1].participators.push(item.ParticipantMember[i].UserId);
+                                    }
+                                }
+                            }else {
+                                wx.showToast({
+                                    title:"人员不能为空",
+                                    icon:'none',
+                                    duration:2000
+                                })
+                                throw Error('error');
+                            }
+                        }
+                    })
+                    for(let i=0;i<temp.length;i++){
+                        if(temp[i].participators==''){
+                            temp.splice(i,1)
+                        }
+                    }
+                    let obj = {
+                        actions:[
+                            {
+                                params:{
+                                    processId:this.processId,
+                                    name:this.title,
+                                    processInstanceId:this.processInstanceId,
+                                    ruleLogId:this.RuleLogId,
+                                    fromActivityId:this.fromActivityId,
+                                    description:this.description,
+                                    transitions:temp
+                                }
+                            }
+                        ]
+                    }
+                    console.log(obj,temp,'obj');
+                    this.$httpWX.post({
+                        url:this.$api.message.queryList+'?method='+this.$api.approval.accept,
+                        data:{
+                            SessionKey:this.sessionkey,
+                            message:JSON.stringify(obj)
+                        }
+                    }).then(res=>{
+                        console.log(res);
+                        wx.navigateBack({
+                            delta:1
+                        })
+                    })
+                }else {
+                    wx.showToast({
+                        title:"人员不能为空",
+                        icon:'none',
+                        duration:2000
+                    })
+                }
+            }else {
                 this.stepList.forEach((item,index)=>{
                     if(item.Selected){
                         temp.push({
@@ -600,28 +675,8 @@ export default {
                             transitionId:item.TransitionId,
                             participators:[]
                         })
-                        let is = item.ParticipantMember.some(c=>c.Selected);
-                        if(is){
-                            for(let i=0; i<item.ParticipantMember.length;i++){
-                                if(item.ParticipantMember[i].Selected){
-                                    temp[temp.length-1].participators.push(item.ParticipantMember[i].UserId);
-                                }
-                            }
-                        }else {
-                            wx.showToast({
-                                title:"人员不能为空",
-                                icon:'none',
-                                duration:2000
-                            })
-                            throw Error('error');
-                        }
                     }
                 })
-                for(let i=0;i<temp.length;i++){
-                    if(temp[i].participators==''){
-                        temp.splice(i,1)
-                    }
-                }
                 let obj = {
                     actions:[
                         {
@@ -630,25 +685,13 @@ export default {
                                 name:this.title,
                                 processInstanceId:this.processInstanceId,
                                 ruleLogId:this.RuleLogId,
-                                fromActivityId:this.stepList[0].FromActivityId,
+                                fromActivityId:this.fromActivityId,
                                 description:this.description,
                                 transitions:temp
                             }
                         }
                     ]
                 }
-                
-            //    let array = this.stepList.map((v,idx)=>{
-            //        console.log(v,idx);
-            //        return {
-            //             toActivityId:v.ToActivityId,
-            //             transitionId:v.TransitionId,
-    
-            //             participators: v.ParticipantMember.map(item=>item.UserId)
-            //        }
-            //     })
-            //     console.log(array,'array')
-                console.log(obj,temp,'obj');
                 this.$httpWX.post({
                     url:this.$api.message.queryList+'?method='+this.$api.approval.accept,
                     data:{
@@ -660,12 +703,6 @@ export default {
                     wx.navigateBack({
                         delta:1
                     })
-                })
-            }else {
-                wx.showToast({
-                    title:"人员不能为空",
-                    icon:'none',
-                    duration:2000
                 })
             }
         },
@@ -695,7 +732,7 @@ export default {
                 data:{
                     method:"flow.instance.get",
                     SessionKey:this.sessionkey,
-                    id:this.instanceId,
+                    processInstanceId:this.processInstanceId,
                 }
             }).then(res=>{
                 console.log(res);
@@ -766,6 +803,8 @@ export default {
             this.refuseShow = false;
         },
         getAgree(){
+            // 保存表单
+            this.$refs.refChild.getSaverecord();
             // console.log(this.$refs.child.$emit);
             // this.$refs.child.$emit('childMethod','hello');
             this.agreeShow = true;
@@ -781,6 +820,8 @@ export default {
                 console.log(res);
                 this.stepList = res.transitions;
                 this.SplitType = res.SplitType;
+                this.isFinal = res.isFinal;
+                this.fromActivityId = res.fromActivityId;
             })
 
         },
@@ -1042,6 +1083,7 @@ export default {
             position: fixed;
             bottom: 0;
             background: #fff;
+            z-index: 999;
             .bottom_wrap{
                 display: flex;
                 padding: 19rpx 0rpx;

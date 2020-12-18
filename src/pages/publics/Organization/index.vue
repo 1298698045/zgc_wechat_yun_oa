@@ -11,7 +11,7 @@
                         <i-icon type="enter" size="20" color="#999999" />
                     </span>
                     <span @click="getBack" class="back" :class="{'active':isShow}">
-                        绍兴第二医院
+                        {{organizationName}}
                     </span>
                     <span class="back" :class="{'active':index+1!=sonList.length}" v-if="isShow" v-for="(item,index) in sonList" :key="index" @click="index+1!=sonList.length?getCurrentDepartment(item,index):''">
                         <i-icon type="enter" size="20" color="#999999" />
