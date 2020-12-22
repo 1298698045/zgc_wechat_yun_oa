@@ -177,7 +177,8 @@ export default {
                 wx.setStorageSync('organizationName',res.organizationName);
                 wx.setStorageSync('fullName',res.fullName);
                 wx.setStorageSync('userId',res.userId);
-                wx.setStorageSync('businessUnitName',res.businessUnitName)
+                wx.setStorageSync('businessUnitName',res.businessUnitName);
+                wx.setStorageSync('businessUnitId',res.businessUnitId);
                 this.openid = res.openid;
                 this.sessionkey = res.sessionkey;
                 this.userId = res.userId;

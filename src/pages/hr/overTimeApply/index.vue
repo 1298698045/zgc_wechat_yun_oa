@@ -9,9 +9,11 @@
         <p class="name">
           <input
             type="text"
+            :disabled="true"
             placeholder-style="text-align:right;color: #ababab;"
             selection-end="-1"
             :placeholder="'请输入申请人姓名'"
+            v-model="userName"
           />
         </p>
       </div>
@@ -23,6 +25,8 @@
         <p class="name">
           <input
             type="text"
+            :disabled="true"
+            v-model="DepName"
             placeholder-style="text-align:right;color: #ababab;"
             selection-end="-1"
             :placeholder="'请输入申请部门'"
@@ -30,7 +34,7 @@
         </p>
       </div>
       <picker
-        @change="pickerStartTime"
+        @change="pickerApplyTime"
         mode="multiSelector"
         :value="multiIndex"
         :range="newMultiArray"
@@ -41,12 +45,12 @@
             <span>*</span>
           </p>
           <p class="name">
-            <span>{{startTime}}</span>
+            <span>{{applyTime}}</span>
             <i-icon type="enter" color="#cccccc" />
           </p>
         </div>
       </picker>
-      <picker @change="pickerLeave" :value="leaveIdx" range-key="name" :range="leaveList">
+      <picker @change="pickerLeave" :value="leaveIdx" range-key="label" :range="leaveList">
         <div class="rowWrap">
           <p class="label">
             加班类型
@@ -55,7 +59,7 @@
           <p class="name">
             <span
               :class="leaveList[leaveIdx]?'active':''"
-            >{{leaveList[leaveIdx]?leaveList[leaveIdx].name:'请选择'}}</span>
+            >{{leaveList[leaveIdx]?leaveList[leaveIdx].label:'请选择'}}</span>
             <i-icon type="enter" color="#cccccc" />
           </p>
         </div>
@@ -105,7 +109,7 @@
             placeholder-style="text-align:right;color: #ababab;"
             selection-end="-1"
             placeholder="请输加班时长"
-            v-model="duration"
+            v-model="iDays"
           />
         </p>
       </div>
@@ -138,7 +142,7 @@
         <span>*</span>
       </p>
       <div class="box">
-        <textarea name id cols="30" rows="10"></textarea>
+        <textarea name id cols="30" rows="10" v-model="describe"></textarea>
       </div>
     </div>
     <div class="imgContent" v-if="false">
@@ -162,70 +166,36 @@
             <van-button type="info" block @click="getSubmit">提交</van-button>
         </div>
     </div>
+    <ProcessModal ref="refProcess" :processId="ProcessId" :processIdName="processIdName"
+     :RuleLogId="RuleLogId" :ProcessInstanceId="ProcessInstanceId" :describe="describe" />
   </div>
 </template>
 <script>
 import { getTotal } from '@/utils/iDays';
+import ProcessModal from '@/components/approval/processModal';
 export default {
+  components:{
+    ProcessModal
+  },
   data() {
     return {
       leaveIdx: "",
-      leaveList: [
-        {
-          id: "",
-          name: "年假"
-        },
-        {
-          id: "",
-          name: "事假"
-        },
-        {
-          id: "",
-          name: "病假"
-        },
-        {
-          id: "",
-          name: "调休"
-        },
-        {
-          id: "",
-          name: "产假/公休"
-        },
-        {
-          id: "",
-          name: "陪产假"
-        },
-        {
-          id: "",
-          name: "婚假"
-        },
-        {
-          id: "",
-          name: "工伤假"
-        },
-        {
-          id: "",
-          name: "丧假"
-        },
-        {
-          id: "",
-          name: "哺乳假"
-        },
-        {
-          id: "",
-          name: "计生假"
-        },
-        {
-          id: "",
-          name: "探亲假"
-        }
-      ],
+      leaveList: [],
+      ApplyMultiIndex:[0,0,0,0,0],
       multiIndex: [0, 0, 0, 0, 0],
       endMultiIndex: [0, 0, 0, 0, 0],
       startTime: "",
       endTime: "",
       imgList: [],
-      address:""
+      address:"",
+      applyTime:"",
+      ProcessId:"78760cdc-81dd-41e5-85a3-9cb70dbf7d7b",
+      ProcessInstanceId:'',
+      RuleLogId:'',
+      OvertimeType:'',
+      iDays:'',
+      isShow:false,
+      processIdName:""
     };
   },
   computed: {
@@ -313,12 +283,118 @@ export default {
       let min = date.getMinutes();
       let s = date.getSeconds();
       return `${y}-${m}-${day} ${h}:${min}:${s}`;
+    },
+    userName(){
+      return wx.getStorageSync('fullName');
+    },
+    userId(){
+      return wx.getStorageSync('userId');
+    },
+    DepId(){
+      return wx.getStorageSync('businessUnitId');
+    },
+    DepName(){
+      return wx.getStorageSync('businessUnitName');
+    },
+    sessionkey(){
+      return wx.getStorageSync('sessionkey');
     }
+    
   },
   onLoad(){
     this.getCurrent();
+    this.defaultTime();
+    this.queryType();
   },
   methods: {
+    queryType(){
+      this.$httpWX.get({
+        url:this.$api.message.queryList,
+        data:{
+          SessionKey:this.sessionkey,
+          method:this.$api.public.leaveQuery,
+          objectTypeCode:30037,
+          name:"OvertimeType"
+        }
+      }).then(res=>{
+        this.leaveList = res;
+      })
+    },
+    // 创建实例
+    async getCreateExample(){
+      let dataParams = {
+          params:{
+              recordRep:{
+                  fields:{
+                      ProcessId:this.ProcessId,
+                      Name:'加班审批单'+wx.getStorageSync('businessUnitName') + ' ' + wx.getStorageSync('fullName'),
+                      Deadline:1,
+                      Priority:0
+                  }
+              }
+          }
+      }
+      const ret = await this.$httpWX.post({
+          url:this.$api.message.queryList+'?method='+this.$api.approval.create,
+          method:this.$api.approval.create,
+          data:{
+              SessionKey:this.sessionkey,
+              message:JSON.stringify(dataParams)
+          }
+      }).then(res=>{
+          if(res.actions[0].state=='SUCCESS'){
+              this.ProcessInstanceId = res.actions[0].returnValue.ProcessInstanceId;
+              this.RuleLogId = res.actions[0].returnValue.RuleLogId;
+              this.processIdName = res.actions[0].returnValue.Name;
+          }
+      })
+      return ret;
+    },
+    getSubmit(){
+      this.getCreateExample().then(res=>{
+        let obj = {
+            actions:[
+              {
+                params:{
+                  processId:this.processId,
+                  ruleLogId:this.RuleLogId,
+                  parentRecord:{
+                    id:this.ProcessInstanceId,
+                    objTypeCode:30034,
+                    fields:{
+                      ApplyUser:{
+                        Id:this.userId
+                      },
+                      OwningBusinessUnitId:{
+                        Id:this.DepId
+                      },
+                      StartTime:this.startTime,
+                      EndTime:this.endTime,
+                      OverTimeHours:this.iDays,
+                      OvertimeType:this.OvertimeType,
+                      Location:this.address
+                    }
+                  }
+                }
+              }
+            ]
+          }
+          this.$httpWX.post({
+              url:this.$api.message.queryList+'?method='+this.$api.approval.saverecord,
+              data:{
+                  SessionKey:this.sessionkey,
+                  message:JSON.stringify(obj)
+              }
+          }).then(res=>{
+            this.$refs.refProcess.agreeShow = true;
+            this.$refs.refProcess.getStepQuery();
+            // this.getStepQuery();
+          })
+      })
+    },
+    defaultTime(){
+      this.applyTime = this.RemoveChinese(this.time);
+    },
     getCurrent(){
         let date = new Date(this.time.replace(/-/g,'/'));
         let years = date.getFullYear();
@@ -346,6 +422,19 @@ export default {
     },
     pickerLeave(e) {
       this.leaveIdx = e.mp.detail.value;
+      this.OvertimeType = this.leaveIdx[this.leaveIdx].value;
+    },
+    pickerApplyTime(e){
+      this.ApplyMultiIndex = e.target.value;
+      const index = this.multiIndex;
+      const year = this.newMultiArray[0][index[0]];
+      const month = this.newMultiArray[1][index[1]];
+      const day = this.newMultiArray[2][index[2]];
+      const hour = this.newMultiArray[3][index[3]];
+      const minute = this.newMultiArray[4][index[4]];
+      let applyTime =
+        year + "-" + month + "-" + day + " " + hour + ":" + minute;
+      this.applyTime = this.RemoveChinese(applyTime) + ":00";
     },
     pickerStartTime(e) {
       this.multiIndex = e.target.value;
@@ -380,6 +469,7 @@ export default {
           excludeDates: []
         });
       console.log(iDays,'iDays');
+      this.iDays = iDays;
     },
     // 正则去除汉字
     RemoveChinese(strValue) {

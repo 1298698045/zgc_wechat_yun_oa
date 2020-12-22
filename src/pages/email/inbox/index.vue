@@ -194,6 +194,9 @@ export default {
         }
     },
     computed:{
+        isRead(){
+            return this.isUnread==false?1:0
+        },
         isModelmes(){
             return wx.getStorageSync('isModelmes');
         },
@@ -253,7 +256,7 @@ export default {
     methods:{
         getUnreadEmail(){
             this.isUnread = !this.isUnread;
-            console.log(this.isUnread,'-')
+            this.getQuery();
         },
         changeSearch(){
             const url = '/pages/email/searchEmail/main';
@@ -268,7 +271,8 @@ export default {
                     ltags:this.ltags,
                     pageNumber:this.pageNumber,
                     pageSize:this.pageSize,
-                    folderId:this.folderId               
+                    folderId:this.folderId,
+                    isRead:this.isRead       
                 }
             }).then(res=>{
                 this.list = res.listData;

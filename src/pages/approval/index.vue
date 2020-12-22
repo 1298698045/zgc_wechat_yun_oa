@@ -207,6 +207,7 @@ export default {
         },
         getLaunch(item,v){
             // const url = '/pages/approval/add/main?name='+item.Name+'&ProcessId='+item.ProcessId;
+            wx.setStorageSync('EntityType',v.EntityType);
             const url = '/pages/approval/preAdd/main?Name='+v.Name+'&ProcessId='+v.ProcessId+'&departName='+item.Name+'&departId='+item.Id;
             wx.navigateTo({url:url});
         },

@@ -231,7 +231,7 @@ export default {
     },
     data(){
         return {
-            article: '<div>5月10日，宣武医院举办了“以拼搏为美，向行动致敬”主题宣讲暨表彰大会。院党委书记张国君、副院长吴英锋、院党委副书记李嘉、张维等出席大会。会议由张维主持。近年来，宣医人在医疗、护理、教学、科研、管理、后勤等方面兢兢业业、开拓创新，取得了优异的成绩，涌现出众多先进典型。首都劳动奖章获得者、“全国十大最美医生”华扬主任；“北京榜样”、急诊科“天使在身边”志愿者代表陶雪莹和梁琦爽；52岁援藏专家、拉萨市“2017年度卫生援藏先进工作者”马淑；科研创新代表、北京市三八红旗奖章获得者王蓉；我院“十佳青年”、癫痫患儿的知心姐姐霍光研等人作为典型代表，成为此次主题宣讲大会的宣讲对象。</div>',
+            article: '',
             current:'tab1',
             isShow:false,
             zanShow:false,
@@ -379,13 +379,12 @@ export default {
             this.$httpWX.get({
                 url:this.$api.message.queryList,
                 data:{
-                    method:"news.contentbody.get",
+                    method:"content.body.get",
                     SessionKey:this.sessionkey,
                     id:this.journalismId
                 }
             }).then(res=>{
-                console.log(res);
-                this.article = res;
+                this.article = `<div>${res}</div>`;
             })
         },
         getRelevantCont(){

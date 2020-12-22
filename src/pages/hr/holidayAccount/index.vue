@@ -15,16 +15,16 @@
       </view>
       <block v-for="(item,index) in listData" :key="index">
       <view class="tr bg-g" v-if="''">
-        <view class="td">{{item.code}}</view>
-        <view class="td">{{item.text}}</view>
-        <view class="td">{{item.type}}</view>
+        <view class="td">{{item.LeaveTypeCode}}</view>
+        <view class="td">{{item.EmployeeIdName}}</view>
+        <view class="td">{{item.TotalDays}}</view>
       </view>
       <view class="tr bg-g" v-else>
-        <view class="td">{{item.code}}</view>
-        <view class="td">{{item.text}}</view>
-        <view class="td">{{item.type}}</view>
-        <view class="td">{{item.type}}</view>
-        <view class="td">{{item.type}}</view>
+        <view class="td">{{item.LeaveTypeCode}}</view>
+        <view class="td">{{item.EmployeeIdName}}</view>
+        <view class="td">{{item.TotalDays}}</view>
+        <view class="td">{{item.UsedDays||0}}</view>
+        <view class="td">{{item.TotalDays-item.UsedDays||0}}</view>
       </view>
       </block>
     </view>
@@ -35,14 +35,46 @@ export default {
   data(){
     return {
       listData:[
-        {"code":"01","text":"text1","type":"type1"},
-        {"code":"02","text":"text2","type":"type2"},
-        {"code":"03","text":"text3","type":"type3"},
-        {"code":"04","text":"text4","type":"type4"},
-        {"code":"05","text":"text5","type":"type5"},
-        {"code":"06","text":"text6","type":"type6"},
-        {"code":"07","text":"text7","type":"type7"}
+        // {"code":"01","text":"text1","type":"type1"},
+        // {"code":"02","text":"text2","type":"type2"},
+        // {"code":"03","text":"text3","type":"type3"},
+        // {"code":"04","text":"text4","type":"type4"},
+        // {"code":"05","text":"text5","type":"type5"},
+        // {"code":"06","text":"text6","type":"type6"},
+        // {"code":"07","text":"text7","type":"type7"}
       ]
+    }
+  },
+  computed:{
+    sessionkey(){
+      return wx.getStorageSync('sessionkey');
+    },
+    userId(){
+      return wx.getStorageSync('userId');
+    },
+    yearNumber(){
+      let year = new Date().getFullYear();
+      return year;
+    }
+  },
+  onLoad(){
+    Object.assign(this.data,this.$options.data());
+    this.getQuery();
+  },
+  methods:{
+    getQuery(){
+      this.$httpWX.get({
+        url:this.$api.message.queryList,
+        data:{
+          method:this.$api.hr.holidayaccount,
+          SessionKey:this.sessionkey,
+          yearNumber:this.yearNumber,
+          EmployeeId:this.userId,
+          leaveTypeCode: 1
+        }
+      }).then(res=>{
+        this.listData = res.rows;
+      })
     }
   }
 }

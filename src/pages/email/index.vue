@@ -115,7 +115,9 @@ export default {
         }
     },
     onShow(){
-
+        this.getEmailAmount().then((res)=>{
+            console.log(this.startQty,'startQty',res);
+        });
     },
     onLoad(){
         Object.assign(this.$data,this.$options.data());

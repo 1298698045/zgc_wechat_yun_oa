@@ -21,7 +21,7 @@
             </p>
           </div>
         </picker>
-        <h3>假期余额</h3>
+        <!-- <h3>假期余额</h3> -->
         <div class="content">
           <picker
             @change="pickerStartTime"
@@ -65,6 +65,23 @@
             <p class="name">
               <input
                 v-model="LeaveDuration"
+                type="text"
+                placeholder-style="text-align:right;color: #ababab;"
+                selection-end="-1"
+                placeholder="请输入时长"
+              />
+            </p>
+          </div>
+          <div class="row">
+            <p class="label">
+              假期余额
+              <span></span>
+            </p>
+            <p class="name">
+              <input
+                v-if="leaveIdx!=''"
+                v-model="Balance"
+                :disabled="true"
                 type="text"
                 placeholder-style="text-align:right;color: #ababab;"
                 selection-end="-1"
@@ -211,7 +228,7 @@
 </template>
 <script>
 import { getTotal } from '@/utils/iDays';
-import {mapState} from 'vuex';
+import {mapState,mapMutations} from 'vuex';
 export default {
   data() {
     return {
@@ -233,7 +250,10 @@ export default {
       current:0,
       ProcessInstanceId:'',
       leaveType:'', // 请假类型
-      RuleLogId:''
+      RuleLogId:'',
+      ToActivityId:'',
+      fromActivityId:'',
+      Balance:0
     };
   },
   computed: {
@@ -325,9 +345,6 @@ export default {
       let s = date.getSeconds();
       return `${y}-${m}-${day} ${h}:${min}:${s}`;
     },
-    ToActivityId(){
-        return wx.getStorageSync('ToActivityId');
-    },
     ...mapState({
         selectListName:state=>{
             return state.mailList.selectListName;
@@ -335,40 +352,62 @@ export default {
     }),
     processList(){
         let temp = [];
-        console.log(this.ToActivityId,'stepList')
         let index = this.stepList.findIndex(v=>v.ToActivityId===this.ToActivityId);
-        console.log(index,'index,index')
         if(this.selectListName!=''){
             this.selectListName.forEach(item=>{
-                console.log(this.stepList[index],this.ToActivityId,'this.testLists[this.ToActivityId]');
                 this.stepList[index].ParticipantMember.push({
                     UserId:item.id,
                     FullName:item.FullName,
                     Selected:true,
                     BusinessUnitIdName:item.DeptName
                 })
+                this.stepList[index].Selected = true;
             })
         }
         temp = this.stepList;
-        console.log(temp,'temptemp')
         return temp;
+    },
+    UserId(){
+      return wx.getStorageSync('userId');
+    },
+    DeptId(){
+      return wx.getStorageSync('businessUnitId');
+    },
+    yearNumber(){
+      let year = new Date().getFullYear();
+      return year;
     }
   },
-  watch:{
-    ToActivityId:{
-      deep: true,
-      handler: function(newVal, oldVal) {
-        this.$nextTick(() => {
-          this.ToActivityId = newVal;
-        });
-      }
+  onUnload(){
+        this.getClear([]);
     },
-  },
   onLoad(){
+    Object.assign(this.$data,this.$options.data());
     this.getCurrent();
     this.queryLeave();
   },
+  onShow(){
+    this.ToActivityId = wx.getStorageSync('ToActivityId');
+  },
   methods: {
+    // 假期余额
+    getBalance(){
+      this.$httpWX.get({
+        url:this.$api.message.queryList,
+        data:{
+          method:'attendance.holidayaccount.balance.get',
+          SessionKey:this.sessionkey,
+          yearNumber:this.yearNumber,
+          EmployeeId:this.UserId,
+          leaveTypeCode:this.leaveType
+        }
+      }).then(res=>{
+        if(res.rows!=''){
+          this.Balance = res.rows[0].Balance;
+        }
+      })
+    },
+    ...mapMutations(['getClear']),
     queryLeave(){
       this.$httpWX.get({
         url:this.$api.message.queryList,
@@ -416,69 +455,84 @@ export default {
     },
     // 保存表单
     getSave(){
-      if(this.leaveType==''){
-        wx.showToast({
-          title:"请假类型不能为空",
-          icon:"none",
-          duration:2000
-        })
-      }else if(this.startTime==''){
-        wx.showToast({
-          title:"开始时间不能为空",
-          icon:"none",
-          duration:2000
-        })
-      }else if(this.endTime==''){
-        wx.showToast({
-          title:"结束时间不能为空",
-          icon:"none",
-          duration:2000
-        })
-      }else if(this.LeaveDuration==''){
-        wx.showToast({
-          title:"时长不能为空",
-          icon:"none",
-          duration:2000
-        })
-      }else if(this.Description==''){
-        wx.showToast({
-          title:"请假事由不能为空",
-          icon:"none",
-          duration:2000
-        })
-      }else {
-        this.getCreateExample().then(res=>{
-          let obj = {
-            actions:[
-              {
-                params:{
-                  processId:this.processId,
-                  parentRecord:{
-                    id:this.ProcessInstanceId,
-                    objTypeCode:30022,
-                    fields:{
-                      LeaveType:this.leaveType,
-                      StartTime:this.startTime,
-                      EndTime:this.endTime,
-                      LeaveDuration:this.LeaveDuration,
-                      Description:this.Description,
-                      // Location:""
+      if(this.Balance>0){
+        if(this.leaveType==''){
+          wx.showToast({
+            title:"请假类型不能为空",
+            icon:"none",
+            duration:2000
+          })
+        }else if(this.startTime==''){
+          wx.showToast({
+            title:"开始时间不能为空",
+            icon:"none",
+            duration:2000
+          })
+        }else if(this.endTime==''){
+          wx.showToast({
+            title:"结束时间不能为空",
+            icon:"none",
+            duration:2000
+          })
+        }else if(this.LeaveDuration==''){
+          wx.showToast({
+            title:"时长不能为空",
+            icon:"none",
+            duration:2000
+          })
+        }else if(this.Description==''){
+          wx.showToast({
+            title:"请假事由不能为空",
+            icon:"none",
+            duration:2000
+          })
+        }else {
+          this.getCreateExample().then(res=>{
+            let obj = {
+              actions:[
+                {
+                  params:{
+                    processId:this.processId,
+                    ruleLogId:this.RuleLogId,
+                    parentRecord:{
+                      id:this.ProcessInstanceId,
+                      objTypeCode:30022,
+                      fields:{
+                        UserId:{
+                          Id:this.UserId
+                        },
+                        DeptId:{
+                          Id:this.DeptId
+                        },
+                        LeaveType:this.leaveType,
+                        StartTime:this.startTime,
+                        EndTime:this.endTime,
+                        LeaveDuration:this.LeaveDuration,
+                        Description:this.Description,
+                        // Location:""
+                      }
                     }
                   }
                 }
-              }
-            ]
-          }
-          this.$httpWX.post({
-              url:this.$api.message.queryList+'?method='+this.$api.approval.saverecord,
-              data:{
-                  SessionKey:this.sessionkey,
-                  message:JSON.stringify(obj)
-              }
-          }).then(res=>{
-            this.agreeShow = true;
-            this.getStepQuery();
+              ]
+            }
+            this.$httpWX.post({
+                url:this.$api.message.queryList+'?method='+this.$api.approval.saverecord,
+                data:{
+                    SessionKey:this.sessionkey,
+                    message:JSON.stringify(obj)
+                }
+            }).then(res=>{
+              this.agreeShow = true;
+              this.getStepQuery();
+            })
           })
+        }
+      }else {
+        wx.showToast({
+          title:'假期余额不足',
+          icon:'success',
+          duration:2000
         })
       }
     },
@@ -493,6 +547,7 @@ export default {
             }
         }).then(res=>{
             this.stepList = res.transitions;
+            this.fromActivityId = res.fromActivityId;
         })
     },
     getSubmitStep(){
@@ -524,19 +579,18 @@ export default {
             transitionId: item.TransitionId,
             participators: temp
         }))
-        console.log(transitions,'transitions')
         data.actions.push({
             params:{
                 processId: this.processId,
-                name: '',
+                name: '请假审批单',
                 processInstanceId: this.ProcessInstanceId,
                 ruleLogId: this.RuleLogId,
                 fromActivityId: this.fromActivityId,
                 description: this.Description,
+                // fromActivityId:this.fromActivityId,
                 transitions: transitions
             }
         });
-        console.log(data,'data');
         this.$httpWX.post({
             url:this.$api.message.queryList+'?method='+this.$api.approval.accept,
             data:{
@@ -546,6 +600,17 @@ export default {
             }
         }).then(res=>{
             this.agreeShow = false;
+            let status = res.actions[0].state
+            if(status=='SUCCESS'){
+              wx.showToast({
+                title: "提交成功",
+                icon:"success",
+                duration:2000,
+                success:res=>{
+                  this.current = 1;
+                }
+              })
+            }
         })
     },
     getAddPeople(item){
@@ -581,6 +646,7 @@ export default {
     pickerLeave(e) {
       this.leaveIdx = e.mp.detail.value;
       this.leaveType = this.leaveList[this.leaveIdx].value;
+      this.getBalance();
     },
     pickerStartTime(e) {
       this.multiIndex = e.target.value;
@@ -626,6 +692,7 @@ export default {
     },
     // 打开本地图库
     handleSelPhoto() {
+      let that = this;
       wx.chooseImage({
         count: 9,
         sizeType: ["original", "compressed"],
@@ -637,39 +704,24 @@ export default {
           tempFilePaths.forEach(item => {
             this.imgList.push(item);
           });
-          // wx.uploadFile({
-          //     url: "http://112.126.75.65:10020/rest?method="+'file.attachfiles.upload'+'&SessionKey=' + '5d884846-1d19-449d-b4e2-1b5a83623a41'+'&pid='+this.uuid, //仅为示例，非真实的接口地址
-          //     filePath: tempFilePaths[0],
-          //     name: 'file',
-          //     formData: {
-          //         'user': 'test'
-          //     },
-          //     success (res){
-          //         console.log(res);
-          //         const data = res.data
-          //         //do something
-          //     }
-          // })
-        }
+          let url = `${that.$api.upload.url}?method=${that.$api.approval.upload}&SessionKey=${that.sessionkey}&pid=${that.ProcessInstanceId}&objTypeCode=${'122'}`
+            wx.uploadFile({
+                url:url,
+                filePath: tempFilePaths[0],
+                name: 'file',
+                formData: {
+                    'user': 'test'
+                },
+                success (res){
+                    console.log(res);
+                    const data = res.data
+                }
+            })
+          }
       });
     },
     getCloseImg(index){
       this.imgList.splice(index,1);
-    },
-    getSubmit(){
-      this.agreeShow = true;
-      this.$httpWX.get({
-            url:this.$api.message.queryList,
-            data:{
-                method: 'process.step.transition.getlist',
-                SessionKey: '207a11c0-12e3-4f7e-8033-f61b6883ffd8',
-                RuleLogId: 'e445039d-f744-4da5-b4ad-b813d8a26f71',
-                ProcessInstanceId: '3401927a-1f19-4f28-b7aa-b6e884a12f3e',
-            }
-        }).then(res=>{
-            console.log(res);
-            this.stepList = res.transitions;
-        })
     },
     changeAll(e,item){
         item.Selected = e.mp.detail;
@@ -708,6 +760,7 @@ export default {
     padding: 34rpx 33rpx;
     background: #fff;
     margin-top: 35rpx;
+    border-bottom: 1rpx solid #e2e3e5;
     .label {
       color: #666666;
       font-size: 32rpx;

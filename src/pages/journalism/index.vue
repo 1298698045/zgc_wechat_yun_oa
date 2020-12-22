@@ -7,7 +7,7 @@
             <div class="header">
                 <div class="left">
                     <i-tabs i-class="itab" :current="current_scroll" scroll @change="handleChangeScroll">
-                        <i-tab :key="item.ItemName" :title="item.ItemName" v-for="(item,index) in tagLists"></i-tab>
+                        <i-tab :key="item.ItemId" :title="item.ItemName" v-for="(item,index) in tagLists"></i-tab>
                     </i-tabs>
                 </div>
                 <div class="right" @click="getOpenModal">
@@ -157,6 +157,7 @@ export default {
         return {
             keyValue:"",
             current_scroll:"",
+            current_name:"",
             current:"homepage",
             showPopup:false,
             num:0,
@@ -202,20 +203,22 @@ export default {
     },
     onShow(){
         this.pageNumber = 1;
-        this.getQuery();
+        this.getMyTag().then(res=>{
+            this.getQuery();
+        });
     },
     onLoad(options){
         Object.assign(this.$data,this.$options.data());    
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         this.contentTypeCode = options.contentTypeCode;
-        console.log('contentTypeCode',this.contentTypeCode)
         this.pageNumber = 1;
         // this.selectList = [];
         this.isEdit = false;
         this.showPopup = false;
-        this.getMyTag();
-        this.getQuery();
+        this.getMyTag().then(res=>{
+            this.getQuery();
+        });
         wx.getSystemInfo({
             success: (res) => {
                 console.log(res)
@@ -254,8 +257,8 @@ export default {
             this.keyValue = e.mp.detail;
             this.getQuery();
         },
-        getMyTag(){
-            this.$httpWX.get({
+      async  getMyTag(){
+         const ret = await  this.$httpWX.get({
                 url:this.$api.message.queryList,
                 data:{
                     method:"news.my.channel",
@@ -265,8 +268,10 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.tagLists= res.rows;
-                this.current_scroll = this.tagLists[0].ItemName;
+                this.current_scroll = this.tagLists[0].ItemId;
+                this.current_name = this.tagLists[0].ItemName;
             })
+            return ret;
         },
         getQuery(){
             this.$httpWX.get({
@@ -274,7 +279,7 @@ export default {
                 data:{
                     method:"news.getlist.search",
                     SessionKey:this.sessionkey,
-                    Tag:this.current_scroll,
+                    Tag:this.current_name,
                     contentTypeCode:this.contentTypeCode,
                     PageNumber:this.pageNumber,
                     pageSize:this.pageSize,
@@ -305,6 +310,9 @@ export default {
         },
         handleChangeScroll(e){
             this.current_scroll = e.mp.detail.key;
+            console.log(this.current_scroll,this.tagLists)
+            let v = this.tagLists.find(item=>item.ItemId==this.current_scroll);
+            this.current_name = v.ItemName;
             this.pageNumber = 1;
             this.getQuery();
         },
@@ -417,6 +425,7 @@ page{
                 font-size: 31rpx;
                 .itab{
                     font-size: 34rpx !important;
+                    font-weight: bold !important;
                 }
             }
             .right{

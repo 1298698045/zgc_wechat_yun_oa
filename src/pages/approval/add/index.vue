@@ -360,10 +360,18 @@ export default {
             fromActivityId:"",
             createdByName:"",
             processIdName:"",
-            SplitType:""
+            SplitType:"",
+            Balance:"" // 假期余额
         }
     },
     computed:{
+        yearNumber(){
+            let year = new Date().getFullYear();
+            return year;
+        },
+        UserId(){
+            return wx.getStorageSync('userId');
+        },
         isModelmes(){
             return wx.getStorageSync('isModelmes');
         },
@@ -572,7 +580,7 @@ export default {
         onChangeGroup(e){
             console.log(e,'123123123');
             this.result = e.mp.detail;
-             this.params.parentRecord.fields[item.id] = this.result;
+            this.params.parentRecord.fields[item.id] = this.result;
         },
         toggle(e){
             console.log(e);
@@ -674,13 +682,30 @@ export default {
             console.log(e,item);
             item.result = e.mp.detail;
         },
+        // 请假单独提交处理
+        leaveSave(){
+            // 对象代码 
+            let EntityType = wx.getStorageSync('EntityType');
+            if(EntityType==30022){
+                if(this.Balance>0){
+
+                }else {
+                    wx.showToast({
+                        title:`假期余额不足`,
+                        icon:"success",
+                        duration:2000
+                    })
+                    throw new Error('End');
+                }
+            }
+        },
         getSubmit(){
+            this.leaveSave();
             let isBook = false;
             let idx = this.list.length;
             // this.agreeShow = true;
             try{
                 this.list.forEach((item,index)=>{
-                    // console.log(index+1); 
                     if(index+1==idx){
                         let isBook = true;
                     }
@@ -705,7 +730,6 @@ export default {
                 this.$httpWX.post({
                     url:this.$api.message.queryList+'?method='+this.$api.approval.saverecord,
                     data:{
-                        // method:this.$api.approval.saverecord,
                         SessionKey:this.sessionkey,
                         message:JSON.stringify(data)
                     }
@@ -713,13 +737,10 @@ export default {
                     console.log(res);
                     this.getStepQuery();
                 })
-                // console.log(this.testLists,'testList');
                 
             }catch(e){
                 console.log(e);
             }
-            // const params = JSON.stringify(this.list);
-            // console.log(params);
         },
         onCloseAgree(){
             this.agreeShow = false;
@@ -732,6 +753,28 @@ export default {
             // item.value = val.mp.detail.value;
             this.record[item.id] = this.currenData[item.id][item.index].value;
             this.params.parentRecord.fields[item.id] = item.value;
+            if(this.EntityType==30022){
+                this.getBalance(item.value);
+            }
+        },
+        // 假期余额
+        getBalance(leaveType){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:'attendance.holidayaccount.balance.get',
+                    SessionKey:this.sessionkey,
+                    yearNumber:this.yearNumber,
+                    EmployeeId:this.UserId,
+                    leaveTypeCode:leaveType
+                }
+            }).then(res=>{
+                if(res.rows!=''){
+                    this.Balance = res.rows[0].Balance;
+                    const index =  this.list.findIndex((item)=>item.id=='BalanceAmount');
+                    this.list[index].value = this.Balance;
+                }
+            })
         },
         getChooseImage(){
             let that = this;
