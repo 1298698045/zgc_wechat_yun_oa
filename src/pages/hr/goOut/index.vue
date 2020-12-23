@@ -1,16 +1,14 @@
 <template>
   <div class="wrap">
-    <div class="navTabs">
-      <van-tabs :active="current" color="#3399ff" @change="onChange">
-        <van-tab title="发起提交"></van-tab>
-        <van-tab title="查看数据"></van-tab>
-      </van-tabs>
-    </div>
+    <van-tabs :active="current" color="#3399ff" @change="onChange">
+      <van-tab title="发起提交"></van-tab>
+      <van-tab title="查看数据"></van-tab>
+    </van-tabs>
     <div class="container" v-if="current==0">
       <div class="content">
         <div class="row">
           <p class="label">
-            申请人
+            外出人员
             <span>*</span>
           </p>
           <p class="name">
@@ -18,13 +16,13 @@
               type="text"
               placeholder-style="text-align:right;color: #ababab;"
               selection-end="-1"
-              :placeholder="'请输入申请人姓名'"
+              :placeholder="'请输入外出人员'"
             />
           </p>
         </div>
         <div class="row">
           <p class="label">
-            申请部门
+            所属部门
             <span>*</span>
           </p>
           <p class="name">
@@ -72,7 +70,7 @@
         </picker>
         <div class="row">
           <p class="label">
-            目的地
+            时长
             <span>*</span>
           </p>
           <p class="name">
@@ -80,29 +78,21 @@
               type="text"
               placeholder-style="text-align:right;color: #ababab;"
               selection-end="-1"
-              placeholder="请输入目的地"
-              v-model="address"
+              :placeholder="'请输入时长'"
             />
-            <i-icon type="coordinates" color="#999999" size="20" @click="getChooseLocation" />
           </p>
         </div>
-        <!-- <div class="rowBottom">
-          <p>
-            根据排班自动计算时长
-            <span>查看明细</span>
-          </p>
-        </div> -->
       </div>
       <div class="leaveComment">
         <p>
-          备注
+          外出事由
           <span>*</span>
         </p>
         <div class="box">
           <textarea name id cols="30" rows="10"></textarea>
         </div>
       </div>
-      <div class="imgContent" v-if="false">
+      <div class="imgContent">
         <div class="head" @click="handleSelPhoto">
           <p>图片</p>
           <p>
@@ -426,6 +416,7 @@ export default {
 <style lang="scss" scopod>
 @import '../../../../static/css/icon.css';
 .wrap {
+    padding-bottom: 100px;
   .rowWrap {
     display: flex;
     justify-content: space-between;
@@ -581,7 +572,7 @@ export default {
             padding: 20rpx;
         }
     }
-     .dataWrap{
+    .dataWrap{
     .contentList{
       padding: 0 20rpx;
       .box_wrap{

@@ -58,7 +58,7 @@ export default {
     }
   },
   onLoad(){
-    Object.assign(this.data,this.$options.data());
+    Object.assign(this.$data,this.$options.data());
     this.getQuery();
   },
   methods:{

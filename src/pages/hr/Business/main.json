@@ -25,6 +25,8 @@
         "van-collapse-item": "/static/vant/collapse-item/index",
         "van-field": "/static/vant/field/index",
         "van-button": "/static/vant/button/index",
-        "van-circle": "/static/vant/circle/index"
+        "van-circle": "/static/vant/circle/index",
+        "van-tab":"/static/vant/tab/index",
+        "van-tabs":"/static/vant/tabs/index"
     }
 }

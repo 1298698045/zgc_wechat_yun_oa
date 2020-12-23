@@ -10,7 +10,7 @@
       <div class="content">
         <div class="row">
           <p class="label">
-            申请人
+            出差人员
             <span>*</span>
           </p>
           <p class="name">
@@ -24,7 +24,7 @@
         </div>
         <div class="row">
           <p class="label">
-            申请部门
+            所属部门
             <span>*</span>
           </p>
           <p class="name">
@@ -72,7 +72,7 @@
         </picker>
         <div class="row">
           <p class="label">
-            目的地
+            出发地点
             <span>*</span>
           </p>
           <p class="name">
@@ -80,18 +80,100 @@
               type="text"
               placeholder-style="text-align:right;color: #ababab;"
               selection-end="-1"
-              placeholder="请输入目的地"
+              placeholder="请输入出发地点"
               v-model="address"
             />
             <i-icon type="coordinates" color="#999999" size="20" @click="getChooseLocation" />
           </p>
         </div>
+        <div class="row">
+          <p class="label">
+            到达地点
+            <span>*</span>
+          </p>
+          <p class="name">
+            <input
+              type="text"
+              placeholder-style="text-align:right;color: #ababab;"
+              selection-end="-1"
+              placeholder="请输入到达地点"
+              v-model="address"
+            />
+            <i-icon type="coordinates" color="#999999" size="20" @click="getChooseLocation" />
+          </p>
+        </div>
+        <div class="row">
+          <p class="label">
+            预计出差天数
+            <span>*</span>
+          </p>
+          <p class="name">
+            <input
+              type="text"
+              placeholder-style="text-align:right;color: #ababab;"
+              selection-end="-1"
+              :placeholder="'请输入预计出差天数'"
+            />
+          </p>
+        </div>
+        <div class="row">
+          <p class="label">
+            交通工具
+            <span>*</span>
+          </p>
+          <p class="name">
+            <input
+              type="text"
+              placeholder-style="text-align:right;color: #ababab;"
+              selection-end="-1"
+              :placeholder="'请输入交通工具'"
+            />
+          </p>
+        </div>
+        <div class="row">
+          <p class="label">
+            预计交通费用
+            <span>*</span>
+          </p>
+          <p class="name">
+            <input
+              type="text"
+              placeholder-style="text-align:right;color: #ababab;"
+              selection-end="-1"
+              :placeholder="'请输入预计交通费用'"
+            />
+          </p>
+        </div>
+          <div class="row">
+              <p class="label">
+              出差客户
+              <span>*</span>
+              </p>
+              <p class="name">
+              <input
+                  type="text"
+                  placeholder-style="text-align:right;color: #ababab;"
+                  selection-end="-1"
+                  :placeholder="'请输入出差客户'"
+              />
+              </p>
+          </div>
+        
         <!-- <div class="rowBottom">
           <p>
             根据排班自动计算时长
             <span>查看明细</span>
           </p>
         </div> -->
+      </div>
+      <div class="leaveComment">
+        <p>
+          行程明细
+          <span>*</span>
+        </p>
+        <div class="box">
+          <textarea name id cols="30" rows="10"></textarea>
+        </div>
       </div>
       <div class="leaveComment">
         <p>
@@ -426,6 +508,10 @@ export default {
 <style lang="scss" scopod>
 @import '../../../../static/css/icon.css';
 .wrap {
+    padding-bottom: 100px;
+    .navTabs{
+      border-bottom: 1rpx solid #e2e3e5;
+    }
   .rowWrap {
     display: flex;
     justify-content: space-between;
@@ -581,7 +667,7 @@ export default {
             padding: 20rpx;
         }
     }
-     .dataWrap{
+    .dataWrap{
     .contentList{
       padding: 0 20rpx;
       .box_wrap{

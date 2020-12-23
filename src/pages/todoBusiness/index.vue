@@ -619,9 +619,9 @@ export default {
                     // this.list = res.listData;
                     let total = 0;
                     this.list.forEach(item=>{
-                        let nameLength = item.createdByName.lenght;
-                        if(item.createdByName.lenght<=3){
-                            this.$set(item,'activeName',item.createdByName.substring(1));
+                        let nameLength = item.createdByName.length;
+                        if(nameLength>2){
+                            this.$set(item,'activeName',item.createdByName.substr(1));
                         }else {
                             this.$set(item,'activeName',item.createdByName);
                         }
@@ -674,10 +674,10 @@ export default {
                     // this.list = res.listData;
                     console.log(this.list,'123123----');
                     this.list.forEach(item=>{
-                        let nameLength = item.createdByName.lenght;
+                        let nameLength = item.createdByName.length;
                         // debugger
-                        if(item.createdByName.lenght<=3){
-                            this.$set(item,'activeName',item.createdByName.substring(1));
+                        if(nameLength>2){
+                            this.$set(item,'activeName',item.createdByName.substr(1));
                         }else {
                             this.$set(item,'activeName',item.createdByName);
                         }

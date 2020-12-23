@@ -60,6 +60,19 @@ export default {
             if(index==0){
                 const url = '/pages/clockIn/leaveApply/main';
                 wx.navigateTo({url:url});
+            }else if(index==1){
+                const url = '/pages/hr/businesstravel/main';
+                wx.navigateTo({url:url});
+            }else if(index==2){
+                const url = '/pages/hr/goOut/main';
+                wx.navigateTo({url:url});
+            }
+            else if(index==3){
+                const url = '/pages/hr/overTimeApply/main';
+                wx.navigateTo({url:url});
+            }else if(index==4){
+                const url = '/pages/clockIn/patchcardApply/main';
+                wx.navigateTo({url:url});
             }
         }
     }

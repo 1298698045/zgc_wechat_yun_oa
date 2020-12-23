@@ -6,7 +6,7 @@
                     :value="item.value"
                     :disabled="item.readonly"
                     custom-style="font-size:34rpx;color:#333333"
-                    :required="item.require||false"
+                    :required="item.required||false"
                     :label="item.label"
                     :placeholder="item.helpText"
                     input-align="right"
@@ -19,7 +19,7 @@
                         :value="currenData[item.id][item.index]?currenData[item.id][item.index].label:''"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
-                        :required="item.require||false"
+                        :required="item.required||false"
                         disabled
                         :label="item.label"
                         :placeholder="item.helpText"
@@ -35,7 +35,7 @@
                         title-width="110px"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
-                        :required="item.require||false"
+                        :required="item.required||false"
                         disabled
                         :label="item.label"
                         input-align="right"
@@ -51,7 +51,7 @@
                         :value="item.value"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
-                        :required="item.require||false"
+                        :required="item.required||false"
                         disabled
                         :label="item.label"
                         input-align="right"
@@ -66,7 +66,7 @@
                         :value="item.value"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
-                        :required="item.require||false"
+                        :required="item.required||false"
                         disabled
                         :label="item.label"
                         input-align="right"
@@ -81,7 +81,7 @@
                         :value="item.value"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
-                        required
+                        :required="item.required||false"
                         disabled
                         :label="item.label"
                         input-align="right"
@@ -125,7 +125,7 @@
                 </van-cell-group>
             </van-checkbox-group> -->
             <van-cell-group custom-class="cell" v-if="item.type=='U'||item.type=='O'">
-                <van-cell value-class="cellValue" :title="item.label" is-link :value="item.value" @click="!item.readonly?getOpenModal(item,index):''" />
+                <van-cell :required="item.required||false" value-class="cellValue" :title="item.label" is-link :value="item.value" @click="!item.readonly?getOpenModal(item,index):''" />
             </van-cell-group>
             <div class="switch" v-if="item.type=='H'||item.type=='MC'">
                 <p>
@@ -146,7 +146,7 @@
                         <van-field
                             :value="v.value"
                             custom-style="font-size:34rpx;color:#333333"
-                            :required="v.require||false"
+                            :required="v.required||false"
                             :label="v.label"
                             :placeholder="v.helpText"
                             input-align="right"
@@ -175,7 +175,7 @@
                                 title-width="110px"
                                 input-class="inp"
                                 custom-style="font-size:34rpx;color:#333333"
-                                :required="v.require||false"
+                                :required="v.required||false"
                                 disabled
                                 :label="v.label"
                                 input-align="right"
@@ -188,7 +188,9 @@
                         <van-cell value-class="cellValue" :title="v.label" is-link :value="v.value" @click="!item.readonly?getOpenModal(v,i):''" />
                     </van-cell-group>
                     <div class="row" v-if="v.type=='UC'">
-                        <p class="title">*<span>{{v.label}}</span></p>
+                        <p class="title">
+                            {{item.required?'*':''}}
+                            <span>{{v.label}}</span></p>
                         <textarea :disabled="item.readonly" v-model="v.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="v.helpText"></textarea>
                     </div>
                 </div>
@@ -709,7 +711,7 @@ export default {
                     if(index+1==idx){
                         let isBook = true;
                     }
-                    if(item.value=='' && item.readonly==false){
+                    if(item.value=='' && item.readonly==false && item.require==true){
                         wx.showToast({
                             title:`请输入${item.label}`,
                             icon:"success",
@@ -753,7 +755,8 @@ export default {
             // item.value = val.mp.detail.value;
             this.record[item.id] = this.currenData[item.id][item.index].value;
             this.params.parentRecord.fields[item.id] = item.value;
-            if(this.EntityType==30022){
+            let EntityType = wx.getStorageSync('EntityType');
+            if(EntityType==30022){
                 this.getBalance(item.value);
             }
         },

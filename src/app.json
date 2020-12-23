@@ -214,7 +214,10 @@
                 "Business/main",
                 "overTimeApply/main",
                 "personnelFiles/main",
-                "holidayAccount/main"
+                "holidayAccount/main",
+                "businesstravel/main",
+                "goOut/main",
+                "weRunData/main"
             ]
         }
     ],

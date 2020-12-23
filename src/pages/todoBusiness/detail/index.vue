@@ -1135,7 +1135,7 @@ export default {
                         line-height: 35px;
                         text-align: center;
                         background: #3399ff;
-                        font-size: 28rpx;
+                        font-size: 32rpx;
                         color: #fff;
                     }
                     p:nth-child(1){

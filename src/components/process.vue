@@ -1,10 +1,10 @@
 <template>
     <div class="wrap">
         <div class="navHeader">
-            <p>
+            <!-- <p>
                 <span class="l" :class="{'active':isShow}" @click="getTab(0)">执行记录</span>
                 <span class="r" :class="{'active':!isShow}"  @click="getTab(1)">流程图</span>
-            </p>
+            </p> -->
         </div>
         <div class="content" v-for="(item,index) in list" :key="index">
             <div class="leftBox">
