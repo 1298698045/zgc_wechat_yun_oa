@@ -424,8 +424,8 @@ page{
                 width: 90%;
                 font-size: 31rpx;
                 .itab{
-                    font-size: 34rpx !important;
-                    font-weight: bold !important;
+                    // font-size: 34rpx !important;
+                    // font-weight: bold !important;
                 }
             }
             .right{

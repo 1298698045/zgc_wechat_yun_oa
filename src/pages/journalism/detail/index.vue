@@ -188,9 +188,9 @@
                     <i class="iconfont  zan icon" :class="zanShow?'icon-zan1':'icon-zan2'" @click="getFabulous(zanShow)"></i>
                 </p>
                 <!-- 二期版本 -->
-                <p>
+                <!-- <p>
                     <i class="iconfont icon-elipples icon" @click="getEdit"></i>
-                </p>
+                </p> -->
             </div>
         </div>
         <van-action-sheet
@@ -225,6 +225,7 @@ import { getDate } from '@/utils/changeDate.js';
 import Notify from '../../../../static/vant/notify/notify';
 // const openFile = require('../../../utils/openFiles');
 import getOpenFiles from '@/utils/openFiles';
+import {message} from '@/utils/message'
 export default {
     components:{
         wxParse
@@ -543,8 +544,16 @@ export default {
                     objectTypeCode:'100201'
                 }
             }).then(res=>{
-                console.log(res);
-                Notify({ type: 'primary', message: res.msg });
+                var that = this;
+                message.toast({
+                    title:res.msg,
+                    delta:0,
+                    success(){
+                        setTimeout(() => {
+                            that.queryInfo();
+                        }, 500);
+                    }
+                })
             })
         },
         getLive(show){

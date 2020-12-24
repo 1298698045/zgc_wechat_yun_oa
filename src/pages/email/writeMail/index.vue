@@ -125,6 +125,7 @@
 </template>
 <script>
 import {mapState,mapMutations,mapGetters} from 'vuex';
+import { message } from '@/utils/message';
 export default {
     data(){
         return {
@@ -314,8 +315,11 @@ export default {
             }).then(res=>{
                 this.list = res.listData;
                 this.list.map(item=>{
-                    const name = item.FullName.substr(1);
-                    item.name = name;
+                    if(item.FullName.length>2){
+                        item.name = item.FullName.substr(1);
+                    }else {
+                        item.name = item.FullName;
+                    }
                     return item;
                 })
             })
@@ -514,14 +518,21 @@ export default {
     
                 }).then(res=>{
                     if(emailStatus=='1'){
-                        wx.showToast({
-                            title:'发送成功',
-                            icon:'success',
-                            duration:2000
-                        })
-                        wx.navigateBack({
-                            delta: 1
-                        })
+                        if(res.status==1){
+                            message.toast({
+                                title:'发送成功',
+                                delta: 1,
+                                success(){
+
+                                }
+                            })
+                        }else {
+                            wx.showToast({
+                                title:"发送失败",
+                                icon:"none",
+                                duration:2000
+                            })
+                        }
                     }else if(emailStatus=='0'){
                         this.EmailId = res.data[0].EmailId;
                         this.sendBatchId = res.data[0].sendBatchId;

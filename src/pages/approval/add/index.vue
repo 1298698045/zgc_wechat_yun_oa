@@ -324,6 +324,7 @@ import {newMultiArray} from '@/utils/multiArray';
 import { mockData,dataList,serachList,testList } from '@/utils/mock';
 import { mapMutations, mapState } from 'vuex';
 import { currentTime } from '../../../utils/currentTime';
+import { message } from '@/utils/message';
 export default {
     data(){
         return {
@@ -920,10 +921,13 @@ export default {
                             message:JSON.stringify(obj)
                         }
                     }).then(res=>{
-                        console.log(res);
-                        wx.navigateBack({
-                            delta:2
-                        })
+                        let status = res.actions[0].state;
+                        if(status=='SUCCESS'){
+                            message.toast({
+                                title:"提交成功",
+                                delta: 2
+                            })
+                        }
                     })
             }else {
                 wx.showToast({

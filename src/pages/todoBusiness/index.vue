@@ -44,16 +44,16 @@
             <img :src="imgUrl+'04.9.1.Notice.png'" alt="">
             <p class="text">暂无审批单</p>
         </div>
-        <div class="container" :class="isBlock?'mar':''" v-if="!isBlock&&list!=''||isBlock&&childShow==0&&list!=''">
-            <div class="radio" v-if="current=='tab4'&&!isBatch">
-                <div class="row">
-                    <p>
-                        <van-checkbox :value="checked" @change="changeRadio">仅查看未读传阅  3</van-checkbox>
-                    </p>
-                    <p @click="getSign">全部标为已读</p>
-                    <!-- <p @click="getBatchOperation">批量操作</p> -->
-                </div>
+        <div class="header_radio" v-if="current=='tab4'&&!isBatch">
+            <div class="row">
+                <p>
+                    <van-checkbox :value="checked" @change="changeRadio">仅查看未读传阅  3</van-checkbox>
+                </p>
+                <p @click="getSign">全部标为已读</p>
+                <!-- <p @click="getBatchOperation">批量操作</p> -->
             </div>
+        </div>
+        <div class="container" :class="current=='tab4'?'margin':isBlock?'mar':''" v-if="!isBlock&&list!=''||isBlock&&childShow==0&&list!=''">
             <div class="center padding"  v-for="(item,index) in list" :key="index">
                 <van-checkbox-group :value="result" @change="onChangeCheck">
                     <div class="boxWrap">
@@ -65,7 +65,9 @@
                             <p class="rad">{{item.activeName}}</p>
                         </div>
                         <div class="cont" @click="getDetail(item)">
-                            <h3>{{item.createdByName}}提交的{{item.processIdName}}</h3>
+                            <h3>{{item.createdByName}}提交的{{item.processIdName}}
+                                <span :class="{'active':item.isRead!=1}" v-if="current=='tab4'">{{item.readStatusName}}</span>
+                            </h3>
                             <div class="level">
                                 <p>
                                     <i class="iconfont icon-jinji2 icon" :class="item.priority==0?'icon':item.priority==1?'zhongji':'jinji'"></i>
@@ -1011,6 +1013,9 @@ export default {
                 }
             }
         }
+        .container.margin{
+            margin-top: 0 !important;
+        }
         .container.mar{
             margin-top: 150rpx;
         }
@@ -1034,30 +1039,31 @@ export default {
                 margin-top:20rpx;
             }
         }
+        .header_radio{
+            padding: 20rpx 30rpx;
+            margin-top: 100px;
+            .row{
+                display: flex;
+                justify-content: space-between;
+                p:nth-child(1){
+                    color: #999999;
+                    font-size: 12px;
+                }
+                p:nth-child(2){
+                    width: 200rpx;
+                    height: 44rpx;
+                    line-height: 44rpx;
+                    text-align: center;
+                    color: #3399ff;
+                    font-size: 27rpx;
+                    border-radius: 23rpx;
+                    border: 1rpx solid #3399ff;
+                }
+            }
+        }
         .container{
             margin-top: 100px;
             padding-bottom: 60px;
-            .radio{
-                padding: 20rpx 30rpx;
-                .row{
-                    display: flex;
-                    justify-content: space-between;
-                    p:nth-child(1){
-                        color: #999999;
-                        font-size: 12px;
-                    }
-                    p:nth-child(2){
-                        width: 200rpx;
-                        height: 44rpx;
-                        line-height: 44rpx;
-                        text-align: center;
-                        color: #3399ff;
-                        font-size: 27rpx;
-                        border-radius: 23rpx;
-                        border: 1rpx solid #3399ff;
-                    }
-                }
-            }
             .center{
                 background: #fff;
                 margin: 10rpx 0;
@@ -1102,6 +1108,15 @@ export default {
                             font-size: 36rpx;
                             font-weight: bold;
                             color: #333333;
+                            display: flex;
+                            justify-content: space-between;
+                            span{
+                                font-size: 24rpx;
+                                color :#57b987 ;
+                            }
+                            span.active{
+                                color: #ff6666;
+                            }
                         }
                         .title{
                             font-size: 26rpx;

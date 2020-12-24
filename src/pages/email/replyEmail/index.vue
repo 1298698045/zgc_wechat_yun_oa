@@ -166,9 +166,9 @@ export default {
                 return state.mailList.selectListName
             }
         }),
-        ...mapGetters([
-            'filterList'
-        ]),
+        // ...mapGetters([
+        //     'filterList'
+        // ]),
         fileids(){
             let temp = [];
             this.fileList.forEach(item=>{
@@ -192,6 +192,12 @@ export default {
         }
     },
     onShow(){
+        this.nameList =this.nameList.concat(this.selectListName);
+        this.nameList = this.nameList.map(item=>({
+            id:item.id,
+            name:item.FullName
+        }))
+        this.nameList = this.unique(this.nameList);
         this.fileList = this.fileList.concat(this.selectFiles);
         if(this.fileList!=''){
             this.getSendOut('0').then(res=>{
@@ -212,14 +218,6 @@ export default {
     onUnload(){
         this.getClear([]);
         this.clearFile([]);
-    },
-    onShow(){
-        this.nameList =this.nameList.concat(this.selectListName);
-        this.nameList = this.nameList.map(item=>({
-            id:item.id,
-            name:item.FullName
-        }))
-        this.nameList = this.unique(this.nameList);
     },
     methods:{
         getDeleteName(){

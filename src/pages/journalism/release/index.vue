@@ -188,6 +188,7 @@
 </template>
 <script>
 import {mapState,mapMutations,mapGetters} from 'vuex';
+import { message } from '@/utils/message';
 export default {
     data(){
         return {
@@ -466,15 +467,26 @@ export default {
                     userIds:this.filterList.join(',')
                 }
             }).then(res=>{
-                console.log(res);
-                const url = '/pages/journalism/main';
-                wx.navigateBack({
-                    delta: 2,
-                    success () {
-                        const pageList = getCurrentPages()
-                        console.log(pageList,'123123123')
-                    }
-                })
+                // const url = '/pages/journalism/main';
+                if(res.status==1){
+                    message.toast({
+                        title:"发布成功",
+                        delta: 2
+                    })
+                }else {
+                    wx.showToast({
+                        title:'发布失败',
+                        icon:'success',
+                        duration: 2000
+                    })
+                }
+                // wx.navigateBack({
+                //     delta: 2,
+                //     success () {
+                //         const pageList = getCurrentPages()
+                //         console.log(pageList,'123123123')
+                //     }
+                // })
             })
         }
     }

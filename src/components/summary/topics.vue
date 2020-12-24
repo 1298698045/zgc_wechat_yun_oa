@@ -53,6 +53,7 @@
     </div>
 </template>
 <script>
+import { message } from '@/utils/message';
 export default {
     name:"Topics",
     props:['name','Meetingid','current'],
@@ -142,12 +143,24 @@ export default {
                 }
             }).then(res=>{
                 console.log(res);
-                wx.showToast({
-                    title:res.msg,
-                    icon:"success",
-                    duration:2000
-                })
-                this.getTopicsQuery();
+                var that = this;
+                if(res.status==1){
+                    message.toast({
+                        title:res.msg,
+                        delta: 0,
+                        success(){
+                            setTimeout(() => {
+                                that.getTopicsQuery();
+                            }, 500);
+                        }
+                    })
+                }else {
+                    wx.showToast({
+                        title:res.msg,
+                        icon:"success",
+                        duration:2000
+                    })
+                }
             })
         },
         getAddSummary(){

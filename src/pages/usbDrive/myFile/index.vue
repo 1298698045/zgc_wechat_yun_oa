@@ -2,7 +2,7 @@
     <div class="wrap">
         <div class="nav" v-if="srchType=='share'">
             <p class="publicfile">{{shareFileName}}</p>
-            <p class="jurisdiction">权限设置：绍兴第二医院</p>
+            <p class="jurisdiction">权限设置：{{organizationName||'暂无'}}</p>
         </div>
         <div class="search">
             <van-search :value="search" placeholder="搜索" @change="changeSearch" />
@@ -275,6 +275,9 @@ export default {
         },
         photoUrl(){
             return this.$api.photo.url;
+        },
+        organizationName(){
+            return wx.getStorageSync('organizationName');
         }
     },
     onShow(){

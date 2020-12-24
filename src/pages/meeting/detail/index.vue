@@ -169,7 +169,7 @@
                         更多
                     </p>
                 </div>
-                <h3>回复 2</h3>
+                <h3>回复 {{commentList.length||''}}</h3>
                 <div class="commentWrap">
                     <!-- <div class="comment">
                         <div class="lBox">
@@ -228,7 +228,7 @@
                             </p>
                             <p>评论</p>
                         </div>
-                        <div class="box" @click="isSign?getSignIn():''">
+                        <div class="box" @click="isSign?getSignIn():getNoSignIn()">
                             <p>
                                 <i class="iconfont icon-qiandao"></i>
                             </p>
@@ -294,6 +294,7 @@ import Topics from "@/components/summary/topics";
 import mapList from '@/components/mapList';
 import QQMapWX from '@/utils/qqmap-wx-jssdk.js';
 import {mapState, mapMutations} from 'vuex';
+import { message } from '@/utils/message'
 var qqmapsdk = new QQMapWX({
     key: 'UVRBZ-UN2WU-KMJV6-2DAPJ-JW5QE-C5BYC' // 必填
 }); 
@@ -407,6 +408,7 @@ export default {
         }
     },
     onLoad(options){
+        Object.assign(this.$data,this.$options.data());
         this.clearFile([]);
         this.id = options.id;
         let sessionkey = wx.getStorageSync('sessionkey');
@@ -684,18 +686,41 @@ export default {
                     Id:this.id
                 }
             }).then(res=>{
-                console.log(res);
-                wx.showToast({
-                    title:res.msg,
-                    icon:"success",
-                    duration:2000,
-                    success:res=>{
-                        wx.navigateBack({
-                            delta: 1
-                        })
+                if(res.status==1){
+                    message.toast({
+                        delta:1,
+                        title:res.msg,
+                        success(){
 
-                    }
-                })
+                        }
+                    })
+                }else {
+                    message.toast({
+                        title:'删除失败',
+                        success(){
+
+                        }
+                    })
+                }
+                // wx.showToast({
+                //     title:res.msg,
+                //     icon:"success",
+                //     duration:2000,
+                //     success:res=>{
+                //         wx.navigateBack({
+                //             delta: 1
+                //         })
+
+                //     }
+                // })
+
+            })
+        },
+        getNoSignIn(){
+            wx.showToast({
+                title:'无法签到',
+                icon: 'success',
+                duration: 2000
             })
         },
         getSignIn(){
@@ -770,13 +795,27 @@ export default {
                                     }
                                 }).then(res=>{
                                     console.log(res);
-                                    wx.showToast({
-                                        title:res.msg,
-                                        icon:"success",
-                                        duration:2000
-                                    })
+                                    if(res.status==1){
+                                        wx.showToast({
+                                            title:'签到成功',
+                                            icon:"success",
+                                            duration:2000,
+                                            success:res=>{
+                                                setTimeout(()=>{
+                                                    that.getQueryDetail();
+                                                },500)
+                                            }
+                                        })
+                                    }else {
+                                        wx.showToast({
+                                            title:'签到失败',
+                                            icon:"success",
+                                            duration:2000,
+                                            success:res=>{
+                                            }
+                                        })
+                                    }
                                 })
-                                resolve();
                             }
                         })
                         
@@ -828,7 +867,9 @@ export default {
                     icon:"success",
                     duration:2000,
                     success:res=>{
-                        this.getQueryDetail();
+                        setTimeout(()=>{
+                            this.getQueryDetail();
+                        },500)
                     }
                 })
             })

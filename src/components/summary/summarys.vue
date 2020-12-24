@@ -65,6 +65,7 @@
     </div>
 </template>
 <script>
+import { message } from '@/utils/message';
 export default {
     name:"Summarys",
     props:['name','Meetingid','current','detailInfo'],
@@ -160,15 +161,26 @@ export default {
                     method:"entity.info.delete",
                     SessionKey:this.sessionkey,
                     ObjTypeCode:5004,
-                    Id:this.id
+                    Id:this.Meetingid
                 }
             }).then(res=>{
                 console.log(res);
-                wx.showToast({
-                    title:res.msg,
-                    icon:"success",
-                    duration:2000
-                })
+                if(res.status==1){
+                    message.toast({
+                        title:res.msg,
+                        delta: 0,
+                        success(){
+
+                        }
+                    })
+                }else {
+                    wx.showToast({
+                        title:'删除失败',
+                        icon:"success",
+                        duration:2000
+                    })
+                }
+                
             })
         },
         getAddSummary(){

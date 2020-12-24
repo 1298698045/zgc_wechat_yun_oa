@@ -263,11 +263,23 @@ export default {
             sessionkey:"",
             sort:"Name",
             isTime:false,
-            organizationName:""
-
+            organizationName:"",
+            srchType:"",
+            Folderid:""
         }
     },
-    onLoad(){
+    onLoad(options){
+        if(options.srchType=='share'){
+            wx.setNavigationBarTitle({
+                title: '共享文件'
+            })
+        }else {
+            wx.setNavigationBarTitle({
+                title: '单位文件'
+            })
+        }
+        this.srchType = options.srchType;
+        this.Folderid = options.id;
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         this.organizationName = wx.getStorageSync('organizationName');
@@ -293,9 +305,10 @@ export default {
                 data:{
                     method:this.$api.usb.filesQuery,
                     SessionKey:this.sessionkey,
-                    srchType:"share",
+                    srchType:this.srchType,
                     sort:this.sort,
-                    search:this.search
+                    search:this.search,
+                    Folderid:this.Folderid
                 }
             }).then(res=>{
                 console.log(res);

@@ -25,11 +25,11 @@
         </div>
         <h3>单位文件</h3>
         <div class="content back">
-            <div class="rowWrap" v-for="(item,index) in folders" :key="index">
+            <div class="rowWrap" @click="getCompanyFile">
                 <p class="imgBox">
                     <img :src="photoUrl+'Unit_file.png'" alt="">
                 </p>
-                <p class="text">{{item.name}}</p>
+                <p class="text">{{organizationName}}</p>
             </div>
         </div>
     </div>
@@ -47,6 +47,9 @@ export default {
     computed:{
         photoUrl(){
             return this.$api.photo.url;
+        },
+        organizationName(){
+            return wx.getStorageSync('organizationName');
         }
     },
     onLoad(){
@@ -62,7 +65,7 @@ export default {
                     method:this.$api.usb.filesQuery,
                     SessionKey:this.sessionkey,
                     srchType:'org',
-                    sort:this.sort
+                    // sort:this.sort
                 }
             }).then(res=>{
                 console.log(res);
@@ -88,7 +91,11 @@ export default {
             wx.navigateTo({url:url});
         },
         getSharedFile(){
-            const url = '/pages/usbDrive/shareFile/main';
+            const url = '/pages/usbDrive/shareFile/main?srchType='+'share'+'&id='+'10010000-0000-0000-0000-000000000003';
+            wx.navigateTo({url:url});
+        },
+        getCompanyFile(){
+            const url = '/pages/usbDrive/shareFile/main?srchType='+'org'+'&id='+'10010000-0000-0000-0000-000000000002';
             wx.navigateTo({url:url});
         }
     }

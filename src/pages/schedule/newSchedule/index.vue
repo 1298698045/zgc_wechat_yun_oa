@@ -1079,6 +1079,12 @@ export default {
                 //这里是回调
                 if(that.FileIds!=""){
                     that.getAddFile(id);
+                }else {
+                  setTimeout(() => {
+                    wx.navigateBack({
+                      detail:1
+                    })
+                  }, 500);
                 }
               },
             });
@@ -1098,6 +1104,14 @@ export default {
         url = "meeting.info.add";
         id = "";
       }
+      if(this.conference.id==''){
+        wx.showToast({
+          title: '请选择会议室',
+          icon: 'none',
+          duration:2000
+        })
+        return false;
+      }else 
       this.$httpWX
         .get({
           url: this.$api.message.queryList,
@@ -1121,13 +1135,26 @@ export default {
           },
         })
         .then((res) => {
-          console.log(res);
-          debugger;
           const id = res.data[0].ValueId;
-          this.getAddFile(id);
-          // wx.navigateBack({
-          //     delta: 1
-          // })
+          var that = this;
+          if(res.status==1){
+            message.toast( {
+                title:'创建成功',
+                delta: 1,
+                success() {
+                  //这里是回调
+                      if(that.FileIds!=""){
+                          that.getAddFile(id);
+                      }else {
+                        setTimeout(()=>{
+                          wx.navigateBack({
+                            detail:1
+                          })
+                        },500)
+                      }
+                },
+            });
+          }
         });
     },
   },

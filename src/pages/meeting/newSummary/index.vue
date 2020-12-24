@@ -54,6 +54,7 @@
 </template>
 <script>
 import { mapState } from 'vuex';
+import { message } from '@/utils/message'
 export default {
     data(){
         return {
@@ -112,12 +113,23 @@ export default {
                         MeetingSummary:this.MeetingSummary
                     }
                 }).then(res=>{
-                    console.log(res);
-                    setTimeout(()=>{
-                        wx.navigateBack({
-                            delta: 1
-                        })
-                    },1000)
+                    if(res.status==1){
+                        message.toast( {
+                            title:'创建成功',
+                            delta: 1,
+                            success() {
+    
+                            },
+                        });
+                    }else {
+                        message.toast( {
+                            title:'创建失败',
+                            delta: 1,
+                            success() {
+    
+                            },
+                        });
+                    }
                 })
             }else {
                 if(this.id){
