@@ -13,7 +13,7 @@
             <p>查看TA的历史记录</p>
             <p><i-icon type="enter" size="20" color="#cccccc" /></p>
         </div> -->
-        <FormList ref="refChild" v-if="current=='tab1'" :ProcessId="processId" :ProcessInstanceId="processInstanceId" :RuleLogId="RuleLogId" />
+        <FormList ref="refChild" v-if="current=='tab1'" :current="statusCurrent" :ProcessId="processId" :ProcessInstanceId="processInstanceId" :RuleLogId="RuleLogId" />
         <!-- 表单 -->
         <!-- <div class="center margin padding"  v-if="current=='tab1'">
            <div class="steps">
@@ -109,7 +109,7 @@
                         <p>更多</p>
                     </div>
                 </div>
-                <div class="btn" v-if="sign!='btnOff'">
+                <div class="btn" v-if="statusCurrent=='tab2'&&sign!='btnOff'">
                     <p @click="getRefuse">拒绝</p>
                     <p @click="getAgree">同意</p>
                 </div>
@@ -245,9 +245,9 @@
         >
             <div class="sheetWrap">
                 <!-- <p class="row" @click="getEntrust">委托</p> -->
-                <p class="row" @click="getJump" v-if="jurisdiction?jurisdiction.HasFlowJump:''">跳转</p>
-                <p class="row" @click="getCirculation('JQ')" v-if="jurisdiction?jurisdiction.InsertApprove:''">加签</p>
-                <p class="row" @click="getEndProcess" v-if="jurisdiction?jurisdiction.HasFlowFinish:''">结束</p>
+                <p class="row" @click="getJump" v-if="jurisdiction?jurisdiction.HasFlowJump&&statusCurrent=='tab2':''">跳转</p>
+                <p class="row" @click="getCirculation('JQ')" v-if="jurisdiction?jurisdiction.InsertApprove&&(statusCurrent=='tab2'||statusCurrent=='tab3'):''">加签</p>
+                <p class="row" @click="getEndProcess" v-if="jurisdiction?jurisdiction.HasFlowFinish&&statusCurrent=='tab2':''">结束</p>
             </div>
         </van-action-sheet>
         <Urging :urgingShow="urgingShow" :processInstanceId="processInstanceId" />
@@ -324,7 +324,6 @@ export default {
                 return state.user.instanceId
             },
             selectListName:state=>{
-                console.log(state.mailList.selectListName);
                 return state.mailList.selectListName;
             }
         }),

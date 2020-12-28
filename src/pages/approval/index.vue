@@ -237,6 +237,7 @@ export default {
         .header{
             width: 100%;
             background: #fff;
+            border-bottom: 1rpx solid #f6f7f8;
             // position: fixed;
             // top: 0;
             .boxWrap{

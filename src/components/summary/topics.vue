@@ -128,7 +128,7 @@ export default {
             if(name=='删除'){
                 this.getDelete();
             }else if(name=='修改'){
-                const url = '/pages/meeting/newSummary/main?itemId='+this.id+'&description='+this.description+'&Meetingid='+this.Meetingid+'&name='+this.name;
+                const url = '/pages/meeting/newSummary/main?itemId='+this.id+'&content='+this.description+'&Meetingid='+this.Meetingid+'&name='+this.name;
                 wx.navigateTo({url:url});
             }
         },

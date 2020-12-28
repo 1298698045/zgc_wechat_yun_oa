@@ -93,7 +93,6 @@ export default {
         this.sessionkey = sessionkey;
         this.name = options.name;
         this.Meetingid = options.Meetingid;
-        this.MeetingSummary = options.description;
         this.id = options.itemId;
     },
     methods:{

@@ -238,7 +238,7 @@ export default {
                 const url  = '/pages/email/main';
                 wx.navigateTo({url:url});
             }else if(item.id==104){
-                const url = '/pages/journalism/main?contentTypeCode='+1;
+                const url = '/pages/journalism/main?contentTypeCode='+1+'&title='+item.label;
                 wx.navigateTo({url:url});
             }else if(item.id==101){
                 const url = '/pages/todoBusiness/main';
@@ -247,7 +247,7 @@ export default {
                 const url = '/pages/usbDrive/main';
                 wx.navigateTo({url:url});
             }else if(item.id==100202){
-                const url = '/pages/journalism/main?contentTypeCode='+2;
+                const url = '/pages/journalism/main?contentTypeCode='+2+'&title='+item.label;
                 wx.navigateTo({url:url});
                 // const url = '/pages/todoBusiness/launch/main';
                 // wx.navigateTo({url:url});

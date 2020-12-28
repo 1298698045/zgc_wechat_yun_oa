@@ -1,21 +1,21 @@
 <template>
     <div class="wrap">
-        <div class="contentWrap">
+        <div class="contentWrap" v-if="MeetingSummary!=null">
             <div class="rowContent">
                 <div class="rowT"  @click="getSummaryDetail">
                     <div class="l">
-                        <p>{{detailInfo.createdByName}}</p>
+                        <p>{{MeetingSummary.CreatedByName}}</p>
                     </div>
                     <div class="r">
-                        <p>{{detailInfo.createdByName}}</p>
-                        <p>{{detailInfo.owningUserName}}</p>
+                        <p>{{MeetingSummary.CreatedByName}}</p>
+                        <p>{{MeetingSummary.BusinessUnitIdName}}</p>
                     </div>
                 </div>
                 <p class="title">
-                    {{detailInfo.name}}
+                    {{MeetingSummary.CreatedByName}}
                 </p>
                 <div class="cont">
-                    {{MeetingSummary}}
+                    {{MeetingSummary.MeetingSummary}}
                 </div>
                 <div class="files" v-for="(item,index) in files" :key="index">
                     <div class="l">
@@ -28,7 +28,7 @@
                 </div>
                 <div class="more">
                     <p>
-                        2020年05月25日  14:00
+                        {{MeetingSummary.CreatedOn}}
                     </p>
                     <p @click="getMore">
                         <i-icon type="more" color="#666666" size="20" />
@@ -120,7 +120,6 @@ export default {
                     Meetingid:this.Meetingid
                 }
             }).then(res=>{
-                console.log(res);
                 this.MeetingSummary = res.data;
             })
         },
@@ -134,7 +133,6 @@ export default {
                     ObjTypeCode:5004
                 }
             }).then(res=>{
-                console.log(res);
                 this.files = res.listData;
             })
         },
@@ -150,7 +148,7 @@ export default {
             if(name=='删除'){
                 this.getDelete();
             }else if(name=='修改'){
-                const url = '/pages/meeting/newSummary/main?content='+this.MeetingSummary+'&current='+this.current+'&Meetingid='+this.Meetingid;
+                const url = '/pages/meeting/newSummary/main?content='+this.MeetingSummary.MeetingSummary+'&current='+this.current+'&Meetingid='+this.Meetingid;
                 wx.navigateTo({url:url});
             }
         },
@@ -164,13 +162,13 @@ export default {
                     Id:this.Meetingid
                 }
             }).then(res=>{
-                console.log(res);
+                let that = this;
                 if(res.status==1){
                     message.toast({
                         title:res.msg,
                         delta: 0,
                         success(){
-
+                            that.getQuery();
                         }
                     })
                 }else {

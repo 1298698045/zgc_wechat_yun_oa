@@ -41,10 +41,10 @@
             </div>
           </div>
         </div>
-        <p class="clas" v-for="(item,index) in info.toUsers" :key="index">
+        <!-- <p class="clas" v-for="(item,index) in info.toUsers" :key="index">
           收件人：
           <span>{{item.name}}</span>
-        </p>
+        </p> -->
         <p class="clas">抄送/密送，发件人：{{info.fromName}}</p>
         <!-- <p class="clas" >主题：<span class="bold">回复：{{info.subject}}</span>
                     
@@ -143,7 +143,7 @@ export default {
             content:"",
             mailBody:"",
             sessionkey:"",
-            EmailId:"",
+            // EmailId:"",
             fileList:[],
             sheetShow:false,
             nameList:[],
@@ -335,7 +335,7 @@ export default {
                     ltags:this.ltags
                 }
             }).then(res=>{
-                this.content = res;
+                this.content = `<div>${res}</div>`;
             })
         },
         // 预览图片
@@ -431,7 +431,7 @@ export default {
                         emailStatus:emailStatus,
                         priority:0,
                         attachfileids:"",
-                        id:this.EmailId
+                        id:this.emailId
                     }
     
                 }).then(res=>{
@@ -450,7 +450,7 @@ export default {
                             }
                         })
                     }else if(emailStatus=='0'){
-                        this.EmailId = res.data[0].EmailId;
+                        this.emailId = res.data[0].EmailId;
                         if(str=='save'){
                             wx.showToast({
                                 title:"保存草稿成功",

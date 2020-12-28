@@ -406,6 +406,7 @@ export default {
       copyStartTime: "",
       copyEndTime: "",
       isConference: false,
+      meetingSign:''
     };
   },
   computed: {
@@ -556,6 +557,17 @@ export default {
     this.getClear([]);
     this.clearFile([]);
     let sessionkey = wx.getStorageSync("sessionkey");
+    this.meetingSign = options.meetingSign;
+    if(this.meetingSign==0){
+      this.index = 1;
+      wx.setNavigationBarTitle({
+        title: '新建会议'
+      })
+    }else {
+      wx.setNavigationBarTitle({
+        title: '新建日程'
+      })
+    }
     this.sessionkey = sessionkey;
     this.startTime = options.startTime;
     this.endTime = options.endTime;

@@ -178,12 +178,12 @@
     </div>
     <div class="dataWrap" v-if="current==1">
       <div class="search">
-        <van-search :value="value" placeholder="搜索标题、编号、正文内容" />
+        <van-search :value="value" placeholder="搜索标题、编号、正文内容" @change="changeSearch" />
       </div>
       <div class="contentList">
-        <div class="box_wrap">
+        <div class="box_wrap" v-for="(item,index) in list" :key="index">
           <div class="row">
-            <p class="title">XX提交的请假</p>
+            <p class="title">{{item.Name}}</p>
             <div class="time">2020-10-10</div>
           </div>
           <p class="desc">请假类型：年假</p>
@@ -191,8 +191,8 @@
           <p class="desc">结束时间：2002-10-10 下午</p>
           <div class="tagFot">
             <p class="tag">
-              <span>测试</span>
-              由XX提交
+              <span>{{item.newName}}</span>
+              由{{item.CreatedByName}}提交
             </p>
             <p class="status">XXX处理中</p>
           </div>
@@ -227,7 +227,12 @@ export default {
       iDays:'',
       isShow:false,
       processIdName:"",
-      current:0
+      current:0,
+      list:[],
+      isPage:false,
+      searchValue:"",
+      pageNumber:1,
+      pageSize:10
     };
   },
   computed: {
@@ -339,8 +344,51 @@ export default {
     this.queryType();
   },
   methods: {
+    changeSearch(e){
+      this.searchValue = e.mp.detail;
+      this.getQuery();
+    },
+    // 查看数据
+    getQuery(){
+      this.$httpWX.get({
+        url:this.$api.message.queryList,
+        data:{
+          method:"process.instanceowner.search",
+          SessionKey:this.sessionkey,
+          objectType: 30037,
+          search: this.searchValue,
+          pageNumber:this.pageNumber,
+          pageSize:this.pageSize,
+        }
+      }).then(res=>{
+        let total = res.total;
+        if(this.pageNumber*this.pageSize<=total){
+          this.isPage = true;
+        }else {
+          this.isPage = false;
+        }
+        let temp = [];
+        if(this.pageNumber==1){
+          temp = res.listData;
+        }else {
+          temp = this.list.concat(res.listData);
+        }
+        this.list = temp;
+        this.list.map(item=>{
+          if(item.CreatedByName.length>2){
+            item.newName = item.CreatedByName.substr(1);
+          }else {
+            item.newName = item.CreatedByName;
+          }
+          return item;
+        })
+      })
+    },
     onChange(e){
       this.current = e.mp.detail.index;
+      if(this.current==1){
+        this.getQuery();
+      }
     },
     queryType(){
       this.$httpWX.get({
@@ -556,6 +604,23 @@ export default {
           }
       })
     }
+  },
+  // 下拉刷新
+  onPullDownRefresh() {
+    if(this.current==1){
+      this.pageNumber = 1;
+      this.getQuery();
+    }
+    wx.stopPullDownRefresh();
+  },
+  /**
+   * 页面上拉触底事件的处理函数
+   */
+  onReachBottom() {
+    if(this.isPage){
+      this.pageNumber++;
+      this.getQuery();
+    }
   }
 };
 </script>
@@ -719,6 +784,7 @@ export default {
         }
     }
      .dataWrap{
+       padding-bottom: 20rpx;
     .contentList{
       padding: 0 20rpx;
       .box_wrap{

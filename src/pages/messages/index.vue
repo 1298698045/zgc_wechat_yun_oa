@@ -144,7 +144,7 @@ export default {
             })
             // 107邮件 101待办事务 104新闻
             if(id==104){
-                const url = '/pages/journalism/main?contentTypeCode='+1;
+                const url = '/pages/journalism/main?contentTypeCode='+1+'&title='+item.Name;
                 wx.navigateTo({url:url});
             }else if(id==106){
                 const url = '/pages/usbDrive/main';
@@ -159,7 +159,7 @@ export default {
                 const url = '/pages/schedule/main';
                 wx.switchTab({url:url});
             }else if(id==100202){
-                const url = '/pages/journalism/main?contentTypeCode='+2;
+                const url = '/pages/journalism/main?contentTypeCode='+2+'&title='+item.Name;
                 wx.navigateTo({url:url});
             }else if(id==111){
                 const url = '/pages/meeting/notice/main';

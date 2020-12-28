@@ -206,7 +206,7 @@ export default {
             wx.navigateTo({url:url});
         },
         onCluesAddBtnClick(){
-            const url = "/pages/schedule/newSchedule/main";
+            const url = "/pages/schedule/newSchedule/main?meetingSign="+0;
             wx.navigateTo({url:url});
         }
     },

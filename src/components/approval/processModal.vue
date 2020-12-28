@@ -231,7 +231,8 @@ export default {
                 }
             }).then(res=>{
                 this.agreeShow = false;
-                let status = res.actions[0].state
+                let status = res.actions[0].state;
+                let that = this;
                 if(status=='SUCCESS'){
                     wx.showToast({
                         title: "提交成功",
@@ -239,9 +240,12 @@ export default {
                         duration:2000,
                         success:res=>{
                             setTimeout(() => {
-                                wx.navigateBack({
-                                    delta: 1
-                                })
+                                that.getClear([]);
+                                that.$parent.current = 1;
+                                that.$parent.getQuery();
+                                // wx.navigateBack({
+                                //     delta: 1
+                                // })
                             }, 1000);
                         }
                     })

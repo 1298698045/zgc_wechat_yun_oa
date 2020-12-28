@@ -2,8 +2,8 @@
     <div class="wrap">
         <div class="header">
             <i-tabs :current=" current " @change="handleChange">
-                <i-tab key="tab1" title="待我审批的"></i-tab>
-                <i-tab key="tab2" title="我已审批的"></i-tab>
+                <i-tab key="tab2" title="待我审批的"></i-tab>
+                <i-tab key="tab3" title="我已审批的"></i-tab>
             </i-tabs>
             <!-- <div class="nav" v-if="!isShow&&!isMenu">
                 <div class="box lBox" @click="getSearch">
@@ -122,7 +122,7 @@ export default {
     },
     data(){
         return {
-            current:'tab1',
+            current:'tab2',
             isShow:false,
             option1: [
                 { text: '院办', value: 0 },
@@ -174,7 +174,7 @@ export default {
         },
         getChildFn(isBook){
             this.isBook = isBook;
-            if(this.current=='tab1'){
+            if(this.current=='tab2'){
                 this.getQuery();
             }else {
                 this.getAlreadyQuery();
@@ -227,11 +227,12 @@ export default {
         ]),
         getDetail(item){
             let sign = '';
-            if(this.current=='tab2'){
+            if(this.current=='tab3'){
                 sign = 'btnOff'
             }
             this.updateInstanceId(item.instanceId);
-            const url = '/pages/todoBusiness/detail/main?processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&sign='+sign+'&RuleLogId='+item.id+'&createdByName='+item.createdByName+'&processIdName='+item.processIdName;
+            const url = '/pages/todoBusiness/detail/main?processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&sign='+sign+'&RuleLogId='+item.id+'&createdByName='+item.createdByName+'&processIdName='+item.processIdName
+            +'&current='+this.current+'&toActivityId='+item.toActivityId;
             wx.navigateTo({
                 url:url
             })
@@ -277,7 +278,7 @@ export default {
         handleChange(e){
             this.current = e.mp.detail.key;
             this.isBook = false;
-            if(this.current=='tab1'){
+            if(this.current=='tab2'){
                 this.getQuery();
             }else {
                 this.getAlreadyQuery();

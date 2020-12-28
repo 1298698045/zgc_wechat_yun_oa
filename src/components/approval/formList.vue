@@ -6,7 +6,7 @@
                     :value="item.value"
                     input-class="inpClass"
                     custom-style="font-size:34rpx;color:#333333"
-                    :required="item.require||false"
+                    :required="item.required||false"
                     :label="item.label"
                     :placeholder="item.helpText"
                     input-align="right"
@@ -20,7 +20,7 @@
                         :value="currenData[item.id][item.index]?currenData[item.id][item.index].label:''"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
-                        :required="item.require||false"
+                        :required="item.required||false"
                         :disabled="disabled"
                         :label="item.label"
                         :placeholder="item.helpText"
@@ -36,7 +36,7 @@
                         title-width="110px"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
-                        :required="item.require||false"
+                        :required="item.required||false"
                         :disabled="disabled"
                         :label="item.label"
                         input-align="right"
@@ -51,7 +51,7 @@
                         :value="item.value"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
-                        :required="item.require||false"
+                        :required="item.required||false"
                         :disabled="disabled"
                         :label="item.label"
                         input-align="right"
@@ -65,7 +65,7 @@
                         :value="item.value"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
-                        :required="item.require||false"
+                        :required="item.required||false"
                         :disabled="disabled"
                         :label="item.label"
                         input-align="right"
@@ -79,7 +79,7 @@
                         :value="item.value"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
-                        required
+                        :required="item.required||false"
                         :disabled="disabled"
                         :label="item.label"
                         input-align="right"
@@ -122,7 +122,7 @@
                 </van-cell-group>
             </van-checkbox-group> -->
             <van-cell-group custom-class="cell" v-if="item.type=='U'">
-                <van-cell value-class="cellValue" title-style="font-size:34rpx;" :title="item.label" is-link :value="item.value" @click="!disabled?getOpenModal(item,index):''" />
+                <van-cell :required="item.required||false" value-class="cellValue" title-style="font-size:34rpx;" :title="item.label" is-link :value="item.value" @click="!disabled?getOpenModal(item,index):''" />
             </van-cell-group>
             <div class="switch" v-if="item.type=='H'||item.type=='MC'">
                 <p>
@@ -135,16 +135,29 @@
             <div class="row" v-if="item.type=='UCS'||item.type=='X'||item.type=='J'">
                 <div class="title">
                     <span>{{item.label}}</span>
-                    <van-dropdown-menu z-index="9999" v-if="item.type=='UCS'&&!item.readonly">
+                    <van-dropdown-menu z-index="9999" v-if="item.type=='UCS'&&!item.readonly&&current=='tab2'">
                         <van-dropdown-item :value="value1" :options="option1" @change="(e)=>{changeDropDown(e,item)}" />
                     </van-dropdown-menu>
                 </div>
                 <div class="list_textarea">
-                    <p v-for="(v,idx) in item.item" :key="idx">
-                        [  {{v.UserName}} ({{v.DeptName}}) {{v.Comment}} {{v.CreateTime}}  ]
-                    </p>
+                    <div v-for="(v,idx) in item.item" :key="idx">
+                        <!-- <p class="imgs">
+                            <img :src="photoUrl+v.SignUrl" alt="">
+                        </p> --> 
+                        <p>
+                             {{v.Comment}}
+                        </p>
+                        <p>
+                          [  {{v.UserName}} ({{v.DeptName}}) {{v.CreateTime}}  ]
+                        </p>
+                    </div>
                 </div>
-                <textarea :disabled="item.readonly" v-model="item.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="!item.readonly?'请输入':''"></textarea>
+                <textarea :disabled="item.readonly" :value="item.value"
+                :auto-height="true"
+                cols="100"
+                rows="10"
+                maxlength="100000"
+                 @input="(e)=>{changeTextArea(e,item)}" placeholder-class="placeholder" :placeholder="!item.readonly?'请输入':''"></textarea>
             </div>
             <div class="parentWrap" v-if="item.type=='RelatedList'">
                 <h3>{{item.label}}</h3>
@@ -153,7 +166,7 @@
                         <van-field
                             :value="v.value"
                             custom-style="font-size:34rpx;color:#333333"
-                            :required="v.require||false"
+                            :required="v.required||false"
                             :label="v.label"
                             :placeholder="v.helpText"
                             input-align="right"
@@ -183,7 +196,7 @@
                                 title-width="110px"
                                 input-class="inp"
                                 custom-style="font-size:34rpx;color:#333333"
-                                :required="v.require||false"
+                                :required="v.required||false"
                                 :disabled="disabled"
                                 :label="v.label"
                                 input-align="right"
@@ -228,7 +241,7 @@ import {newMultiArray} from '@/utils/multiArray';
 import { mockData,dataList,serachList,testList } from '@/utils/mock';
 export default {
     name:"FormList",
-    props:['ProcessId','ProcessInstanceId','RuleLogId'],
+    props:['ProcessId','ProcessInstanceId','RuleLogId','current'],
     data(){
         return {
             title:"通用请示报告",
@@ -270,7 +283,8 @@ export default {
                 { text: '复核完毕，请提交正式纸质版，等待签订', value: 3 },
                 { text: '提交院领导或科技处的批复意见', value: 4 },
             ],
-            value1:0
+            value1:0,
+            photoUrl:""
         }
     },
     computed:{
@@ -282,6 +296,7 @@ export default {
         },
     },
     onLoad(){
+        this.photoUrl = this.$api.photo.url;
         this.testLists = testList.listData;
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
@@ -292,6 +307,10 @@ export default {
         })
     },
     methods:{
+        changeTextArea(e,item){
+            item.value = e.mp.detail.value;
+            this.fields[item.id] = item.value;
+        },
         changeDropDown(e,item){
             console.log(e,item)
             let index = e.mp.detail;
@@ -591,8 +610,8 @@ export default {
                 margin-left: 10rpx;
             }
             textarea{
-                width: 90%;
-                height: 150rpx;
+                width: 100%;
+                min-height: 150rpx;
                 padding: 10rpx;
             }
             .placeholder{

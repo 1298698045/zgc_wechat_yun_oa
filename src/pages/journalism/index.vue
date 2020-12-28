@@ -198,7 +198,8 @@ export default {
             pageSize:15,
             total:"",
             contentTypeCode:"",
-            sessionkey:""
+            sessionkey:"",
+            title:""
         }
     },
     onShow(){
@@ -212,6 +213,10 @@ export default {
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         this.contentTypeCode = options.contentTypeCode;
+        this.title = options.title;
+        wx.setNavigationBarTitle({
+            title: this.title
+        })
         this.pageNumber = 1;
         // this.selectList = [];
         this.isEdit = false;
