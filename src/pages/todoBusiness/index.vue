@@ -181,19 +181,19 @@
                 <div class="iconWrap">
                     <div class="icon">
                         <p>
-                            <img src="https://oa.zgchospital.com/img/wechat/Scan.png" alt="">
+                            <img src="https://wx.phxinfo.com.cn/img/wechat/Scan.png" alt="">
                         </p>
                         <p>审批标题</p>
                     </div>
                     <div class="icon">
                         <p>
-                            <img src="https://oa.zgchospital.com/img/wechat/Scan.png" alt="">
+                            <img src="https://wx.phxinfo.com.cn/img/wechat/Scan.png" alt="">
                         </p>
                         <p>审批状态</p>
                     </div>
                     <div class="icon">
                         <p>
-                            <img src="https://oa.zgchospital.com/img/wechat/Scan.png" alt="">
+                            <img src="https://wx.phxinfo.com.cn/img/wechat/Scan.png" alt="">
                         </p>
                         <p>审批时间</p>
                     </div>
@@ -895,8 +895,12 @@ export default {
         // 事务详情
         getDetail(item){
             this.updateInstanceId(item.instanceId);
+            let draft = false;
+            if(this.current=='tab1' && item.stateCode==0){
+                draft = true;
+            }
             const url = '/pages/todoBusiness/detail/main?id='+item.id+'&name='+item.name+'&processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&RuleLogId='+item.id
-            +'&toActivityId='+item.toActivityId+'&fromActivityId='+item.fromActivityId+'&current='+this.current+'&stateCode='+item.stateCode+'&instanceId='+item.instanceId+'&createdByName='+item.createdByName+'&processIdName='+item.processIdName;
+            +'&toActivityId='+item.toActivityId+'&fromActivityId='+item.fromActivityId+'&current='+this.current+'&stateCode='+item.stateCode+'&instanceId='+item.instanceId+'&createdByName='+item.createdByName+'&processIdName='+item.processIdName+'&draft='+draft;
             wx.navigateTo({url:url});
         },
         // 催办

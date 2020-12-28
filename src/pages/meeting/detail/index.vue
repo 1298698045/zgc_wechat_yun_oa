@@ -228,15 +228,21 @@
                             </p>
                             <p>评论</p>
                         </div>
-                        <div class="box" @click="isSign?getSignIn():getNoSignIn()">
+                        <div class="box" v-if="detailInfo.audienceCheckinStatus!=2" @click="isSign?getSignIn():getNoSignIn()">
                             <p>
                                 <i class="iconfont icon-qiandao"></i>
                             </p>
                             <p>签到</p>
                         </div>
+                        <div class="box" v-if="detailInfo.audienceCheckinStatus==2">
+                            <p>
+                                <i class="iconfont icon-qiandao"></i>
+                            </p>
+                            <p>已签到</p>
+                        </div>
                         <div class="box" @click="getMove">
                             <p>
-                                <i class="iconfont icon-gengduo"></i>
+                                <i class="iconfont icon-gengduo1"></i>
                             </p>
                             <p>更多</p>
                         </div>
@@ -283,8 +289,8 @@
                 </div>
             </van-action-sheet>
         </div>
-        <Summarys v-if="current=='tab3'" :detailInfo="detailInfo" :current="current" :name="detailInfo.name" :Meetingid="detailInfo.valueId" ref="child" />
-        <Topics v-if="current=='tab4'" :current="current" :name="detailInfo.name" :Meetingid="detailInfo.valueId" ref="child"  />
+        <Summarys v-if="current=='tab3'" :detailInfo="detailInfo" :current="current" :name="detailInfo.name" :Meetingid="detailInfo.valueId" :isEdit="isEdit" ref="child" />
+        <Topics v-if="current=='tab4'" :current="current" :name="detailInfo.name" :Meetingid="detailInfo.valueId" :isEdit="isEdit" ref="child"  />
         <mapList @childFn="getChildFn" @cancel="getCancelChild" v-if="isShow" />
     </div>
 </template>
@@ -321,9 +327,9 @@ export default {
                 {
                     name: '删除'
                 },
-                {
-                    name: '取消会议'
-                }
+                // {
+                //     name: '取消会议'
+                // }
             ],
             show:false,
             id:"",

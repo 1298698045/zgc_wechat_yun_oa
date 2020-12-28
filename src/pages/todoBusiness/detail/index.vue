@@ -54,11 +54,11 @@
            </div>
         </div> -->
         <!-- 文件 -->
-        <File v-if="current=='tab2'" :instanceId="instanceId" :processInstanceId="processInstanceId"></File>
+        <File v-if="current=='tab2'" :instanceId="instanceId" :processInstanceId="processInstanceId" :draft="draft"></File>
         <!-- 流程 -->
         <process v-if="current=='tab3'" :processInstanceId="processInstanceId" />
         <!-- 关联 -->
-        <relation ref="child" :instanceId="instanceId" v-if="current=='tab4'"></relation>
+        <relation ref="child" :instanceId="instanceId" v-if="current=='tab4'" :draft="draft"></relation>
         <!-- 评论 -->
         <div class="comment" v-if="current=='tab5'">
             <div class="cont" v-for="(item,index) in commentList" :key="index" @click="getOpenDel(item)">
@@ -315,7 +315,8 @@ export default {
             jurisdiction:"", // 权限
             SplitType:'',
             processIdName:'',
-            isFinal:false
+            isFinal:false,
+            draft:false // 我发起-草稿状态
         }
     },
     computed:{
@@ -371,6 +372,7 @@ export default {
         this.sessionkey = sessionkey;
         this.name = options.name;
         this.processInstanceId = options.processInstanceId;
+        this.draft = options.draft;
         this.id = options.id;
         this.processId = options.processId;
         this.sign = options.sign;

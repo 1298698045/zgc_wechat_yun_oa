@@ -58,7 +58,7 @@
                 <p :class="{'active':resultList!=''}" @click="getDelete">删除</p>
             </div>
         </div>
-        <div class="clues-add-button" v-if="!isCheck&&!sheetShow" @click="onCluesAddBtnClick">
+        <div class="clues-add-button" v-if="!isCheck&&!sheetShow&&draft=='true'" @click="onCluesAddBtnClick">
             <van-icon name="plus" size="20" color="#fff" />
         </div>
          <van-action-sheet
@@ -86,7 +86,7 @@ import {mapState,mapMutations,mapActions,mapGetters} from 'vuex';
 import getOpenFiles from '@/utils/openFiles';
 export default {
     name:"File",
-    props:['instanceId','processInstanceId'],
+    props:['instanceId','processInstanceId','draft'],
     data(){
         return {
             show:false,
@@ -102,17 +102,17 @@ export default {
                 //     num:"104K"
                 // },
                 // {
-                //     img:"https://oa.zgchospital.com/img/wechat/logo.png",
+                //     img:"https://wx.phxinfo.com.cn/img/wechat/logo.png",
                 //     name:"",
                 //     num:"104K"
                 // },
                 // {
-                //     img:"https://oa.zgchospital.com/img/wechat/logo.png",
+                //     img:"https://wx.phxinfo.com.cn/img/wechat/logo.png",
                 //     name:"",
                 //     num:"104K"
                 // },
                 // {
-                //     img:"https://oa.zgchospital.com/img/wechat/logo.png",
+                //     img:"https://wx.phxinfo.com.cn/img/wechat/logo.png",
                 //     name:"",
                 //     num:"104K"
                 // },
@@ -224,7 +224,7 @@ export default {
                     
                     const tempFilePaths = res.tempFilePaths;
                     wx.uploadFile({
-                        url: "https://oa.zgchospital.com/rest?method="+'flow.files.upload'+'&SessionKey=' + that.sessionkey+'&pid='+that.instanceId+'&objTypeCode='+'123',
+                        url: "https://wx.phxinfo.com.cn/rest?method="+'flow.files.upload'+'&SessionKey=' + that.sessionkey+'&pid='+that.instanceId+'&objTypeCode='+'123',
                         filePath: tempFilePaths[0],
                         name: 'file',
                         formData: {

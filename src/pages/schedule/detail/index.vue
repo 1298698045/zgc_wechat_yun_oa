@@ -194,6 +194,7 @@
 </template>
 <script>
 import { mapState, mapMutations } from 'vuex';
+import { message } from '@/utils/message';
 export default {
     data(){
         return {
@@ -437,17 +438,23 @@ export default {
                     id:this.id
                 }
             }).then(res=>{
-                console.log(res);
-                wx.showToast({
-                    title:res.msg,
-                    icon:"success",
-                    duration:2000,
-                    success:res=>{
-                        wx.navigateBack({
-                            delta: 1
-                        })
-                    }
-                })
+                if(res.status==1){
+                    message.toast({
+                        title: "删除成功",
+                        delta: 1,
+                        success(){
+
+                        }
+                    })
+                }else {
+                    message.toast({
+                        title: "删除失败",
+                        delta: 0,
+                        success(){
+
+                        }
+                    })
+                }
             })
         }
     }

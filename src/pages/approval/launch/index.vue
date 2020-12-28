@@ -41,19 +41,19 @@
                         <div class="iconWrap">
                             <div class="icon">
                                 <p>
-                                    <img src="https://oa.zgchospital.com/img/wechat/Scan.png" alt="">
+                                    <img src="https://wx.phxinfo.com.cn/img/wechat/Scan.png" alt="">
                                 </p>
                                 <p>审批标题</p>
                             </div>
                             <div class="icon">
                                 <p>
-                                    <img src="https://oa.zgchospital.com/img/wechat/Scan.png" alt="">
+                                    <img src="https://wx.phxinfo.com.cn/img/wechat/Scan.png" alt="">
                                 </p>
                                 <p>审批状态</p>
                             </div>
                             <div class="icon">
                                 <p>
-                                    <img src="https://oa.zgchospital.com/img/wechat/Scan.png" alt="">
+                                    <img src="https://wx.phxinfo.com.cn/img/wechat/Scan.png" alt="">
                                 </p>
                                 <p>审批时间</p>
                             </div>
@@ -322,8 +322,12 @@ export default {
             'updateInstanceId'
         ]),
         getDetail(item){
+            let draft = false;
+            if(item.stateCode==0){
+                draft = true;
+            }
             this.updateInstanceId(item.instanceId);
-            const url = '/pages/todoBusiness/detail/main?processInstanceId='+item.processInstanceId+'&processId='+item.processId;
+            const url = '/pages/todoBusiness/detail/main?processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&draft='+draft;
             wx.navigateTo({
                 url:url
             })

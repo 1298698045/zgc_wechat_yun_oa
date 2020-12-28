@@ -53,8 +53,8 @@
                 <van-checkbox-group :value="result" @change="changeTag">
                     <div class="checkboxGroup">
                         <p v-for="(item,index) in tagList" :key="index">
-                            <van-checkbox :name="item"  custom-class="check" label-class="labels"  shape="square">
-                                {{item}}
+                            <van-checkbox :name="item.label"  custom-class="check" label-class="labels"  shape="square">
+                                {{item.label}}
                             </van-checkbox>
                         </p>
                         <!-- <van-checkbox :value="checked" custom-class="check" label-class="label" label-position="left" shape="square" @change="onChange">
@@ -158,6 +158,7 @@ export default {
         Object.assign(this.$data, this.$options.data())
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
+        this.queryTag();
         if(options.id){
             this.id = options.id;
             this.imgList = [this.conferenceLink];
@@ -172,6 +173,19 @@ export default {
         }
     },
     methods:{
+        queryTag(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    SessionKey:this.sessionkey,
+                    method:this.$api.public.leaveQuery,
+                    objectTypeCode:20034,
+                    name:"AttachInfo"
+                }
+            }).then(res=>{
+                this.tagList = res;
+            })
+        },
         getQuery(){
             this.$httpWX.get({
                 url:this.$api.message.queryList,

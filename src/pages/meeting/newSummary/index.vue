@@ -8,7 +8,8 @@
                 <i class="iconfont icon-richeng"></i>
             </p>
             <p class="cont">
-                <textarea v-model="MeetingSummary" name="" id="" cols="30" rows="10" placeholder="输入会议内容"></textarea>
+                <textarea :auto-height="true"
+                maxlength="100000" v-model="MeetingSummary" name="" id="" cols="100" rows="10" placeholder="输入会议内容"></textarea>
             </p>
         </div>
         <div class="enclosure">
@@ -221,7 +222,7 @@ export default {
                 margin-left: 20rpx;
                 textarea{
                     width: 100%;
-                    height: 100rpx;
+                    min-height: 100rpx;
                 }
             }
         }

@@ -1,6 +1,6 @@
 <template>
     <div class="wrap">
-        <div class="header" v-if="!editShow">
+        <div class="header" v-if="!editShow&&draft=='true'">
             <p @click="getAdd">添加</p>
             <p @click="getEdit">编辑</p>
         </div>
@@ -71,7 +71,7 @@ import Bus from '../utils/bus';
 import {mapMutations} from 'vuex';
 export default {
     name:"relation",
-    props:['instanceId'],
+    props:['instanceId','draft'],
     data(){
         return {
             result:[],

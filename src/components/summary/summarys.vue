@@ -30,7 +30,7 @@
                     <p>
                         {{MeetingSummary.CreatedOn}}
                     </p>
-                    <p @click="getMore">
+                    <p @click="getMore" v-if="isEdit">
                         <i-icon type="more" color="#666666" size="20" />
                     </p>
                 </div>
@@ -68,7 +68,7 @@
 import { message } from '@/utils/message';
 export default {
     name:"Summarys",
-    props:['name','Meetingid','current','detailInfo'],
+    props:['name','Meetingid','current','detailInfo','isEdit'],
     data(){
         return {
             isShow:false,
@@ -214,7 +214,7 @@ export default {
                     // tempFilePath可以作为img标签的src属性显示图片
                     const tempFilePaths = res.tempFilePaths;
                     wx.uploadFile({
-                        url: "https://oa.zgchospital.com/rest?method="+'file.attachfiles.upload'+'&SessionKey='+that.sessionkey+'&pid='+that.Meetingid+'&objTypeCode='+'5004', //仅为示例，非真实的接口地址
+                        url: "https://wx.phxinfo.com.cn/rest?method="+'file.attachfiles.upload'+'&SessionKey='+that.sessionkey+'&pid='+that.Meetingid+'&objTypeCode='+'5004', //仅为示例，非真实的接口地址
                         filePath: tempFilePaths[0],
                         name: 'file',
                         formData: {
