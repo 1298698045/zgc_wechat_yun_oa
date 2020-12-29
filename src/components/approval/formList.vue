@@ -87,12 +87,13 @@
                     />
                 </picker>
             </van-cell-group>
-            <van-cell-group custom-class="cell" v-if="item.type=='G'">
+            <van-cell-group custom-class="cell" v-if="item.type=='G'||item.type=='MC'">
                 <div class="checkWrap">
-                    <van-checkbox-group :value="item.result" @change="((e)=>{changeCheckTag(e,item)})">
+                    <p class="label">{{item.label}}</p>
+                    <van-checkbox-group :disabled="item.readonly" :value="item.result" @change="((e)=>{changeCheckTag(e,item,index)})">
                         <div class="checkboxGroup">
-                            <van-checkbox :name="v" v-for="(v,i) in item.value" :key="i" custom-class="check" label-class="labels"  shape="square">
-                                <p class="tag">{{v}}</p>
+                            <van-checkbox :name="v.value" v-for="(v,i) in currenData[item.id]" :key="i" custom-class="check" label-class="labels"  shape="square">
+                                <p class="tag">{{v.label}}</p>
                             </van-checkbox>
                         </div>
                     </van-checkbox-group>
@@ -121,7 +122,7 @@
                     </van-cell>
                 </van-cell-group>
             </van-checkbox-group> -->
-            <van-cell-group custom-class="cell" v-if="item.type=='U'">
+            <van-cell-group custom-class="cell" v-if="item.type=='U'||item.type=='O'||item.type=='Y_MD'||item.type=='Y'">
                 <van-cell :required="item.required||false" value-class="cellValue" title-style="font-size:34rpx;" :title="item.label" is-link :value="item.value" @click="!disabled?getOpenModal(item,index):''" />
             </van-cell-group>
             <div class="switch" v-if="item.type=='H'||item.type=='MC'">
@@ -132,10 +133,10 @@
                     <van-switch :disabled="disabled" :checked="item.value" @change="(val)=>{changeSwitch(val,item)}" size="24px" />
                 </p>
             </div>
-            <div class="row" v-if="item.type=='UCS'||item.type=='X'||item.type=='J'">
+            <div class="row" v-if="item.type=='UCS'||item.type=='X'||item.type=='J'||item.type=='UC'">
                 <div class="title">
                     <span>{{item.label}}</span>
-                    <van-dropdown-menu z-index="9999" v-if="item.type=='UCS'&&!item.readonly&&current=='tab2'">
+                    <van-dropdown-menu z-index="9999" v-if="(item.type=='UCS'||item.type=='UC')&&!item.readonly&&current=='tab2'">
                         <van-dropdown-item :value="value1" :options="option1" @change="(e)=>{changeDropDown(e,item)}" />
                     </van-dropdown-menu>
                 </div>
@@ -148,7 +149,7 @@
                              {{v.Comment}}
                         </p>
                         <p>
-                          [  {{v.UserName}} ({{v.DeptName}}) {{v.CreateTime}}  ]
+                          [  {{v.UserName||''}} ({{v.DeptName}}) {{v.CreateTime}}  ]
                         </p>
                     </div>
                 </div>
@@ -391,15 +392,23 @@ export default {
                     if( this.record[item.name] instanceof Object){
                         item.value = this.record[item.name].Name;
                         this.fields[item.id] = this.record[item.name].Name;
-                        if(item.type=='UCS'){
+                        if(item.type=='UCS'||item.type=='UC'){
                             // item.value = this.record[item.id].comments!=''?this.record[item.id].comments[0].Comment:'';
                             // this.fields[item.id] = this.record[item.id].comments!=''?this.record[item.id].comments[0].Comment:'';
                             item.item = this.record[item.id].comments;
+                        }else if(item.type=='U'||item.type=='O'){
+                            this.fields[item.id] = {
+                                Id: this.record[item.name].Id
+                            }
                         }
                     }else if(item.type=='L'||item.type=='DT'||item.type=='LT'){
                        item.index = this.currenData[item.id].findIndex(v=>v.value==this.record[item.name]);
                        this.fields[item.id] = this.currenData[item.id][item.index].value;
-                    }else {
+                    }else if(item.type == 'MC'){
+                        item.result = this.record[item.name].split(',');
+                        this.fields[item.id] = this.record[item.name];
+                    }
+                    else {
                         item.value = this.record[item.name];
                         this.fields[item.id] = this.record[item.name];
                     }

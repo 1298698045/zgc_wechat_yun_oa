@@ -217,7 +217,8 @@
                 "holidayAccount/main",
                 "businesstravel/main",
                 "goOut/main",
-                "weRunData/main"
+                "weRunData/main",
+                "detail/main"
             ]
         }
     ],

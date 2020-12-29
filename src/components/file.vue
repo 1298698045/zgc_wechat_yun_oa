@@ -102,17 +102,17 @@ export default {
                 //     num:"104K"
                 // },
                 // {
-                //     img:"https://wx.phxinfo.com.cn/img/wechat/logo.png",
+                //     img:"https://oa.zgchospital.com/img/wechat/logo.png",
                 //     name:"",
                 //     num:"104K"
                 // },
                 // {
-                //     img:"https://wx.phxinfo.com.cn/img/wechat/logo.png",
+                //     img:"https://oa.zgchospital.com/img/wechat/logo.png",
                 //     name:"",
                 //     num:"104K"
                 // },
                 // {
-                //     img:"https://wx.phxinfo.com.cn/img/wechat/logo.png",
+                //     img:"https://oa.zgchospital.com/img/wechat/logo.png",
                 //     name:"",
                 //     num:"104K"
                 // },
@@ -224,7 +224,7 @@ export default {
                     
                     const tempFilePaths = res.tempFilePaths;
                     wx.uploadFile({
-                        url: "https://wx.phxinfo.com.cn/rest?method="+'flow.files.upload'+'&SessionKey=' + that.sessionkey+'&pid='+that.instanceId+'&objTypeCode='+'123',
+                        url: "https://oa.zgchospital.com/rest?method="+'flow.files.upload'+'&SessionKey=' + that.sessionkey+'&pid='+that.instanceId+'&objTypeCode='+'123',
                         filePath: tempFilePaths[0],
                         name: 'file',
                         formData: {

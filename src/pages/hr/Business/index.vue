@@ -16,63 +16,102 @@
           <p class="name">
             <input
               type="text"
+              :disabled="true"
               placeholder-style="text-align:right;color: #ababab;"
               selection-end="-1"
               :placeholder="'请输入申请人姓名'"
+              v-model="userName"
             />
           </p>
         </div>
         <div class="row">
           <p class="label">
-            申请部门
+            所在部门
             <span>*</span>
           </p>
           <p class="name">
             <input
               type="text"
+              :disabled="true"
+              v-model="DepName"
               placeholder-style="text-align:right;color: #ababab;"
               selection-end="-1"
               :placeholder="'请输入申请部门'"
             />
           </p>
         </div>
-        <picker
-          @change="pickerStartTime"
-          mode="multiSelector"
-          :value="multiIndex"
-          :range="newMultiArray"
-        >
+        <picker @change="pickerLeave" :value="postIdx" range-key="label" :range="postList">
+          <div class="row">
+            <p class="label">
+              岗位类别
+              <span>*</span>
+            </p>
+            <p class="name">
+              <span
+                :class="postList[postIdx]?'active':''"
+              >{{postList[postIdx]?postList[postIdx].label:'请选择'}}</span>
+              <i-icon type="enter" color="#cccccc" />
+            </p>
+          </div>
+        </picker>
+        <picker mode="date" :value="GCRQ" @change="bindDateChange">
+          <div class="row">
+            <p class="label">
+              公出日期
+              <span>*</span>
+            </p>
+            <p class="name">
+              <input
+                type="text"
+                :disabled="true"
+                placeholder-style="text-align:right;color: #ababab;"
+                selection-end="-1"
+                placeholder="请选择公出日期"
+                v-model="GCRQ"
+              />
+            </p>
+          </div>
+        </picker>
+
+        <picker mode="date" :value="StartTime" @change="pickerStartTime">
           <div class="row">
             <p class="label">
               开始时间
               <span>*</span>
             </p>
             <p class="name">
-              <span>{{startTime}}</span>
-              <i-icon type="enter" color="#cccccc" />
+              <input
+                type="text"
+                :disabled="true"
+                placeholder-style="text-align:right;color: #ababab;"
+                selection-end="-1"
+                placeholder="请选择开始时间"
+                v-model="StartTime"
+              />
             </p>
           </div>
         </picker>
-        <picker
-          @change="pickerEndTime"
-          mode="multiSelector"
-          :value="endMultiIndex"
-          :range="newMultiArray"
-        >
+        <picker mode="date" :value="EndTime" @change="pickerEndTime">
           <div class="row">
             <p class="label">
-              截止时间
+              结束时间
               <span>*</span>
             </p>
             <p class="name">
-              <span>{{endTime}}</span>
-              <i-icon type="enter" color="#cccccc" />
+              <input
+                type="text"
+                :disabled="true"
+                placeholder-style="text-align:right;color: #ababab;"
+                selection-end="-1"
+                placeholder="请选择结束时间"
+                v-model="EndTime"
+              />
             </p>
           </div>
         </picker>
         <div class="row">
           <p class="label">
-            目的地
+            公出时长
             <span>*</span>
           </p>
           <p class="name">
@@ -80,26 +119,27 @@
               type="text"
               placeholder-style="text-align:right;color: #ababab;"
               selection-end="-1"
-              placeholder="请输入目的地"
-              v-model="address"
+              placeholder="请输入天数"
+              v-model="LeaveDuration"
             />
-            <i-icon type="coordinates" color="#999999" size="20" @click="getChooseLocation" />
           </p>
         </div>
-        <!-- <div class="rowBottom">
-          <p>
-            根据排班自动计算时长
-            <span>查看明细</span>
-          </p>
-        </div> -->
+      </div>
+      <div class="leaveComment">
+        <p>
+          原因
+          <span>*</span>
+        </p>
+        <div class="box">
+          <textarea v-model="DD" name id cols="30" rows="10" placeholder="请输入原因"></textarea>
+        </div>
       </div>
       <div class="leaveComment">
         <p>
           备注
-          <span>*</span>
         </p>
         <div class="box">
-          <textarea name id cols="30" rows="10"></textarea>
+          <textarea v-model="BEZ" name id cols="30" rows="10" placeholder="请输入备注"></textarea>
         </div>
       </div>
       <div class="imgContent" v-if="false">
@@ -123,169 +163,54 @@
               <van-button type="info" block @click="getSubmit">提交</van-button>
           </div>
       </div>
+      <ProcessModal ref="refProcess" :processId="ProcessId" :processIdName="processIdName"
+     :RuleLogId="RuleLogId" :ProcessInstanceId="ProcessInstanceId" :describe="BEZ" />
     </div>
     <div class="dataWrap" v-if="current==1">
-      <div class="search">
-        <van-search :value="value" placeholder="搜索标题、编号、正文内容" />
-      </div>
-      <div class="contentList">
-        <div class="box_wrap">
-          <div class="row">
-            <p class="title">XX提交的请假</p>
-            <div class="time">2020-10-10</div>
-          </div>
-          <p class="desc">请假类型：年假</p>
-          <p class="desc">开始时间：2002-10-10 上午</p>
-          <p class="desc">结束时间：2002-10-10 下午</p>
-          <div class="tagFot">
-            <p class="tag">
-              <span>测试</span>
-              由XX提交
-            </p>
-            <p class="status">XXX处理中</p>
-          </div>
-        </div>
-      </div>
+      <ShowData :objectType="30036" ref="child" />
     </div>
   </div>
 </template>
 <script>
 import { getTotal } from '@/utils/iDays';
+import ProcessModal from '@/components/approval/processModal';
+import ShowData from '@/components/showData';
 export default {
+  components:{
+    ProcessModal,
+    ShowData
+  },
   data() {
     return {
-      leaveIdx: "",
-      leaveList: [
-        {
-          id: "",
-          name: "年假"
-        },
-        {
-          id: "",
-          name: "事假"
-        },
-        {
-          id: "",
-          name: "病假"
-        },
-        {
-          id: "",
-          name: "调休"
-        },
-        {
-          id: "",
-          name: "产假/公休"
-        },
-        {
-          id: "",
-          name: "陪产假"
-        },
-        {
-          id: "",
-          name: "婚假"
-        },
-        {
-          id: "",
-          name: "工伤假"
-        },
-        {
-          id: "",
-          name: "丧假"
-        },
-        {
-          id: "",
-          name: "哺乳假"
-        },
-        {
-          id: "",
-          name: "计生假"
-        },
-        {
-          id: "",
-          name: "探亲假"
-        }
-      ],
       multiIndex: [0, 0, 0, 0, 0],
       endMultiIndex: [0, 0, 0, 0, 0],
-      startTime: "",
-      endTime: "",
+      StartTime: "",
+      EndTime: "",
       imgList: [],
       address:"",
-      current:0
+      current:0,
+      postList:[],
+      postIdx:'',
+      ProcessId:"0b896e8f-6a53-4743-98a2-0fca2f56202b",
+      Postcategory:"", // 岗位类别
+      GCRQ:"",
+      LeaveDuration:"",
+      DD:"",
+      BEZ:"",
+      ProcessInstanceId:"",
+      RuleLogId:"",
+      processIdName:""
     };
   },
   computed: {
-    newMultiArray: () => {
-      let array = [];
-      const date = new Date();
-      const years = [];
-      const months = [];
-      const days = [];
-      const hours = [];
-      const minutes = [];
-      var d = new Date();
-      var y = d.getFullYear();
-      for (let i = y; i <= date.getFullYear() + 10; i++) {
-        years.push("" + i + "年");
-      }
-      array.push(years);
-      for (let i = 1; i <= 12; i++) {
-        if (i < 10) {
-          i = "0" + i;
-        }
-        months.push("" + i + "月");
-      }
-      array.push(months);
-      for (let i = 1; i <= 31; i++) {
-        if (i < 10) {
-          i = "0" + i;
-        }
-        days.push("" + i + "日");
-      }
-      array.push(days);
-      for (let i = 0; i < 24; i++) {
-        if (i < 10) {
-          i = "0" + i;
-        }
-        hours.push("" + i + "时");
-      }
-      array.push(hours);
-      for (let i = 0; i < 60; i++) {
-        if (i < 10) {
-          i = "0" + i;
-        }
-        minutes.push("" + i + "分");
-      }
-      array.push(minutes);
-      return array;
+    userName(){
+      return wx.getStorageSync('fullName');
     },
-    getNowFormatDate() {
-      var date = new Date();
-      var seperator1 = "-";
-      var seperator2 = ":";
-      var month = date.getMonth() + 1;
-      var strDate = date.getDate();
-      let minute = date.getMinutes();
-      if (month >= 1 && month <= 9) {
-        month = "0" + month;
-      }
-      if (strDate >= 0 && strDate <= 9) {
-        strDate = "0" + strDate;
-      }
-      if (minute >= 1 && minute <= 9) {
-        minute = "0" + month;
-      }
-      var currentdate =
-        date.getFullYear() +
-        seperator1 +
-        month +
-        seperator1 +
-        strDate +
-        " " +
-        date.getHours() +
-        seperator2 +
-        minute;
-      return currentdate;
+    DepName(){
+      return wx.getStorageSync('businessUnitName');
+    },
+    sessionkey(){
+      return wx.getStorageSync('sessionkey');
     },
     isModelmes(){
       return wx.getStorageSync('isModelmes');
@@ -299,76 +224,169 @@ export default {
       let min = date.getMinutes();
       let s = date.getSeconds();
       return `${y}-${m}-${day} ${h}:${min}:${s}`;
+    },
+    UserId(){
+      return wx.getStorageSync('userId');
+    },
+    DeptId(){
+      return wx.getStorageSync('businessUnitId');
     }
   },
   onLoad(){
-    this.getCurrent();
+    let date = new Date();
+    let y = date.getFullYear();
+    let m = date.getMonth()+1;
+    let day = date.getDate();
+    this.GCRQ = `${y}-${m}-${day}`;  
+    this.queryType();
   },
   methods: {
+    queryType(){
+      this.$httpWX.get({
+        url:this.$api.message.queryList,
+        data:{
+          SessionKey:this.sessionkey,
+          method:this.$api.public.leaveQuery,
+          objectTypeCode:30036,
+          name:"Postcategory"
+        }
+      }).then(res=>{
+        this.postList = res;
+      })
+    },
+    // 创建实例
+    async getCreateExample(){
+      let dataParams = {
+          params:{
+              recordRep:{
+                  fields:{
+                      ProcessId:this.ProcessId,
+                      Name:'公出审批单'+wx.getStorageSync('businessUnitName') + ' ' + wx.getStorageSync('fullName'),
+                      Deadline:1,
+                      Priority:0
+                  }
+              }
+          }
+      }
+      const ret = await this.$httpWX.post({
+          url:this.$api.message.queryList+'?method='+this.$api.approval.create,
+          method:this.$api.approval.create,
+          data:{
+              SessionKey:this.sessionkey,
+              message:JSON.stringify(dataParams)
+          }
+      }).then(res=>{
+          if(res.actions[0].state=='SUCCESS'){
+              this.ProcessInstanceId = res.actions[0].returnValue.ProcessInstanceId;
+              this.RuleLogId = res.actions[0].returnValue.RuleLogId;
+              this.processIdName = res.actions[0].returnValue.Name;
+          }
+      })
+      return ret;
+    },
+    getSubmit(){
+      if(this.Postcategory==''){
+          wx.showToast({
+            title:"请选择岗位类别",
+            icon:"none",
+            duration:2000
+          })
+          return false;
+        }else if(this.GCRQ==''){
+          wx.showToast({
+            title:"请选择公出日期",
+            icon:"none",
+            duration:2000
+          })
+          return false;
+        }else if(this.StartTime==''){
+          wx.showToast({
+            title:"请选择开始时间",
+            icon:"none",
+            duration:2000
+          })
+          return false;
+        }else if(this.EndTime==''){
+          wx.showToast({
+            title:"请选择结束时间",
+            icon:"none",
+            duration:2000
+          })
+          return false;
+        }else if(this.LeaveDuration==''){
+          wx.showToast({
+            title:"请输入公出时长",
+            icon:"none",
+            duration:2000
+          })
+          return false;
+        }else if(this.DD==''){
+          wx.showToast({
+            title:"请输入原因",
+            icon:"none",
+            duration:2000
+          })
+          return false;
+        }else {
+          this.getCreateExample().then(res=>{
+            let obj = {
+                actions:[
+                  {
+                    params:{
+                      processId:this.ProcessId,
+                      ruleLogId:this.RuleLogId,
+                      parentRecord:{
+                        id:this.ProcessInstanceId,
+                        objTypeCode:30036,
+                        fields:{
+                          ApplyUserId:{
+                            Id:this.UserId
+                          },
+                          DeptId:{
+                            Id:this.DeptId
+                          },
+                          Postcategory:this.Postcategory,
+                          GCRQ:this.GCRQ,
+                          StartTime:this.StartTime,
+                          EndTime:this.EndTime,
+                          LeaveDuration:this.LeaveDuration,
+                          DD:this.DD,
+                          BEZ:this.BEZ
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+              this.$httpWX.post({
+                  url:this.$api.message.queryList+'?method='+this.$api.approval.saverecord,
+                  data:{
+                      SessionKey:this.sessionkey,
+                      message:JSON.stringify(obj)
+                  }
+              }).then(res=>{
+                this.$refs.refProcess.agreeShow = true;
+                this.$refs.refProcess.getStepQuery();
+              })
+          })
+        }
+    },
     onChange(e){
       this.current = e.mp.detail.index;
     },
-    getCurrent(){
-        let date = new Date(this.time.replace(/-/g,'/'));
-        let years = date.getFullYear();
-        let month = date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1):date.getMonth()+1;
-        let d = date.getDate()<10?'0'+date.getDate():date.getDate();
-        let hours = date.getHours()<10?'0'+date.getHours():date.getHours();
-        let minutes = date.getMinutes()<10?'0'+date.getMinutes():date.getMinutes();
-
-        const yIdx = this.newMultiArray[0].findIndex(item=>item==years+'年');
-        const mIdx = this.newMultiArray[1].findIndex(item=>item==month+'月');
-        const dIdx = this.newMultiArray[2].findIndex(item=>item==d+'日');
-        const hIdx = this.newMultiArray[3].findIndex(item=>item==hours+'时');
-        const minIdx = this.newMultiArray[4].findIndex(item=>item==minutes+'分');
-        this.multiIndex[0] = yIdx;
-        this.multiIndex[1] = mIdx;
-        this.multiIndex[2] = dIdx;
-        this.multiIndex[3] = hIdx;
-        this.multiIndex[4] = minIdx;
-        
-        this.endMultiIndex[0] = yIdx;
-        this.endMultiIndex[1] = mIdx;
-        this.endMultiIndex[2] = dIdx;
-        this.endMultiIndex[3] = hIdx;
-        this.endMultiIndex[4] = minIdx;
-    },
     pickerLeave(e) {
-      this.leaveIdx = e.mp.detail.value;
+      this.postIdx = e.mp.detail.value;
+      this.Postcategory = this.postList[this.postIdx].value;
+    },
+    bindDateChange(e){
+      console.log(e);
+      this.GCRQ = e.mp.detail.value;
     },
     pickerStartTime(e) {
-      this.multiIndex = e.target.value;
-      const index = this.multiIndex;
-      const year = this.newMultiArray[0][index[0]];
-      const month = this.newMultiArray[1][index[1]];
-      const day = this.newMultiArray[2][index[2]];
-      const hour = this.newMultiArray[3][index[3]];
-      const minute = this.newMultiArray[4][index[4]];
-      this.startTime =
-        year + "-" + month + "-" + day + " " + hour + ":" + minute;
-      this.startTime = this.RemoveChinese(this.startTime) + ":00";
+      this.StartTime = e.mp.detail.value;
     },
     pickerEndTime(e) {
-      this.endMultiIndex = e.target.value;
-      const index = this.endMultiIndex;
-      const year = this.newMultiArray[0][index[0]];
-      const month = this.newMultiArray[1][index[1]];
-      const day = this.newMultiArray[2][index[2]];
-      const hour = this.newMultiArray[3][index[3]];
-      const minute = this.newMultiArray[4][index[4]];
-      this.endTime = year + "-" + month + "-" + day + " " + hour + ":" + minute;
-      this.endTime = this.RemoveChinese(this.endTime) + ":00";
-      let iDays = getTotal({
-          startWorkTime: 9,
-          endWorkTime: 18,
-          beginAt: this.startTime,
-          endAt: this.endTime,
-          startFreeTime: 12,
-          endFreeTime: 13.5,
-          excludeFreeTime: true,
-          excludeDates: []
-        });
-      console.log(iDays,'iDays');
+      this.EndTime = e.mp.detail.value;
     },
     // 正则去除汉字
     RemoveChinese(strValue) {
@@ -379,6 +397,7 @@ export default {
     },
     // 打开本地图库
     handleSelPhoto() {
+      var that = this;
       wx.chooseImage({
         count: 9,
         sizeType: ["original", "compressed"],
@@ -390,19 +409,20 @@ export default {
           tempFilePaths.forEach(item => {
             this.imgList.push(item);
           });
-          // wx.uploadFile({
-          //     url: "http://112.126.75.65:10020/rest?method="+'file.attachfiles.upload'+'&SessionKey=' + '5d884846-1d19-449d-b4e2-1b5a83623a41'+'&pid='+this.uuid, //仅为示例，非真实的接口地址
-          //     filePath: tempFilePaths[0],
-          //     name: 'file',
-          //     formData: {
-          //         'user': 'test'
-          //     },
-          //     success (res){
-          //         console.log(res);
-          //         const data = res.data
-          //         //do something
-          //     }
-          // })
+          let url = `${that.$api.upload.url}?method=${that.$api.approval.upload}&SessionKey=${that.sessionkey}&pid=${that.ProcessInstanceId}&objTypeCode=${'30036'}`
+          wx.uploadFile({
+              url: url,
+              filePath: tempFilePaths[0],
+              name: 'file',
+              formData: {
+                  'user': 'test'
+              },
+              success (res){
+                  console.log(res);
+                  const data = res.data
+                  //do something
+              }
+          })
         }
       });
     },
@@ -420,12 +440,30 @@ export default {
           }
       })
     }
+  },
+  // 下拉刷新
+  onPullDownRefresh() {
+    if(this.current==1){
+      this.$refs.child.pageNumber = 1;
+      this.$refs.child.getQuery();
+    }
+    wx.stopPullDownRefresh();
+  },
+  /**
+   * 页面上拉触底事件的处理函数
+   */
+  onReachBottom() {
+    if(this.$refs.child.isPage){
+      this.$refs.child.pageNumber++;
+      this.$refs.child.getQuery();
+    }
   }
 };
 </script>
 <style lang="scss" scopod>
 @import '../../../../static/css/icon.css';
 .wrap {
+  padding-bottom: 100px;
   .rowWrap {
     display: flex;
     justify-content: space-between;
@@ -577,64 +615,10 @@ export default {
         position: fixed;
         bottom: 20rpx;
         background: #fff;
+        z-index: 9999;
         .btn{
             padding: 20rpx;
         }
     }
-     .dataWrap{
-    .contentList{
-      padding: 0 20rpx;
-      .box_wrap{
-        width: 100%;
-        height: auto;
-        background: #fff;
-        box-shadow: 0 2rpx 6rpx 0 rgba(0,0,0,.06);
-        margin-top: 20rpx;
-        padding: 25rpx 20rpx;
-        border-radius: 10rpx;
-        .row{
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-bottom: 15rpx;
-          .title{
-
-          }
-          .time{
-            font-size: 20rpx;
-            color: #ababab;
-          }
-        }
-        .desc{
-          font-size: 24rpx;
-          color: #ababab;
-        }
-        .tagFot{
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-top: 15rpx;
-          .tag{
-            display: flex;
-            align-items: center;
-            span{
-              display: inline-block;
-              width: 40rpx;
-              height: 40rpx;
-              line-height: 40rpx;
-              text-align: center;
-              background: #3399ff;
-              color: #fff;
-              font-size: 14rpx;
-              margin-right: 10rpx;
-            }
-          }
-          .status{
-            color: #f09951;
-          }
-        }
-      }
-    }
-  }
 }
 </style>

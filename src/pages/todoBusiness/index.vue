@@ -181,19 +181,19 @@
                 <div class="iconWrap">
                     <div class="icon">
                         <p>
-                            <img src="https://wx.phxinfo.com.cn/img/wechat/Scan.png" alt="">
+                            <img src="https://oa.zgchospital.com/img/wechat/Scan.png" alt="">
                         </p>
                         <p>审批标题</p>
                     </div>
                     <div class="icon">
                         <p>
-                            <img src="https://wx.phxinfo.com.cn/img/wechat/Scan.png" alt="">
+                            <img src="https://oa.zgchospital.com/img/wechat/Scan.png" alt="">
                         </p>
                         <p>审批状态</p>
                     </div>
                     <div class="icon">
                         <p>
-                            <img src="https://wx.phxinfo.com.cn/img/wechat/Scan.png" alt="">
+                            <img src="https://oa.zgchospital.com/img/wechat/Scan.png" alt="">
                         </p>
                         <p>审批时间</p>
                     </div>

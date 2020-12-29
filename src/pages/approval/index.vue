@@ -56,24 +56,24 @@
             </div>
         </div>
         <div class="footers" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
-            <div class="box">
+            <div class="box" :class="{'active':index==0}" @click="getProcess(0)">
                 <p>
                     <i class="iconfont icon-shenpi"></i>
                 </p>
-                <p>审批</p>
+                <p>首页</p>
             </div>
-            <div class="box" @click="getProcess">
+            <div class="box" :class="{'active':index==1}" @click="getProcess(1)">
                 <p>
                     <i class="iconfont icon-xiaoshuai-copy"></i>
                 </p>
                 <p>流程效率</p>
             </div>
-            <div class="box">
+            <!-- <div class="box">
                 <p>
                     <i class="iconfont icon-shezhi1"></i>
                 </p>
                 <p>设置</p>
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
@@ -87,13 +87,17 @@ export default {
             VerticalNavTop:0,
             MainCur:0,
             load: true,
-            list:[]
+            list:[],
+            index:0
         }
     },
     computed:{
         isModelmes(){
             return wx.getStorageSync('isModelmes');
         }
+    },
+    onShow(){
+        this.index = 0;
     },
     onLoad(){
         let sessionkey = wx.getStorageSync('sessionkey');
@@ -211,9 +215,12 @@ export default {
             const url = '/pages/approval/preAdd/main?Name='+v.Name+'&ProcessId='+v.ProcessId+'&departName='+item.Name+'&departId='+item.Id;
             wx.navigateTo({url:url});
         },
-        getProcess(){
-            const url = '/pages/approval/process/main';
-            wx.navigateTo({url:url});
+        getProcess(index){
+            this.index = index;
+            if(index==1){
+                const url = '/pages/approval/process/main';
+                wx.navigateTo({url:url});
+            }
         }
     }
 }
@@ -346,13 +353,15 @@ export default {
             .box{
                 flex: 1;
                 text-align: center;
-                color: #3399ff;
                 font-size: 21rpx;
                 padding: 20rpx 0;
                 .iconfont{
                     font-size: 20px;
                     padding-bottom: 10rpx;
                 }
+            }
+            .box.active{
+                color: #3399ff;
             }
         }
     }

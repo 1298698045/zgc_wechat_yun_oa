@@ -129,27 +129,7 @@
     </div>
     <!-- 查看数据 -->
     <div class="dataWrap" v-if="current==1">
-      <div class="search">
-        <van-search :value="searchValue" placeholder="搜索标题、编号、正文内容" @change="changeSearch" />
-      </div>
-      <div class="contentList">
-        <div class="box_wrap" v-for="(item,index) in list" :key="index">
-          <div class="row">
-            <p class="title">{{item.Name}}</p>
-            <div class="time">2020-10-10</div>
-          </div>
-          <p class="desc">请假类型：年假</p>
-          <p class="desc">开始时间：2002-10-10 上午</p>
-          <p class="desc">结束时间：2002-10-10 下午</p>
-          <div class="tagFot">
-            <p class="tag">
-              <span>{{item.newName}}</span>
-              由{{item.CreatedByName}}提交
-            </p>
-            <p class="status">XXX处理中</p>
-          </div>
-        </div>
-      </div>
+      <ShowData :objectType="30022" ref="child"  />
     </div>
     <!-- 审批人 -->
     <div class="approved">
@@ -229,7 +209,11 @@
 <script>
 import { getTotal } from '@/utils/iDays';
 import {mapState,mapMutations} from 'vuex';
+import ShowData from '@/components/showData';
 export default {
+  components:{
+    ShowData
+  },
   data() {
     return {
       leaveIdx: "",
@@ -399,42 +383,6 @@ export default {
       this.searchValue = e.mp.detail;
       this.getQuery();
     },
-    // 查看数据
-    getQuery(){
-      this.$httpWX.get({
-        url:this.$api.message.queryList,
-        data:{
-          method:"process.instanceowner.search",
-          SessionKey:this.sessionkey,
-          objectType: '30022',
-          search: this.searchValue,
-          pageNumber:this.pageNumber,
-          pageSize:this.pageSize,
-        }
-      }).then(res=>{
-        let total = res.total;
-        if(this.pageNumber*this.pageSize<=total){
-          this.isPage = true;
-        }else {
-          this.isPage = false;
-        }
-        let temp = [];
-        if(this.pageNumber==1){
-          temp = res.listData;
-        }else {
-          temp = this.list.concat(res.listData);
-        }
-        this.list = temp;
-        this.list.map(item=>{
-          if(item.CreatedByName.length>2){
-            item.newName = item.CreatedByName.substr(1);
-          }else {
-            item.newName = item.CreatedByName;
-          }
-          return item;
-        })
-      })
-    },
     // 假期余额
     getBalance(){
       this.$httpWX.get({
@@ -468,9 +416,6 @@ export default {
     },
     onChange(e){
       this.current = e.mp.detail.index;
-      if(this.current==1){
-        this.getQuery();
-      }
     },
     // 创建实例
     async getCreateExample(){
@@ -797,8 +742,8 @@ export default {
       // 下拉刷新
     onPullDownRefresh() {
       if(this.current==1){
-        this.pageNumber = 1;
-        this.getQuery();
+        this.$refs.child.pageNumber = 1;
+        this.$refs.child.getQuery();
       }
       wx.stopPullDownRefresh();
     },
@@ -806,9 +751,9 @@ export default {
      * 页面上拉触底事件的处理函数
      */
     onReachBottom() {
-      if(this.isPage){
-        this.pageNumber++;
-        this.getQuery();
+      if(this.$refs.child.isPage){
+        this.$refs.child.pageNumber++;
+        this.$refs.child.getQuery();
       }
     }
 };
@@ -1140,59 +1085,6 @@ export default {
   }
   .dataWrap{
     padding-bottom: 20rpx;
-    .contentList{
-      padding: 0 20rpx;
-      .box_wrap{
-        width: 100%;
-        height: auto;
-        background: #fff;
-        box-shadow: 0 2rpx 6rpx 0 rgba(0,0,0,.06);
-        margin-top: 20rpx;
-        padding: 25rpx 20rpx;
-        border-radius: 10rpx;
-        .row{
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-bottom: 15rpx;
-          .title{
-
-          }
-          .time{
-            font-size: 20rpx;
-            color: #ababab;
-          }
-        }
-        .desc{
-          font-size: 24rpx;
-          color: #ababab;
-        }
-        .tagFot{
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-top: 15rpx;
-          .tag{
-            display: flex;
-            align-items: center;
-            span{
-              display: inline-block;
-              width: 40rpx;
-              height: 40rpx;
-              line-height: 40rpx;
-              text-align: center;
-              background: #3399ff;
-              color: #fff;
-              font-size: 14rpx;
-              margin-right: 10rpx;
-            }
-          }
-          .status{
-            color: #f09951;
-          }
-        }
-      }
-    }
   }
 }
 </style>

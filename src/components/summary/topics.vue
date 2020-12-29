@@ -188,7 +188,7 @@ export default {
                     // tempFilePath可以作为img标签的src属性显示图片
                     const tempFilePaths = res.tempFilePaths;
                     wx.uploadFile({
-                        url: "https://wx.phxinfo.com.cn/rest?method="+'file.attachfiles.upload'+'&SessionKey='+that.sessionkey+'&pid='+that.Meetingid+'&objTypeCode='+'5004', //仅为示例，非真实的接口地址
+                        url: "https://oa.zgchospital.com/rest?method="+'file.attachfiles.upload'+'&SessionKey='+that.sessionkey+'&pid='+that.Meetingid+'&objTypeCode='+'5004', //仅为示例，非真实的接口地址
                         filePath: tempFilePaths[0],
                         name: 'file',
                         formData: {

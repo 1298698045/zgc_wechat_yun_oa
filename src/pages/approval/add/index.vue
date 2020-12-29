@@ -6,7 +6,7 @@
                     :value="item.value"
                     :disabled="item.readonly"
                     custom-style="font-size:34rpx;color:#333333"
-                    :required="item.required||false"
+                    :required="item.required||item.require||false"
                     :label="item.label"
                     :placeholder="item.helpText"
                     input-align="right"
@@ -19,7 +19,7 @@
                         :value="currenData[item.id][item.index]?currenData[item.id][item.index].label:''"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
-                        :required="item.required||false"
+                        :required="item.required||item.require||false"
                         disabled
                         :label="item.label"
                         :placeholder="item.helpText"
@@ -35,7 +35,7 @@
                         title-width="110px"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
-                        :required="item.required||false"
+                        :required="item.required||item.require||false"
                         disabled
                         :label="item.label"
                         input-align="right"
@@ -51,7 +51,7 @@
                         :value="item.value"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
-                        :required="item.required||false"
+                        :required="item.required||item.require||false"
                         disabled
                         :label="item.label"
                         input-align="right"
@@ -66,7 +66,7 @@
                         :value="item.value"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
-                        :required="item.required||false"
+                        :required="item.required||item.require||false"
                         disabled
                         :label="item.label"
                         input-align="right"
@@ -81,7 +81,7 @@
                         :value="item.value"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
-                        :required="item.required||false"
+                        :required="item.required||item.require||false"
                         disabled
                         :label="item.label"
                         input-align="right"
@@ -90,12 +90,13 @@
                     />
                 </picker>
             </van-cell-group>
-            <van-cell-group custom-class="cell" v-if="item.type=='G'">
+            <van-cell-group custom-class="cell" v-if="item.type=='G'||item.type=='MC'">
                 <div class="checkWrap">
-                    <van-checkbox-group :disabled="item.readonly" :value="item.result" @change="((e)=>{changeCheckTag(e,item)})">
+                    <p class="label">{{item.label}}</p>
+                    <van-checkbox-group :disabled="item.readonly" :value="item.result" @change="((e)=>{changeCheckTag(e,item,index)})">
                         <div class="checkboxGroup">
-                            <van-checkbox :name="v" v-for="(v,i) in item.value" :key="i" custom-class="check" label-class="labels"  shape="square">
-                                <p class="tag">{{v}}</p>
+                            <van-checkbox :name="v.value" v-for="(v,i) in currenData[item.id]" :key="i" custom-class="check" label-class="labels"  shape="square">
+                                <p class="tag">{{v.label}}</p>
                             </van-checkbox>
                         </div>
                     </van-checkbox-group>
@@ -124,10 +125,10 @@
                     </van-cell>
                 </van-cell-group>
             </van-checkbox-group> -->
-            <van-cell-group custom-class="cell" v-if="item.type=='U'||item.type=='O'">
-                <van-cell :required="item.required||false" value-class="cellValue" :title="item.label" is-link :value="item.value" @click="!item.readonly?getOpenModal(item,index):''" />
+            <van-cell-group custom-class="cell" v-if="item.type=='U'||item.type=='O'||item.type=='Y_MD'||item.type=='Y'">
+                <van-cell custom-class="title" :required="item.required||item.require||false" value-class="cellValue" :title="item.label" is-link :value="item.value" @click="!item.readonly?getOpenModal(item,index):''" />
             </van-cell-group>
-            <div class="switch" v-if="item.type=='H'||item.type=='MC'">
+            <div class="switch" v-if="item.type=='H'">
                 <p>
                     {{item.label}}
                 </p>
@@ -135,9 +136,11 @@
                     <van-switch :checked="item.value" @change="(val)=>{changeSwitch(val,item)}" size="24px" />
                 </p>
             </div>
-            <div class="row" v-if="item.type=='UCS'||item.type=='X'||item.type=='J'">
+            <div class="row" v-if="item.type=='UCS'||item.type=='X'||item.type=='J'||item.type=='UC'">
                 <p class="title"><span>{{item.label}}</span></p>
-                <textarea :disabled="item.readonly" :v-model="item.value" @input="function(val){changeText(val,item,index)}" name="" id="" cols="30" rows="10" placeholder-class="placeholder" placeholder="请输入"></textarea>
+                <textarea :disabled="item.readonly" :v-model="item.value"
+                 @input="function(val){changeText(val,item,index)}"
+                  name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="!item.readonly?item.helpText:''"></textarea>
             </div>
             <div class="parentWrap" v-if="item.type=='RelatedList'">
                 <h3>{{item.label}}</h3>
@@ -189,7 +192,7 @@
                     </van-cell-group>
                     <div class="row" v-if="v.type=='UC'">
                         <p class="title">
-                            {{item.required?'*':''}}
+                            {{item.required||item.require?'*':''}}
                             <span>{{v.label}}</span></p>
                         <textarea :disabled="item.readonly" v-model="v.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="v.helpText"></textarea>
                     </div>
@@ -423,6 +426,7 @@ export default {
     },
     onUnload(){
         this.getClear([]);
+        wx.removeStorageSync('EntityType');
     },
     onLoad(options){
         Object.assign(this.$data,this.$options.data());
@@ -535,6 +539,10 @@ export default {
                     if(item.type=='F'){
                         let multiIndex = this.getIndex(currentTime());
                         item.multiIndex = multiIndex;
+                    }
+                    if(item.type=='MC'){
+                        this.$set(item,'result',[]);
+                        console.log('MC',item);
                     }
                     if(!item.readonly){
                         var obj = item.id;
@@ -681,9 +689,12 @@ export default {
             else  
                 return "";  
         },
-        changeCheckTag(e,item){
+        changeCheckTag(e,item,index){
             console.log(e,item);
             item.result = e.mp.detail;
+            this.list[index].result = e.mp.detail;
+            item.value = e.mp.detail.join(',');
+            this.params.parentRecord.fields[item.id] = item.value;
         },
         // 请假单独提交处理
         leaveSave(){
@@ -712,7 +723,7 @@ export default {
                     if(index+1==idx){
                         let isBook = true;
                     }
-                    if(item.value=='' && item.readonly==false && item.require==true){
+                    if(item.value=='' && item.readonly==false && (item.require==true||item.required==true)){
                         wx.showToast({
                             title:`请输入${item.label}`,
                             icon:"success",
@@ -964,6 +975,9 @@ export default {
         }
         .cell{
             margin-top: 24rpx;
+            .title{
+                font-size: 34rpx;
+            }
             .cellValue{
                 color: #333333;
             }

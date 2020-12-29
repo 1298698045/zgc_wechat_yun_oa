@@ -16,12 +16,12 @@
       <block v-for="(item,index) in listData" :key="index">
       <view class="tr bg-g" v-if="''">
         <view class="td">{{item.LeaveTypeCode}}</view>
-        <view class="td">{{item.EmployeeIdName}}</view>
+        <view class="td">{{item.LeaveTypeName}}</view>
         <view class="td">{{item.TotalDays}}</view>
       </view>
       <view class="tr bg-g" v-else>
         <view class="td">{{item.LeaveTypeCode}}</view>
-        <view class="td">{{item.EmployeeIdName}}</view>
+        <view class="td">{{item.LeaveTypeName}}</view>
         <view class="td">{{item.TotalDays}}</view>
         <view class="td">{{item.UsedDays||0}}</view>
         <view class="td">{{item.TotalDays-item.UsedDays||0}}</view>

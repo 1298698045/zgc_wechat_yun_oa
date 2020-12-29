@@ -199,6 +199,7 @@ export default {
                 actions:[]
             };
             let temp = [];
+            // console.log(this.stepList,'202')
             for(let i=0;i<this.stepList.length;i++){
                 for(let j=0; j<this.stepList[i].ParticipantMember.length;j++){
                     if(this.stepList[i].ParticipantMember[j].Selected){
@@ -206,11 +207,15 @@ export default {
                     }
                 }
             }
+            // console.log(this.stepList,'210')
+            // console.log(temp,'211')
             let transitions = this.stepList.map(item=>({
                 toActivityId: item.ToActivityId,
                 transitionId: item.TransitionId,
-                participators: temp
+                participators: item.ParticipantMember.map(v=>v.UserId)
             }))
+            // console.log(transitions);
+            // return false;
             data.actions.push({
                 params:{
                     processId: this.processId,
