@@ -44,6 +44,22 @@
                     />
                 </picker>
             </van-cell-group>
+            <van-cell-group custom-class="cell" v-if="item.type=='TP'">
+                <picker mode="time" :disabled="disabled" :value="time" @change="function(val){bindTimeChange(val,item)}">
+                    <van-field
+                        :value="item.value"
+                        title-width="110px"
+                        input-class="inp"
+                        custom-style="font-size:34rpx;color:#333333"
+                        :required="item.required||item.require||false"
+                         :disabled="disabled"
+                        :label="item.label"
+                        input-align="right"
+                        right-icon="arrow"
+                        :placeholder="item.helpText"
+                    />
+                </picker>
+            </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='F'">
                 <picker :disabled="disabled" class="picker" mode="multiSelector" :value="item.multiIndex" @change="((val)=>{bindMultiPickerChange(val,item)})"
                     :range="newMultiArrayList">

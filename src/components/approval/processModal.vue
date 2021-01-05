@@ -212,7 +212,7 @@ export default {
             let transitions = this.stepList.map(item=>({
                 toActivityId: item.ToActivityId,
                 transitionId: item.TransitionId,
-                participators: item.ParticipantMember.map(v=>v.UserId)
+                participators: item.ParticipantMember.filter(v=>v.Selected).map(ele=>{return ele.UserId})
             }))
             // console.log(transitions);
             // return false;

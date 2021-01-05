@@ -94,6 +94,7 @@ export default {
   position: fixed;
   bottom: 20rpx;
   background: #fff;
+  z-index: 999;
   .boxWrap {
     display: flex;
     justify-content: space-between;

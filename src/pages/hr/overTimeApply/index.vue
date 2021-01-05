@@ -123,7 +123,7 @@
         <div class="row">
           <p class="label">
             加班地点
-            <span>*</span>
+            <!-- <span>*</span> -->
           </p>
           <p class="name">
             <input
@@ -149,7 +149,7 @@
           <span>*</span>
         </p>
         <div class="box">
-          <textarea name id cols="30" rows="10" v-model="describe"></textarea>
+          <textarea name id cols="30" rows="10" v-model="describe" @input="changeText"></textarea>
         </div>
       </div>
       <div class="imgContent" v-if="false">
@@ -185,6 +185,7 @@
 import { getTotal } from '@/utils/iDays';
 import ProcessModal from '@/components/approval/processModal';
 import ShowData from '@/components/showData';
+import { message } from '@/utils/message';
 export default {
   components:{
     ProcessModal,
@@ -209,7 +210,8 @@ export default {
       iDays:'',
       isShow:false,
       processIdName:"",
-      current:0
+      current:0,
+      describe:""
     };
   },
   computed: {
@@ -368,46 +370,87 @@ export default {
       return ret;
     },
     getSubmit(){
-      this.getCreateExample().then(res=>{
-        let obj = {
-            actions:[
-              {
-                params:{
-                  processId:this.ProcessId,
-                  ruleLogId:this.RuleLogId,
-                  parentRecord:{
-                    id:this.ProcessInstanceId,
-                    objTypeCode:30034,
-                    fields:{
-                      ApplyUser:{
-                        Id:this.userId
-                      },
-                      OwningBusinessUnitId:{
-                        Id:this.DepId
-                      },
-                      StartTime:this.startTime,
-                      EndTime:this.endTime,
-                      OverTimeHours:this.iDays,
-                      OvertimeType:this.OvertimeType,
-                      Location:this.address
+      if(this.applyTime==""){
+        message.toast({
+          title:'申请时间不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.OvertimeType==""){
+        message.toast({
+          title:'加班类型不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.startTime==""){
+        message.toast({
+          title:'加班开始时间不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.endTime==""){
+        message.toast({
+          title:'加班结束时间不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.iDays==""){
+        message.toast({
+          title:'加班时长不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.describe==""){
+        message.toast({
+          title:'加班事由不能为空',
+          delta: 0
+        })
+        return false;
+      }else {
+        this.getCreateExample().then(res=>{
+          let obj = {
+              actions:[
+                {
+                  params:{
+                    processId:this.ProcessId,
+                    ruleLogId:this.RuleLogId,
+                    parentRecord:{
+                      id:this.ProcessInstanceId,
+                      objTypeCode:30034,
+                      fields:{
+                        ApplyUser:{
+                          Id:this.userId
+                        },
+                        OwningBusinessUnitId:{
+                          Id:this.DepId
+                        },
+                        StartTime:this.startTime,
+                        EndTime:this.endTime,
+                        OverTimeHours:this.iDays,
+                        OvertimeType:this.OvertimeType,
+                        Location:this.address
+                      }
                     }
                   }
                 }
-              }
-            ]
-          }
-          this.$httpWX.post({
-              url:this.$api.message.queryList+'?method='+this.$api.approval.saverecord,
-              data:{
-                  SessionKey:this.sessionkey,
-                  message:JSON.stringify(obj)
-              }
-          }).then(res=>{
-            this.$refs.refProcess.agreeShow = true;
-            this.$refs.refProcess.getStepQuery();
-            // this.getStepQuery();
-          })
-      })
+              ]
+            }
+            this.$httpWX.post({
+                url:this.$api.message.queryList+'?method='+this.$api.approval.saverecord,
+                data:{
+                    SessionKey:this.sessionkey,
+                    message:JSON.stringify(obj)
+                }
+            }).then(res=>{
+              this.$refs.refProcess.agreeShow = true;
+              this.$refs.refProcess.getStepQuery();
+              // this.getStepQuery();
+            })
+        })
+      }
+    },
+    changeText(e){
+      this.describe = e.mp.detail.value;
     },
     defaultTime(){
       this.applyTime = this.RemoveChinese(this.time);
@@ -464,6 +507,17 @@ export default {
       this.startTime =
         year + "-" + month + "-" + day + " " + hour + ":" + minute;
       this.startTime = this.RemoveChinese(this.startTime) + ":00";
+      let iDays = getTotal({
+          startWorkTime: 9,
+          endWorkTime: 18,
+          beginAt: this.startTime,
+          endAt: this.endTime,
+          startFreeTime: 12,
+          endFreeTime: 13.5,
+          excludeFreeTime: true,
+          excludeDates: []
+        });
+      this.iDays = iDays+'小时';
     },
     pickerEndTime(e) {
       this.endMultiIndex = e.target.value;
@@ -486,7 +540,7 @@ export default {
           excludeDates: []
         });
       console.log(iDays,'iDays');
-      this.iDays = iDays;
+      this.iDays = iDays+'小时';
     },
     // 正则去除汉字
     RemoveChinese(strValue) {
@@ -551,9 +605,11 @@ export default {
    * 页面上拉触底事件的处理函数
    */
   onReachBottom() {
-    if(this.$refs.child.isPage){
-      this.$refs.child.pageNumber++;
-      this.$refs.child.getQuery();
+    if(this.current==1){
+      if(this.$refs.child.isPage){
+        this.$refs.child.pageNumber++;
+        this.$refs.child.getQuery();
+      }
     }
   }
 };

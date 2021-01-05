@@ -16,9 +16,11 @@
           <p class="name">
             <input
               type="text"
+              :disabled="true"
               placeholder-style="text-align:right;color: #ababab;"
               selection-end="-1"
               :placeholder="'请输入申请人姓名'"
+              v-model="userName"
             />
           </p>
         </div>
@@ -30,12 +32,28 @@
           <p class="name">
             <input
               type="text"
+              v-model="DepName"
+              :disabled="true"
               placeholder-style="text-align:right;color: #ababab;"
               selection-end="-1"
               :placeholder="'请输入申请部门'"
             />
           </p>
         </div>
+        <picker @change="pickerLeave" :value="postIdx" range-key="label" :range="postList">
+          <div class="row">
+            <p class="label">
+              岗位类别
+              <span>*</span>
+            </p>
+            <p class="name">
+              <span
+                :class="postList[postIdx]?'active':''"
+              >{{postList[postIdx]?postList[postIdx].label:'请选择'}}</span>
+              <i-icon type="enter" color="#cccccc" />
+            </p>
+          </div>
+        </picker>
         <picker
           @change="pickerStartTime"
           mode="multiSelector"
@@ -48,7 +66,7 @@
               <span>*</span>
             </p>
             <p class="name">
-              <span>{{startTime}}</span>
+              <span :class="{'active':startTime!=''}">{{startTime}}</span>
               <i-icon type="enter" color="#cccccc" />
             </p>
           </div>
@@ -65,114 +83,152 @@
               <span>*</span>
             </p>
             <p class="name">
-              <span>{{endTime}}</span>
+              <span :class="{'active':endTime!=''}">{{endTime}}</span>
               <i-icon type="enter" color="#cccccc" />
             </p>
           </div>
         </picker>
         <div class="row">
           <p class="label">
-            出发地点
-            <span>*</span>
+            出差时长
           </p>
           <p class="name">
             <input
               type="text"
               placeholder-style="text-align:right;color: #ababab;"
               selection-end="-1"
-              placeholder="请输入出发地点"
+              :placeholder="'请输入出差时长'"
+              v-model="iDays"
+            />
+          </p>
+        </div>
+        <div class="row" @click="getChooseLocation">
+          <p class="label">
+            地点
+            <span>*</span>
+          </p>
+          <p class="name">
+            <input
+              type="text"
+              disabled
+              placeholder-style="text-align:right;color: #ababab;"
+              selection-end="-1"
+              placeholder="到达地点"
               v-model="address"
             />
-            <i-icon type="coordinates" color="#999999" size="20" @click="getChooseLocation" />
+            <i-icon type="coordinates" color="#999999" size="20" />
           </p>
         </div>
-        <div class="row">
-          <p class="label">
-            到达地点
-            <span>*</span>
-          </p>
-          <p class="name">
-            <input
-              type="text"
-              placeholder-style="text-align:right;color: #ababab;"
-              selection-end="-1"
-              placeholder="请输入到达地点"
-              v-model="address"
-            />
-            <i-icon type="coordinates" color="#999999" size="20" @click="getChooseLocation" />
-          </p>
-        </div>
-        <div class="row">
-          <p class="label">
-            预计出差天数
-            <span>*</span>
-          </p>
-          <p class="name">
-            <input
-              type="text"
-              placeholder-style="text-align:right;color: #ababab;"
-              selection-end="-1"
-              :placeholder="'请输入预计出差天数'"
-            />
-          </p>
-        </div>
-        <div class="row">
-          <p class="label">
-            交通工具
-            <span>*</span>
-          </p>
-          <p class="name">
-            <input
-              type="text"
-              placeholder-style="text-align:right;color: #ababab;"
-              selection-end="-1"
-              :placeholder="'请输入交通工具'"
-            />
-          </p>
-        </div>
-        <div class="row">
-          <p class="label">
-            预计交通费用
-            <span>*</span>
-          </p>
-          <p class="name">
-            <input
-              type="text"
-              placeholder-style="text-align:right;color: #ababab;"
-              selection-end="-1"
-              :placeholder="'请输入预计交通费用'"
-            />
-          </p>
-        </div>
+        <picker @change="pickerCategory" :value="categoryIdx" :range="categoryList">
           <div class="row">
-              <p class="label">
-              出差客户
+            <p class="label">
+              类别
               <span>*</span>
-              </p>
-              <p class="name">
-              <input
-                  type="text"
-                  placeholder-style="text-align:right;color: #ababab;"
-                  selection-end="-1"
-                  :placeholder="'请输入出差客户'"
-              />
-              </p>
+            </p>
+            <p class="name">
+              <span
+                :class="categoryList[categoryIdx]?'active':''"
+              >{{categoryList[categoryIdx]?categoryList[categoryIdx]:'请选择'}}</span>
+              <i-icon type="enter" color="#cccccc" />
+            </p>
           </div>
-        
-        <!-- <div class="rowBottom">
+        </picker>
+        <div class="leaveComment leaveReason">
           <p>
-            根据排班自动计算时长
-            <span>查看明细</span>
+            原因
+            <span>*</span>
           </p>
-        </div> -->
-      </div>
-      <div class="leaveComment">
-        <p>
-          行程明细
-          <span>*</span>
-        </p>
-        <div class="box">
-          <textarea name id cols="30" rows="10"></textarea>
+          <div class="box">
+            <textarea name id cols="30" rows="10" v-model="LeaveReason"></textarea>
+          </div>
+        </div>
+        <div class="row" @click="getOpenModal">
+          <p class="label">
+            科室工作临时负责人
+            <span>*</span>
+          </p>
+          <p class="name">
+            <input
+              disabled
+              type="text"
+              placeholder-style="text-align:right;color: #ababab;"
+              selection-end="-1"
+              :placeholder="'请输入科室工作临时负责人'"
+              v-model="WorkAgentName"
+            />
+          </p>
+        </div>
+        <picker @change="pickerPayTheWay" :value="payTheWayIdx" :range="payTheWay">
+          <div class="row">
+            <p class="label">
+              所需经费支付途径
+              <span>*</span>
+            </p>
+            <p class="name">
+              <span
+                :class="payTheWay[payTheWayIdx]?'active':''"
+              >{{payTheWay[payTheWayIdx]?payTheWay[payTheWayIdx]:'请选择'}}</span>
+              <i-icon type="enter" color="#cccccc" />
+            </p>
+          </div>
+        </picker>
+        <div class="row">
+          <p class="label">
+            专项经费名称
+          </p>
+          <p class="name">
+            <input
+              type="text"
+              placeholder-style="text-align:right;color: #ababab;"
+              selection-end="-1"
+              :placeholder="'请输入专项经费名称'"
+              v-model="ProjectName"
+            />
+          </p>
+        </div>
+        <picker @change="pickerPaymentWay" :value="paymentWayIdx" :range="paymentWay">
+          <div class="row">
+            <p class="label">
+              付款方式
+              <span>*</span>
+            </p>
+            <p class="name">
+              <span
+                :class="paymentWay[paymentWayIdx]?'active':''"
+              >{{paymentWay[paymentWayIdx]?paymentWay[paymentWayIdx]:'请选择付款方式'}}</span>
+              <i-icon type="enter" color="#cccccc" />
+            </p>
+          </div>
+        </picker>
+        <div class="row">
+          <p class="label">
+            金额
+            <span>*</span>
+          </p>
+          <p class="name">
+            <input
+              type="text"
+              placeholder-style="text-align:right;color: #ababab;"
+              selection-end="-1"
+              :placeholder="'请输入金额'"
+              v-model="Amount"
+            />
+          </p>
+        </div>
+        <div class="row">
+          <p class="label">
+            付款信息
+            <span>*</span>
+          </p>
+          <p class="name">
+            <input
+              type="text"
+              placeholder-style="text-align:right;color: #ababab;"
+              selection-end="-1"
+              :placeholder="'请输入付款信息'"
+              v-model="PaymentNotes"
+            />
+          </p>
         </div>
       </div>
       <div class="leaveComment">
@@ -181,10 +237,10 @@
           <span>*</span>
         </p>
         <div class="box">
-          <textarea name id cols="30" rows="10"></textarea>
+          <textarea name id cols="30" rows="10" v-model="Remark"></textarea>
         </div>
       </div>
-      <div class="imgContent" v-if="false">
+      <div class="imgContent">
         <div class="head" @click="handleSelPhoto">
           <p>图片</p>
           <p>
@@ -205,95 +261,82 @@
               <van-button type="info" block @click="getSubmit">提交</van-button>
           </div>
       </div>
+      <ProcessModal ref="refProcess" :processId="ProcessId" :processIdName="processIdName"
+     :RuleLogId="RuleLogId" :ProcessInstanceId="ProcessInstanceId" :describe="BEZ" />
+     <van-popup
+          :show="isShow"
+          position="bottom"
+          custom-style="width:100%;height: 80vh;"
+          z-index="99999"
+          @close="onClosePopup"
+      >
+          <div class="popupWrap">
+              <van-search :value="lksrch" placeholder="请输入搜索关键词" @change="handleChange" />
+              <ul class="uls">
+                  <li @click="getPopupSel(item,index)" v-for="(item,index) in listData" :key="index">
+                      <p>{{item.Name}}</p>
+                      <p v-if="popupIdx==index">
+                          <i-icon type="right" />
+                      </p>
+                  </li>
+              </ul>
+          </div>
+      </van-popup>
     </div>
     <div class="dataWrap" v-if="current==1">
-      <div class="search">
-        <van-search :value="value" placeholder="搜索标题、编号、正文内容" />
-      </div>
-      <div class="contentList">
-        <div class="box_wrap">
-          <div class="row">
-            <p class="title">XX提交的请假</p>
-            <div class="time">2020-10-10</div>
-          </div>
-          <p class="desc">请假类型：年假</p>
-          <p class="desc">开始时间：2002-10-10 上午</p>
-          <p class="desc">结束时间：2002-10-10 下午</p>
-          <div class="tagFot">
-            <p class="tag">
-              <span>测试</span>
-              由XX提交
-            </p>
-            <p class="status">XXX处理中</p>
-          </div>
-        </div>
-      </div>
+      <ShowData :objectType="30036" ref="child" />
     </div>
   </div>
 </template>
 <script>
 import { getTotal } from '@/utils/iDays';
+import ProcessModal from '@/components/approval/processModal';
+import ShowData from '@/components/showData';
+import { message } from '@/utils/message';
 export default {
+  components:{
+    ProcessModal,
+    ShowData
+  },
   data() {
     return {
-      leaveIdx: "",
-      leaveList: [
-        {
-          id: "",
-          name: "年假"
-        },
-        {
-          id: "",
-          name: "事假"
-        },
-        {
-          id: "",
-          name: "病假"
-        },
-        {
-          id: "",
-          name: "调休"
-        },
-        {
-          id: "",
-          name: "产假/公休"
-        },
-        {
-          id: "",
-          name: "陪产假"
-        },
-        {
-          id: "",
-          name: "婚假"
-        },
-        {
-          id: "",
-          name: "工伤假"
-        },
-        {
-          id: "",
-          name: "丧假"
-        },
-        {
-          id: "",
-          name: "哺乳假"
-        },
-        {
-          id: "",
-          name: "计生假"
-        },
-        {
-          id: "",
-          name: "探亲假"
-        }
-      ],
       multiIndex: [0, 0, 0, 0, 0],
       endMultiIndex: [0, 0, 0, 0, 0],
       startTime: "",
       endTime: "",
+      iDays:"",
       imgList: [],
       address:"",
-      current:0
+      current:0,
+      postList:[],
+      postIdx:'',
+      Postcategory:"", // 岗位类别
+      latitude:"",
+      longitude:"",
+      categoryList:['进修','会议/培训/学术交流','其他'],
+      categoryIdx:"",
+      payTheWay:['专项经费','医院自由资金','其他'],
+      payTheWayIdx:"",
+      paymentWay:['转账','支票','现金（限1000元以下）','不需要支付','仅需要报销差旅费'], // 付款方式
+      paymentWayIdx:"",
+      PaymentMethod:"",
+      ProcessId:"794d3c36-b19e-435c-8af0-2c1d52d3c5cd",
+      processIdName:"",
+      RuleLogId:"",
+      ProcessInstanceId:"",
+      WorkCategory:"", // 类别
+      ProjectName:"",
+      Amount:"",
+      PaymentNotes:"",
+      Remark:"",
+      LeaveReason:"",
+      FundSource:"",
+      WorkAgentName:"",
+      WorkAgentId:"",
+      isShow:false,
+      lksrch:"",
+      sObjectType:8,
+      listData:[]
     };
   },
   computed: {
@@ -381,12 +424,234 @@ export default {
       let min = date.getMinutes();
       let s = date.getSeconds();
       return `${y}-${m}-${day} ${h}:${min}:${s}`;
+    },
+    userName(){
+      return wx.getStorageSync('fullName');
+    },
+    UserId(){
+      return wx.getStorageSync('userId');
+    },
+    DeptId(){
+      return wx.getStorageSync('businessUnitId');
+    },
+    DepName(){
+      return wx.getStorageSync('businessUnitName');
+    },
+    sessionkey(){
+      return wx.getStorageSync('sessionkey');
     }
   },
   onLoad(){
+    Object.assign(this.$data,this.$options.data());
     this.getCurrent();
+    this.queryType();
   },
   methods: {
+    queryType(){
+      this.$httpWX.get({
+        url:this.$api.message.queryList,
+        data:{
+          SessionKey:this.sessionkey,
+          method:this.$api.public.leaveQuery,
+          objectTypeCode:30036,
+          name:"Postcategory"
+        }
+      }).then(res=>{
+        this.postList = res;
+      })
+    },
+    getOpenModal(){
+        this.lksrch = '';
+        this.popupIdx = -1;
+        this.getLookup().then(res=>{
+            this.isShow = true;
+        });
+    },
+    handleChange(e){
+        this.lksrch = e.mp.detail;
+        this.getLookup();
+    },
+    getLookup(){
+        return new Promise((resolve,reject)=>{
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:this.$api.approval.lookup,
+                    SessionKey:this.sessionkey,
+                    lktp:this.sObjectType,
+                    lksrch:this.lksrch
+                }
+            }).then(res=>{
+                this.listData = res.listData;
+                resolve(res);
+            })
+        })
+    },
+    onClosePopup(){
+        this.isShow = false;
+    },
+    getPopupSel(item,index){
+        this.popupIdx = index;
+        this.WorkAgentId = item.ID;
+        this.WorkAgentName = item.Name;
+        this.isShow = false;
+    },
+    // 创建实例
+    async getCreateExample(){
+      let dataParams = {
+          params:{
+              recordRep:{
+                  fields:{
+                      ProcessId:this.ProcessId,
+                      Name:'出差审批单'+wx.getStorageSync('businessUnitName') + ' ' + wx.getStorageSync('fullName'),
+                      Deadline:1,
+                      Priority:0
+                  }
+              }
+          }
+      }
+      const ret = await this.$httpWX.post({
+          url:this.$api.message.queryList+'?method='+this.$api.approval.create,
+          method:this.$api.approval.create,
+          data:{
+              SessionKey:this.sessionkey,
+              message:JSON.stringify(dataParams)
+          }
+      }).then(res=>{
+          if(res.actions[0].state=='SUCCESS'){
+              this.ProcessInstanceId = res.actions[0].returnValue.ProcessInstanceId;
+              this.RuleLogId = res.actions[0].returnValue.RuleLogId;
+              this.processIdName = res.actions[0].returnValue.Name;
+          }
+      })
+      return ret;
+    },
+    getSubmit(){
+      if(this.Postcategory==""){
+        message.toast({
+          title: '岗位类别不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.startTime==""){
+        message.toast({
+          title: '开始时间不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.endTime==""){
+        message.toast({
+          title: '截止时间不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.address==""){
+        message.toast({
+          title: '出差地点不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.WorkCategory==""){
+        message.toast({
+          title: '类别不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.LeaveReason==""){
+        message.toast({
+          title: '原因不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.LeaveReason==""){
+        message.toast({
+          title: '科室工作临时负责人不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.FundSource==""){
+        message.toast({
+          title: '所需经费支付途径不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.PaymentMethod==""){
+        message.toast({
+          title: '付款方式不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.Amount==""){
+        message.toast({
+          title: '金额不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.PaymentNotes==""){
+        message.toast({
+          title: '付款信息不能为空',
+          delta: 0
+        })
+        return false;
+      }else if(this.Remark==""){
+        message.toast({
+          title: '备注不能为空',
+          delta: 0
+        })
+        return false;
+      }else {
+        this.getCreateExample().then(res=>{
+          let obj = {
+                actions:[
+                  {
+                    params:{
+                      processId:this.ProcessId,
+                      ruleLogId:this.RuleLogId,
+                      parentRecord:{
+                        id:this.ProcessInstanceId,
+                        objTypeCode:30036,
+                        fields:{
+                          ApplyUserId:{
+                            Id:this.UserId
+                          },
+                          DeptId:{
+                            Id:this.DeptId
+                          },
+                          Postcategory:this.Postcategory,
+                          StartTime:this.startTime,
+                          EndTime:this.endTime,
+                          LeaveDuration:this.iDays,
+                          Location:this.address,
+                          WorkCategory:this.WorkCategory,
+                          LeaveReason:this.LeaveReason,
+                          FundSource:this.FundSource,
+                          ProjectName:this.ProjectName,
+                          PaymentMethod:this.PaymentMethod,
+                          Amount:this.Amount,
+                          PaymentNotes:this.PaymentNotes,
+                          Remark:this.Remark,
+                          WorkAgentId:{
+                            Id:this.WorkAgentId
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+              this.$httpWX.post({
+                  url:this.$api.message.queryList+'?method='+this.$api.approval.saverecord,
+                  data:{
+                      SessionKey:this.sessionkey,
+                      message:JSON.stringify(obj)
+                  }
+              }).then(res=>{
+                this.$refs.refProcess.agreeShow = true;
+                this.$refs.refProcess.getStepQuery();
+              })
+        })
+      }
+    },
     onChange(e){
       this.current = e.mp.detail.index;
     },
@@ -415,8 +680,25 @@ export default {
         this.endMultiIndex[3] = hIdx;
         this.endMultiIndex[4] = minIdx;
     },
+    // 岗位类别
     pickerLeave(e) {
-      this.leaveIdx = e.mp.detail.value;
+      this.postIdx = e.mp.detail.value;
+      this.Postcategory = this.postList[this.postIdx].value;
+    },
+    // 类别
+    pickerCategory(e){
+      this.categoryIdx = e.mp.detail.value;
+      this.WorkCategory = this.categoryList[this.categoryIdx];
+    },
+    // 所需经费支付途径
+    pickerPayTheWay(e){
+      this.payTheWayIdx = e.mp.detail.value;
+      this.FundSource = this.payTheWay[this.payTheWayIdx];
+    },
+    // 付款方式
+    pickerPaymentWay(e){
+      this.paymentWayIdx = e.mp.detail.value;
+      this.PaymentMethod = this.paymentWay[this.paymentWayIdx];
     },
     pickerStartTime(e) {
       this.multiIndex = e.target.value;
@@ -450,6 +732,7 @@ export default {
           excludeFreeTime: true,
           excludeDates: []
         });
+        this.iDays = iDays;
       console.log(iDays,'iDays');
     },
     // 正则去除汉字
@@ -495,12 +778,32 @@ export default {
       let that = this;
       wx.chooseLocation({
           success:res=>{
-            console.log(res);
             that.address = res.address;
+            that.latitude = res.latitude;
+            that.longitude = res.longitude;
           },fail(error){
 
           }
       })
+    }
+  },
+  // 下拉刷新
+  onPullDownRefresh() {
+    if(this.current==1){
+      this.$refs.child.pageNumber = 1;
+      this.$refs.child.getQuery();
+    }
+    wx.stopPullDownRefresh();
+  },
+  /**
+   * 页面上拉触底事件的处理函数
+   */
+  onReachBottom() {
+    if(this.current==1){
+      if(this.$refs.child.isPage){
+        this.$refs.child.pageNumber++;
+        this.$refs.child.getQuery();
+      }
     }
   }
 };
@@ -585,6 +888,10 @@ export default {
       }
     }
   }
+  .leaveReason{
+    margin: 0 !important;
+    border-bottom: 1rpx solid #e2e3e5;
+  }
   .leaveComment {
     padding: 34rpx 33rpx;
     background: #fff;
@@ -667,60 +974,16 @@ export default {
             padding: 20rpx;
         }
     }
-    .dataWrap{
-    .contentList{
-      padding: 0 20rpx;
-      .box_wrap{
-        width: 100%;
-        height: auto;
-        background: #fff;
-        box-shadow: 0 2rpx 6rpx 0 rgba(0,0,0,.06);
-        margin-top: 20rpx;
-        padding: 25rpx 20rpx;
-        border-radius: 10rpx;
-        .row{
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-bottom: 15rpx;
-          .title{
-
-          }
-          .time{
-            font-size: 20rpx;
-            color: #ababab;
-          }
-        }
-        .desc{
-          font-size: 24rpx;
-          color: #ababab;
-        }
-        .tagFot{
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-top: 15rpx;
-          .tag{
-            display: flex;
-            align-items: center;
-            span{
-              display: inline-block;
-              width: 40rpx;
-              height: 40rpx;
-              line-height: 40rpx;
-              text-align: center;
-              background: #3399ff;
-              color: #fff;
-              font-size: 14rpx;
-              margin-right: 10rpx;
+    .popupWrap{
+        .uls{
+            li{
+                padding: 33rpx ;
+                color: #333333;
+                font-size: 28rpx;
+                display: flex;
+                justify-content: space-between;
             }
-          }
-          .status{
-            color: #f09951;
-          }
         }
-      }
     }
-  }
 }
 </style>

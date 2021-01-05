@@ -218,7 +218,8 @@
                 "businesstravel/main",
                 "goOut/main",
                 "weRunData/main",
-                "detail/main"
+                "detail/main",
+                "deptTransfer/main"
             ]
         }
     ],

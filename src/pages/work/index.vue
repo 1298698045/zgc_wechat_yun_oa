@@ -304,7 +304,16 @@ export default {
                 wx.navigateTo({url:url});
             }else if(item.id==5003){
                 const url = '/pages/meeting/notice/main';
-                wx.navigateTo({url:url})
+                wx.navigateTo({url:url});
+            }else if(item.id==30036){
+                const url = '/pages/hr/businesstravel/main';
+                wx.navigateTo({url:url});
+            }else if(item.id==30296){
+                const url = '/pages/hr/Business/main';
+                wx.navigateTo({url:url});
+            }else if(item.id==30027){
+                const url = '/pages/hr/deptTransfer/main';
+                wx.navigateTo({url:url});
             }
         },
         getOpenPhoto(){

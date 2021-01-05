@@ -44,6 +44,22 @@
                     />
                 </picker>
             </van-cell-group>
+            <van-cell-group custom-class="cell" v-if="item.type=='TP'">
+                <picker mode="time" :value="time" @change="function(val){bindTimeChange(val,item)}">
+                    <van-field
+                        :value="item.value"
+                        title-width="110px"
+                        input-class="inp"
+                        custom-style="font-size:34rpx;color:#333333"
+                        :required="item.required||item.require||false"
+                        disabled
+                        :label="item.label"
+                        input-align="right"
+                        right-icon="arrow"
+                        :placeholder="item.helpText"
+                    />
+                </picker>
+            </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='F'">
                 <picker :disabled="item.readonly" class="picker" mode="multiSelector" :value="item.multiIndex" @change="((val)=>{bindMultiPickerChange(val,item)})"
                     :range="newMultiArrayList">
@@ -137,7 +153,7 @@
                 </p>
             </div>
             <div class="row" v-if="item.type=='UCS'||item.type=='X'||item.type=='J'||item.type=='UC'">
-                <p class="title"><span>{{item.label}}</span></p>
+                <p class="title">{{item.required||item.require?'*':''}}<span>{{item.label}}</span></p>
                 <textarea :disabled="item.readonly" :v-model="item.value"
                  @input="function(val){changeText(val,item,index)}"
                   name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="!item.readonly?item.helpText:''"></textarea>
@@ -637,7 +653,7 @@ export default {
             this.isShow = false;
         },
         getPopupSel(item,index){
-            console.log(item,this.searchId);
+            // console.log(item,this.searchId);
             this.popupIdx = index;
             this.record[this.searchId] = item;
             this.isShow = false;
@@ -645,13 +661,19 @@ export default {
             this.params.parentRecord.fields[this.searchId] = {Id:item.ID};
         },
         changeSwitch(e,item){
-            console.log(e,item);
+            // console.log(e,item);
             item.value = e.mp.detail;
             this.params.parentRecord.fields[item.id] = e.mp.detail;
         },
         bindDateChange(v,item){
-            console.log(v,item);
+            // console.log(v,item);
             item.value = v.mp.detail.value;
+            this.record[item.id] = item.value;
+            this.params.parentRecord.fields[item.id] = item.value;
+        },
+        // mm:ss 时间选择
+        bindTimeChange(e,item){
+            item.value = e.mp.detail.value;
             this.record[item.id] = item.value;
             this.params.parentRecord.fields[item.id] = item.value;
         },

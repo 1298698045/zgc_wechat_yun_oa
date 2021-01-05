@@ -1,5 +1,5 @@
 {
-    "navigationBarTitleText": "出差申请",
+    "navigationBarTitleText": "部门调动",
     "enablePullDownRefresh": true,
     "usingComponents": {
         "van-search": "/static/vant/search/index",

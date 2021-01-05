@@ -73,7 +73,7 @@
           </div>
         </picker>
 
-        <picker mode="date" :value="StartTime" @change="pickerStartTime">
+        <picker mode="time" :value="StartTime" @change="pickerStartTime">
           <div class="row">
             <p class="label">
               开始时间
@@ -91,7 +91,7 @@
             </p>
           </div>
         </picker>
-        <picker mode="date" :value="EndTime" @change="pickerEndTime">
+        <picker mode="time" :value="EndTime" @change="pickerEndTime">
           <div class="row">
             <p class="label">
               结束时间
@@ -167,7 +167,7 @@
      :RuleLogId="RuleLogId" :ProcessInstanceId="ProcessInstanceId" :describe="BEZ" />
     </div>
     <div class="dataWrap" v-if="current==1">
-      <ShowData :objectType="30036" ref="child" />
+      <ShowData :objectType="30296" ref="child" />
     </div>
   </div>
 </template>
@@ -247,7 +247,7 @@ export default {
         data:{
           SessionKey:this.sessionkey,
           method:this.$api.public.leaveQuery,
-          objectTypeCode:30036,
+          objectTypeCode:30296,
           name:"Postcategory"
         }
       }).then(res=>{
@@ -453,9 +453,11 @@ export default {
    * 页面上拉触底事件的处理函数
    */
   onReachBottom() {
-    if(this.$refs.child.isPage){
-      this.$refs.child.pageNumber++;
-      this.$refs.child.getQuery();
+    if(this.current==1){
+      if(this.$refs.child.isPage){
+        this.$refs.child.pageNumber++;
+        this.$refs.child.getQuery();
+      }
     }
   }
 };
