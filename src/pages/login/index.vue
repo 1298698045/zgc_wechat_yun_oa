@@ -122,6 +122,9 @@ export default {
             // wx.switchTab({url:url});
         // }
     },
+    onShow(){
+        this.login();
+    },
     methods:{
         getIsShow(){
             this.isIcon = !this.isIcon;
