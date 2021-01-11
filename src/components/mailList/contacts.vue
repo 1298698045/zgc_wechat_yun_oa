@@ -16,11 +16,11 @@
             </van-checkbox>
         </div>
         <div class="center">
-            <van-checkbox-group :value="result" @change="changeGroup">
+            <!-- <van-checkbox-group :value="result" @change="changeGroup"> -->
                 <van-index-bar sticky @select="getSelect" :index-list="indexList">
                     <view class="boxWrap" v-for="(item,index) in list" :key="index">
                         <van-index-anchor :index="item.title"></van-index-anchor>
-                        <van-checkbox custom-class="checkbox" :value="v.checked" :name="v.ValueId" v-for="(v,i) in item.item" :key="i">
+                        <van-checkbox custom-class="checkbox" @change="(e)=>{changeCheckbox(e,v)}" :value="v.checked" :name="v.ValueId" v-for="(v,i) in item.item" :key="i">
                             <div class="row" :style="{'width':width+'px'}">
                                 <div class="col_l">
                                     <p>{{v.Name}}</p>
@@ -33,7 +33,7 @@
                         </van-checkbox>
                     </view>
                 </van-index-bar>
-            </van-checkbox-group>
+            <!-- </van-checkbox-group> -->
         </div>
     </div>
 </template>
@@ -48,44 +48,21 @@ export default {
             result:[],
             width:"",
             check:false,
-            list:[
-                {
-                    title:"A",
-                    item:[
-                        {
-                            FullName:"张三",
-                            DeptName:"信息"
-                        },
-                        {
-                            FullName:"张三",
-                            DeptName:"信息部门"
-                        }
-                    ]
-                },
-                {
-                    title:"B",
-                    item:[
-                        {
-                            FullName:"张三",
-                            DeptName:"信息"
-                        },
-                        {
-                            FullName:"张三",
-                            DeptName:"信息部门"
-                        }
-                    ]
-                }
-            ],
+            list:[],
             indexList:['A','B'],
             sessionkey:"",
             unitData:[],
-            childShow:false
+            childShow:false,
+            checkList:[]
         }
     },
     computed:{
         ...mapState({
             selectId:state=>{
                 return state.mailList.selectId
+            },
+            selectListName:state=>{
+                return state.mailList.selectListName;
             }
         })
     },
@@ -148,6 +125,16 @@ export default {
                         }
                     })
                 })
+                this.selectListName.forEach(one=>{
+                    this.list.forEach(t=>{
+                        t.item.forEach(s=>{
+                            if(one.id==s.ValueId){
+                                this.$set(s,'checked',true);
+                                s.checked = true;
+                            }
+                        })
+                    })
+                })
                 this.indexList = indexList;
                 let unitDataTemp = [];
                 this.unitData = res.unitData.forEach(item=>{
@@ -155,6 +142,30 @@ export default {
                 });
                 this.unitData = unitDataTemp;
             })
+        },
+        changeCheckbox(e,v){
+            v.checked = e.mp.detail;
+            if(v.checked){
+                this.checkList.push({
+                    id:v.ValueId,
+                    FullName:v.FullName,
+                    DeptName:v.DeptName
+                })
+            }else {
+                let index = this.checkList.findIndex(item=>item.id==v.ValueId);
+                this.checkList.splice(index,1);
+                if(this.cc=='cc'){
+                    this.getSingleDeleteCC(v.ValueId);
+                }else {
+                    this.getSingleDelete(v.ValueId);
+                }
+            }
+            let temp = [...this.checkList,...this.selectListName];
+            if(this.cc=='cc'){
+                this.getListNameCC(temp);
+            }else {
+                this.getListName(temp);
+            }
         },
         changeGroup(e){
             this.result = e.mp.detail;

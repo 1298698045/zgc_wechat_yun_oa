@@ -595,6 +595,7 @@ export default {
       // console.log(years,month,d,hours,minutes,s,'--------------');
       let startTime = `${years}-${month}-${d} ${hours}:${minutes}`;
       let endTime = `${years}-${month}-${d} ${
+        Number(hours)=='23'?'00':
         Number(hours) + Number(1)
       }:${minutes}`;
       this.startTime = startTime;

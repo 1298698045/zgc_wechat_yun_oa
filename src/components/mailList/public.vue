@@ -3,7 +3,7 @@
     <div class="footer"  v-if="!isShow" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
       <div class="boxWrap">
         <p class="l" @click="getDetail">
-          已选择:{{cc=='cc'?selectListNameCC.length:filterList.length}}人
+          已选择:{{cc=='cc'?selectListNameCC.length:selectListName.length}}人
           <i-icon type="unfold" />
         </p>
         <p class="r" @click="getSubmit">确定</p>
@@ -23,6 +23,9 @@ export default {
         },
         selectListNameCC:state=>{
           return state.mailList.selectListNameCC
+        },
+        selectListName:state=>{
+          return state.mailList.selectListName;
         }
       }),
       ...mapGetters([
@@ -57,7 +60,7 @@ export default {
             Id:this.foldersId,
             RightCode:this.RightCode,
             ObjectTypeCode:8,
-            ObjectId:this.filterList.join(',')
+            ObjectId:this.selectListName.map(item=>item.id).join(',')
           }
         }).then(res=>{
           console.log(res);
@@ -68,7 +71,7 @@ export default {
           data:{
             method:this.$api.meeting.addPeople,
             SessionKey:this.sessionkey,
-            invitee:this.filterList.join(','),
+            invitee:this.selectListName.map(item=>item.id).join(','),
             meetingId:this.meetingId
           }
         }).then(res=>{

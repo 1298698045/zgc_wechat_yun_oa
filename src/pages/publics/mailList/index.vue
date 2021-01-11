@@ -63,8 +63,8 @@
                         </div>
                     </div>
                     <div class="mailList">
-                        <van-checkbox-group :value="result" @change="changeGroup">
-                            <van-checkbox custom-class="checkbox" :vlaue="item.checked" :name="item.ValueId" v-for="(item,index) in list" :key="index">
+                        <!-- <van-checkbox-group :value="result" @change="changeGroup"> -->
+                            <van-checkbox custom-class="checkbox" @change="(e)=>{changeCheckbox(e,item)}" :value="item.checked" :name="item.ValueId" v-for="(item,index) in list" :key="index">
                                 <div class="contRow" :style="{'width':width+'px'}">
                                     <div class="l">
                                         <p>
@@ -77,7 +77,7 @@
                                     </div>
                                 </div>
                             </van-checkbox>
-                        </van-checkbox-group>
+                        <!-- </van-checkbox-group> -->
                     </div>
                 </div>
             </div>
@@ -128,7 +128,8 @@ export default {
             admin:"",
             foldersId:"",
             RightCode:"",
-            meetingId:"" // 会议id
+            meetingId:"", // 会议id
+            checkList:[]
         }
     },
     onLoad(options){
@@ -150,6 +151,9 @@ export default {
         ...mapState({
             selectId:state=>{
                 return state.mailList.selectId
+            },
+            selectListName:state=>{
+                return state.mailList.selectListName;
             }
         }),
         ...mapGetters([
@@ -173,6 +177,30 @@ export default {
             'getSingleDeleteCC',
             'getSign'
         ]),
+        changeCheckbox(e,item){
+            item.checked = e.mp.detail;
+            if(item.checked){
+                this.checkList.push({
+                    id:item.ValueId,
+                    FullName:item.FullName,
+                    DeptName:item.DeptName
+                })
+            }else {
+                let index = this.checkList.findIndex(v=>v.id==item.ValueId);
+                this.checkList.splice(index,1);
+                if(this.cc=='cc'){
+                    this.getSingleDeleteCC(item.ValueId);
+                }else {
+                    this.getSingleDelete(item.ValueId);
+                }
+            }
+            let temp = [...this.checkList,...this.selectListName];
+            if(this.cc=='cc'){
+                this.getListNameCC(temp);
+            }else {
+                this.getListName(temp);
+            }
+        },
         changeGroup(e){
             this.result = e.mp.detail;
             let selectData = [];
@@ -214,10 +242,10 @@ export default {
                     SessionKey:this.sessionkey
                 }
             }).then(res=>{
-                console.log(res);
                 this.list = res.data;
                 this.list.map(item=>{
-                    this.$set(item,'checked',false);
+                    // this.$set(item,'checked',false);
+                    item.checked = false;
                     if(item.FullName.length>2){
                         const name = item.FullName.substr(1);
                         item.name = name;
@@ -225,6 +253,13 @@ export default {
                         item.name = item.FullName;
                     }
                     return item;
+                })
+                this.selectListName.forEach(v=>{
+                    this.list.forEach(one=>{
+                        if(v.id==one.ValueId){
+                            one.checked = true;
+                        }
+                    })
                 })
                 // this.list.map(item=>{
                 //     const name = item.FullName.substr(1);
