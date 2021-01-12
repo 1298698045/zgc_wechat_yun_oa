@@ -350,6 +350,7 @@ export default {
                     Selected:true,
                     BusinessUnitIdName:item.DeptName
                 })
+                this.testLists[index].ParticipantMember = this.getUnique(this.testLists[index].ParticipantMember);
                 this.stepList[index].Selected = true;
             })
         }
@@ -379,6 +380,10 @@ export default {
     this.ToActivityId = wx.getStorageSync('ToActivityId');
   },
   methods: {
+    getUnique(arr){
+      const res = new Map();
+      return arr.filter((item)=>!res.has(item.UserId)&&res.set(item.UserId,1));
+    },
     changeSearch(e){
       this.searchValue = e.mp.detail;
       this.getQuery();

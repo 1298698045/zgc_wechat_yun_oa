@@ -423,6 +423,8 @@ export default {
                         Selected:true,
                         BusinessUnitIdName:item.DeptName
                     })
+
+                    this.testLists[index].ParticipantMember = this.getUnique(this.testLists[index].ParticipantMember);
                     this.testLists[index].Selected = true;
                 })
             }
@@ -499,6 +501,10 @@ export default {
             console.log(e,v);
             this.list[i].value = e.mp.detail.value;
             // v.value = e.mp.detail.value;
+        },
+        getUnique(arr){
+            const res = new Map();
+            return arr.filter((item)=>!res.has(item.UserId)&&res.set(item.UserId,1));
         },
         getQueryFrom(){
             this.$httpWX.get({

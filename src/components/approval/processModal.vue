@@ -121,6 +121,7 @@ export default {
                         Selected:true,
                         BusinessUnitIdName:item.DeptName
                     })
+                    this.stepList[index].ParticipantMember = this.getUnique(this.stepList[index].ParticipantMember);
                     this.stepList[index].Selected = true;
                 })
             }
@@ -140,6 +141,10 @@ export default {
         // })
     },
     methods:{
+        getUnique(arr){
+            const res = new Map();
+            return arr.filter((item)=>!res.has(item.UserId)&&res.set(item.UserId,1));
+        },
         ...mapMutations(['getClear']),
         getStepQuery(){
             this.$httpWX.get({
