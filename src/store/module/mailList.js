@@ -119,10 +119,17 @@ const mailList = {
         doneTodos:state=>{
             return state.selectId.length;
         },
+        // filterList:state=>{
+        //     return state.selectId.filter((item,index,array)=>{
+        //         return array.indexOf(item) === index;
+        //     })
+        // }
         filterList:state=>{
-            return state.selectId.filter((item,index,array)=>{
-                return array.indexOf(item) === index;
-            })
+            let temp = state.selectListName.map(item=>{return item.id});
+            let res = new Map();
+            // console.log(temp.filter((v)=>!res.has(v)&&res.set(v,1)),'tempfilter')
+            temp.filter((v)=>!res.has(v)&&res.set(v,1));
+            return temp;
         }
     }
 }
