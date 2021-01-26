@@ -13,6 +13,19 @@
                     @change="function(val){changeInput(val,item)}"
                 />
             </van-cell-group>
+            <!-- 单选 -->
+            <van-cell-group v-if="item.type=='RBL'" custom-class="cell">
+                <div class="radioWrap">
+                    <p class="label">{{item.label}}</p>
+                    <van-radio-group :disabled="item.readonly" :value="item.value" @change="(e)=>{changeRadio(e,item,index)}">
+                        <div class="radio">
+                            <van-radio :name="v.value" custom-class="radio" v-for="(v,i) in currenData[item.id]" :key="i">
+                                <p class="tag">{{v.label}}</p>
+                            </van-radio>
+                        </div>
+                    </van-radio-group>
+                </div>
+            </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='L'||item.type=='DT'||item.type=='LT'">
                 <picker :disabled="item.readonly" @change="(val)=>{bindPickerChange(val,item)}" :value="item.index" range-key="label" :range="currenData[item.id]">
                     <van-field
@@ -724,6 +737,11 @@ export default {
             item.value = e.mp.detail.join(',');
             this.params.parentRecord.fields[item.id] = item.value;
         },
+        changeRadio(e,item,index){
+            item.value = e.mp.detail;
+            this.list[index].value = e.mp.detail;
+            this.params.parentRecord.fields[item.id] = item.value;
+        },
         // 请假单独提交处理
         leaveSave(){
             // 对象代码 
@@ -1029,6 +1047,19 @@ export default {
                     padding: 10rpx 0;
                     .tag{
                         width: 500rpx;
+                    }
+                }
+            }
+            .radioWrap{
+                background: #fff;
+                padding: 30rpx;
+                display: flex;
+                justify-content: space-between;
+                .radio{
+                    padding: 10rpx 0;
+                    display: flex;
+                    .tag{
+                        margin-right: 20rpx;
                     }
                 }
             }

@@ -27,6 +27,8 @@
     "van-cell":"/static/vant/cell/index",
     "van-checkbox-group":"/static/vant/checkbox-group/index",
     "i-cell-group":"/static/view/cell-group/index",
-    "i-cell":"/static/view/cell/index"
+    "i-cell":"/static/view/cell/index",
+    "van-radio-group":"/static/vant/radio-group/index",
+    "van-radio":"/static/vant/radio/index"
   }
 }
