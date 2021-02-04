@@ -121,7 +121,10 @@
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='G'||item.type=='MC'">
                 <div class="checkWrap">
-                    <p class="label">{{item.label}}</p>
+                    <p class="label">
+                        <span>{{item.required||item.require?'*':''}}</span>
+                        {{item.label}}
+                    </p>
                     <van-checkbox-group :disabled="item.readonly" :value="item.result" @change="((e)=>{changeCheckTag(e,item,index)})">
                         <div class="checkboxGroup">
                             <van-checkbox :name="v.value" v-for="(v,i) in currenData[item.id]" :key="i" custom-class="check" label-class="labels"  shape="square">
@@ -396,7 +399,10 @@ export default {
             createdByName:"",
             processIdName:"",
             SplitType:"",
-            Balance:"" // 假期余额
+            leaveType:"", // 假期类型
+            Balance:"", // 假期余额
+            startTime:"",
+            endTime:""
         }
     },
     computed:{
@@ -436,8 +442,7 @@ export default {
                         Selected:true,
                         BusinessUnitIdName:item.DeptName
                     })
-
-                    this.testLists[index].ParticipantMember = this.getUnique(this.testLists[index].ParticipantMember);
+                    this.testLists[index].ParticipantMember = this.unique(this.testLists[index].ParticipantMember);
                     this.testLists[index].Selected = true;
                 })
             }
@@ -515,9 +520,16 @@ export default {
             this.list[i].value = e.mp.detail.value;
             // v.value = e.mp.detail.value;
         },
-        getUnique(arr){
-            const res = new Map();
-            return arr.filter((item)=>!res.has(item.UserId)&&res.set(item.UserId,1));
+        unique(arr){
+            for(let i = 0; i < arr.length; i++){
+                for(let j = i + 1; j < arr.length; j++){
+                    if(arr[i].UserId==arr[j].UserId){
+                        arr.splice(j,1);
+                        j--;
+                    }
+                }
+            }
+            return arr;
         },
         getQueryFrom(){
             this.$httpWX.get({
@@ -672,7 +684,7 @@ export default {
             this.isShow = false;
         },
         getPopupSel(item,index){
-            // console.log(item,this.searchId);
+            console.log(item,this.searchId);
             this.popupIdx = index;
             this.record[this.searchId] = item;
             this.isShow = false;
@@ -680,12 +692,12 @@ export default {
             this.params.parentRecord.fields[this.searchId] = {Id:item.ID};
         },
         changeSwitch(e,item){
-            // console.log(e,item);
+            console.log(e,item);
             item.value = e.mp.detail;
             this.params.parentRecord.fields[item.id] = e.mp.detail;
         },
         bindDateChange(v,item){
-            // console.log(v,item);
+            console.log(v,item);
             item.value = v.mp.detail.value;
             this.record[item.id] = item.value;
             this.params.parentRecord.fields[item.id] = item.value;
@@ -700,6 +712,15 @@ export default {
             item.multiIndex = v.mp.detail.value;
             item.value = this.getCurrentTime(item.multiIndex);
             this.params.parentRecord.fields[item.id] = item.value;
+            if(item.id=='StartTime'){
+                this.startTime = item.value;
+            }else if(item.id=='EndTime'){
+                this.endTime = item.value;
+            }
+            let EntityType = wx.getStorageSync('EntityType');
+            if(EntityType==30022){
+                this.getBalance();
+            }
         },
         bindYear(e,item){
             console.log(e,item);
@@ -747,7 +768,7 @@ export default {
             // 对象代码 
             let EntityType = wx.getStorageSync('EntityType');
             if(EntityType==30022){
-                if(this.Balance>0){
+                if(!this.isBalanceLimit || this.isBalanceLimit&&this.Balance>0){
 
                 }else {
                     wx.showToast({
@@ -815,6 +836,7 @@ export default {
             this.params.parentRecord.fields[item.id] = item.value;
             let EntityType = wx.getStorageSync('EntityType');
             if(EntityType==30022){
+                this.leaveType = item.value;
                 this.getBalance(item.value);
             }
         },
@@ -827,14 +849,22 @@ export default {
                     SessionKey:this.sessionkey,
                     yearNumber:this.yearNumber,
                     EmployeeId:this.UserId,
-                    leaveTypeCode:leaveType
+                    leaveTypeCode:this.leaveType,
+                    startTime:this.startTime,
+                    endTime:this.endTime
                 }
             }).then(res=>{
-                if(res.rows!=''){
-                    this.Balance = res.rows[0].Balance;
+                if(res!=''){
+                    this.isBalanceLimit = res.isBalanceLimit;
+                    this.Balance = res.balanceAmount;
                     const index =  this.list.findIndex((item)=>item.id=='BalanceAmount');
                     this.list[index].value = this.Balance;
                 }
+                // if(res.rows!=''){
+                //     this.Balance = res.rows[0].Balance;
+                //     const index =  this.list.findIndex((item)=>item.id=='BalanceAmount');
+                //     this.list[index].value = this.Balance;
+                // }
             })
         },
         getChooseImage(){
@@ -1043,6 +1073,11 @@ export default {
             .checkWrap{
                 background: #fff;
                 padding: 30rpx;
+                .label{
+                    span{
+                        color:  #ff6666;
+                    }
+                }
                 .check{
                     padding: 10rpx 0;
                     .tag{
@@ -1270,6 +1305,7 @@ export default {
                 bottom: 0;
                 background: #fff;
                 border-top: 1rpx solid #e2e3e5;
+                z-index: 999;
                 .box{
                     display:flex;
                     justify-content: center;

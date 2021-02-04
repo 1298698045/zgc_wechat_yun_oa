@@ -430,8 +430,12 @@ export default {
                             }
                         }
                     }else if(item.type=='L'||item.type=='DT'||item.type=='LT'){
-                       item.index = this.currenData[item.id].findIndex(v=>v.value==this.record[item.name]);
-                       this.fields[item.id] = this.currenData[item.id][item.index].value;
+                       if(this.record[item.name]!=''){
+                            item.index = this.currenData[item.id].findIndex(v=>v.value==this.record[item.name]);
+                            this.fields[item.id] = this.currenData[item.id][item.index].value;
+                        }else {
+                            item.index = '';
+                        }
                     }else if(item.type == 'MC'){
                         item.result = this.record[item.name].split(',');
                         this.fields[item.id] = this.record[item.name];

@@ -318,6 +318,7 @@ export default {
     
   },
   onLoad(){
+    Object.assign(this.$data,this.$options.data());
     this.getCurrent();
     this.defaultTime();
     this.queryType();
@@ -416,12 +417,12 @@ export default {
                     ruleLogId:this.RuleLogId,
                     parentRecord:{
                       id:this.ProcessInstanceId,
-                      objTypeCode:30034,
+                      objTypeCode:30037,
                       fields:{
-                        ApplyUser:{
+                        EmployeeId:{
                           Id:this.userId
                         },
-                        OwningBusinessUnitId:{
+                        BusinessUnitId:{
                           Id:this.DepId
                         },
                         StartTime:this.startTime,
@@ -482,7 +483,7 @@ export default {
     },
     pickerLeave(e) {
       this.leaveIdx = e.mp.detail.value;
-      this.OvertimeType = this.leaveIdx[this.leaveIdx].value;
+      this.OvertimeType = this.leaveList[this.leaveIdx].value;
     },
     pickerApplyTime(e){
       this.ApplyMultiIndex = e.target.value;

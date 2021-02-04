@@ -237,12 +237,14 @@ export default {
       RuleLogId:'',
       ToActivityId:'',
       fromActivityId:'',
-      Balance:0,
+      Balance:0, // 假期余额
       searchValue:'',
       list:[],
       pageNumber:1,
       pageSize:10,
-      isPage:false
+      isPage:false,
+      LeaveDuration:"",
+      isBalanceLimit:false // 判断是否需要校验余额
     };
   },
   computed: {
@@ -341,21 +343,23 @@ export default {
     }),
     processList(){
         let temp = [];
-        let index = this.stepList.findIndex(v=>v.ToActivityId===this.ToActivityId);
-        if(this.selectListName!=''){
-            this.selectListName.forEach(item=>{
-                this.stepList[index].ParticipantMember.push({
-                    UserId:item.id,
-                    FullName:item.FullName,
-                    Selected:true,
-                    BusinessUnitIdName:item.DeptName
+            let ToActivityId = wx.getStorageSync('ToActivityId');
+            let index = this.stepList.findIndex(v=>v.ToActivityId===ToActivityId);
+            if(this.selectListName!=''){
+                this.selectListName.forEach(item=>{
+                    this.stepList[index].ParticipantMember.push({
+                        UserId:item.id,
+                        FullName:item.FullName,
+                        Selected:true,
+                        BusinessUnitIdName:item.DeptName
+                    })
+                    this.stepList[index].ParticipantMember = this.unique(this.stepList[index].ParticipantMember);
+                    console.log(this.stepList[index].ParticipantMember,'this.stepList[index].ParticipantMember')
+                    this.stepList[index].Selected = true;
                 })
-                this.testLists[index].ParticipantMember = this.getUnique(this.testLists[index].ParticipantMember);
-                this.stepList[index].Selected = true;
-            })
-        }
-        temp = this.stepList;
-        return temp;
+            }
+            temp = this.stepList;
+            return temp;
     },
     UserId(){
       return wx.getStorageSync('userId');
@@ -380,7 +384,7 @@ export default {
     this.ToActivityId = wx.getStorageSync('ToActivityId');
   },
   methods: {
-    getUnique(arr){
+    unique(arr){
       const res = new Map();
       return arr.filter((item)=>!res.has(item.UserId)&&res.set(item.UserId,1));
     },
@@ -397,11 +401,14 @@ export default {
           SessionKey:this.sessionkey,
           yearNumber:this.yearNumber,
           EmployeeId:this.UserId,
-          leaveTypeCode:this.leaveType
+          leaveTypeCode:this.leaveType,
+          startTime:this.startTime,
+          endTime:this.endTime
         }
       }).then(res=>{
-        if(res.rows!=''){
-          this.Balance = res.rows[0].Balance;
+        if(res!=''){
+          this.isBalanceLimit = res.isBalanceLimit;
+          this.Balance = res.balanceAmount;
         }
       })
     },
@@ -453,37 +460,42 @@ export default {
     },
     // 保存表单
     getSave(){
-      if(this.Balance>0){
+      if(!this.isBalanceLimit||(this.isBalanceLimit&&this.Balance>0)){
         if(this.leaveType==''){
           wx.showToast({
             title:"请假类型不能为空",
             icon:"none",
             duration:2000
           })
+          return false;
         }else if(this.startTime==''){
           wx.showToast({
             title:"开始时间不能为空",
             icon:"none",
             duration:2000
           })
+          return false;
         }else if(this.endTime==''){
           wx.showToast({
             title:"结束时间不能为空",
             icon:"none",
             duration:2000
           })
+          return false;
         }else if(this.LeaveDuration==''){
           wx.showToast({
             title:"时长不能为空",
             icon:"none",
             duration:2000
           })
+          return false;
         }else if(this.Description==''){
           wx.showToast({
             title:"请假事由不能为空",
             icon:"none",
             duration:2000
           })
+          return false;
         }else {
           this.getCreateExample().then(res=>{
             let obj = {
@@ -605,8 +617,10 @@ export default {
                 icon:"success",
                 duration:2000,
                 success:res=>{
-                  this.current = 1;
-                  this.getQuery();
+                  setTimeout(()=>{
+                    this.current = 1;
+                    this.getQuery();
+                  },1000)
                 }
               })
             }
@@ -680,6 +694,7 @@ export default {
           excludeDates: []
         });
       console.log(iDays,'iDays');
+      this.getBalance();
       // this.LeaveDuration = iDays;
     },
     // 正则去除汉字
@@ -1062,6 +1077,7 @@ export default {
       bottom: 0;
       background: #fff;
       border-top: 1rpx solid #e2e3e5;
+      z-index: 9999;
       .box {
         display: flex;
         justify-content: center;
@@ -1084,6 +1100,7 @@ export default {
     position: fixed;
     bottom: 20rpx;
     background: #fff;
+    z-index: 9!important;
     .btn {
       padding: 20rpx;
     }
