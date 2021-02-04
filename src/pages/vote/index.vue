@@ -105,7 +105,7 @@
                             <p class="text">{{v.Option}}(已选)</p>
                             <div class="mBom">
                                 <p class="progress">
-                                    <span :class="{'active':current=='tab3'}" :style="{width:v.widthNum+'rpx'}"></span>
+                                    <span :class="{'active':current=='tab3'}" :style="{width:v.widthNum+'rpx',background:colorList[i]}"></span>
                                 </p>
                                 <p class="num">
                                     <span>
@@ -205,12 +205,14 @@
                 <p @click="getEdit">编辑</p>
                 <p @click="getAddPeople">添加参与人</p>
                 <p @click="getDelete">删除</p>
+                <p @click="getLookRecord">查看投票人员</p>
             </div>
         </van-action-sheet>
     </div>
 </template>
 <script>
 import { mapState, mapMutations } from 'vuex';
+import {message} from '@/utils/message';
 export default {
     data(){
         return {
@@ -241,7 +243,13 @@ export default {
             numActive:'',
             pageNumber:1,
             pageSize:25,
-            isPage:false
+            isPage:false,
+            colorList:[
+                '#3399ff',
+                'red',
+                'yellow',
+                '#FF6666'
+            ]
         }
     },
     computed:{
@@ -406,7 +414,18 @@ export default {
                 }
             }).then(res=>{
                 console.log(res)
-                this.getQuery();
+                if(res.status===1){
+                    message.toast({
+                        title:res.msg,
+                        delta:0,
+                        success:()=>{
+                            setTimeout(()=>{
+                                this.getQuery();
+                            },500)
+                        }
+                    })
+                }
+                
             })
         },
         getMore(item){
@@ -424,13 +443,20 @@ export default {
                     pollid:this.pollid
                 }
             }).then(res=>{
-                wx.showToast({
-                    title:res.msg,
-                    icon:'success',
-                    duration:2000
-                })
-                this.getQuery();
-                this.show = false;
+                if(res.status===1){
+                    wx.showToast({
+                        title:res.msg,
+                        icon:'success',
+                        duration:2000,
+                        success:()=>{
+                            setTimeout(()=>{
+                                this.getQuery();
+                                this.show = false;
+                            },500)
+                        }
+                    })
+                }
+                
             })
         },
         getClose(){
@@ -456,6 +482,11 @@ export default {
         getAddPeople(){
             this.show = false;
             const url = '/pages/publics/mailList/main';
+            wx.navigateTo({url:url});
+        },
+        getLookRecord(){
+            this.show = false;
+            const url = '/pages/vote/peopleDetail/main?id='+this.pollid;
             wx.navigateTo({url:url});
         }
     },

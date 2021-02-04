@@ -164,13 +164,15 @@ const api = {
         delete: "poll.delete",
         peopleList: "poll.people.getlist",
         getpoll: "poll.get",
-        invite: "poll.people.invite" // 邀请投票人员
+        invite: "poll.people.invite", // 邀请投票人员
+        queryPeople:"poll.people.getlist", // 获取投票人员
     },
     // 问卷
     survey: {
         query: "survey.search",
         getSurvey: "survey.get",
-        submit: "survey.response.submit"
+        submit: "survey.response.submit",
+        surveyPeople:"survey.audience.search"
     },
     // 工作通知
     notice: {
@@ -183,12 +185,24 @@ const api = {
         like: "object.comment.like",
         queryComment: "chatter.commentme.getlist",
         comment: "object.comment.add",
-        del: "chatter.status.destroy"
+        del: "chatter.status.destroy",
+        detail:"chatter.status.get"
     },
     hr:{
         payList: "salary.pay.app.paylist",
         payempdetail :"salary.pay.app.payempdetail",
         holidayaccount:"attendance.holidayaccount.personal.getlist", //  获取当前用户所有假期账户列表
+    },
+    // 日志
+    journal:{
+        send: "worklog.reportcontent.send",
+        query: "worklog.reports.search", //获取当前用户的所有日志
+        detail: "worklog.reportcontent.get"
+    },
+    sign:{
+        checkin:"hr.attend.out.checkin",
+        attendcheck:"hr.attendcheck.gettimes",// 获取签到次数
+        getdaily:"hr.attenddetail.getdaily" //查询一天的打卡记录
     }
 }
 export default api;

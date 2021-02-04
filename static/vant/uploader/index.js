@@ -115,13 +115,13 @@ VantComponent({
                         callback: (result) => {
                             if (result) {
                                 // 开始上传
-                                this.$emit('after-read', { file, name });
+                                this.$emit('afterRead', { file, name });
                             }
                         }
                     });
                 }
                 else {
-                    this.$emit('after-read', { file, name });
+                    this.$emit('afterRead', { file, name });
                 }
             });
         },

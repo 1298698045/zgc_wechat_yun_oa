@@ -164,6 +164,51 @@ export default {
             }else if(id==111){
                 const url = '/pages/meeting/notice/main';
                 wx.navigateTo({url:url});
+            }else if(id==6030){
+                const url = '/pages/hr/weRunData/main';
+                wx.navigateTo({url:url});
+            }else if(id==102){
+                const url = '/pages/homeMailList/main';
+                wx.switchTab({url:url});
+            }else if(id==203){
+                const url = '/pages/wagesQuery/main';
+                wx.navigateTo({url:url})
+            }else if(id==30400){
+                const url = '/pages/vote/main';
+                wx.navigateTo({url:url});
+            }else if(id==30300){
+                const url = '/pages/questionnaire/main';
+                wx.navigateTo({url:url});
+            }else if(id==6000){
+                const url = '/pages/community/main';
+                wx.navigateTo({url:url})
+            }else if(id==30022){
+                const url = '/pages/clockIn/leaveApply/main';
+                wx.navigateTo({url:url});
+            }else if(id==30036){
+                const url = '/pages/hr/Business/main';
+                wx.navigateTo({url:url});
+            }else if(id==30037){
+                const url = '/pages/hr/overTimeApply/main';
+                wx.navigateTo({url:url});
+            }else if(id==30020){
+                const url = '/pages/hr/personnelFiles/main';
+                wx.navigateTo({url:url});
+            }else if(id==30091){
+                const url = '/pages/hr/holidayAccount/main';
+                wx.navigateTo({url:url});
+            }else if(id==20500){
+                const url = '/pages/workNotice/main';
+                wx.navigateTo({url:url});
+            }else if(id==5003){
+                const url = '/pages/meeting/notice/main';
+                wx.navigateTo({url:url});
+            }else if(id==110){
+                const url = '/pages/journalModule/main';
+                wx.navigateTo({url:url});
+            }else if(id==301){
+                const url = '/pages/signIn/main';
+                wx.navigateTo({url:url});
             }
         }
     }

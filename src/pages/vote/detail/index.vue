@@ -69,7 +69,7 @@
                         </div>
                         <div class="r">
                             <p class="progress">
-                                <span :style="{width:item.widthNum+'rpx'}"></span>
+                                <span :style="{width:item.widthNum+'rpx',background:colorList[index]}"></span>
                             </p>
                             <p class="num" v-if="detail.IsPublic">
                                 <span>
@@ -120,7 +120,13 @@ export default {
             PollId:"",
             sessionkey:"",
             detail:{},
-            radio:""
+            radio:"",
+            colorList:[
+                '#3399ff',
+                'red',
+                'yellow',
+                '#FF6666'
+            ]
         }
     },
     computed:{

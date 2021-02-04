@@ -501,6 +501,10 @@ page{
                         font-size: 22rpx;
                         color: #333333;
                         margin-left: 5rpx;
+                        width: 70rpx;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
                     }
                 }
             }

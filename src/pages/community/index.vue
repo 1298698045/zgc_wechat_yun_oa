@@ -1,10 +1,10 @@
 <template>
     <div class="wrap">
-        <div class="center">
+        <div class="center" v-if="activeIdx==0">
             <div class="content" v-for="(item,index) in list" :key="index" @click="getDetail(item)">
                 <div class="row">
                     <div class="avatar">
-                        <p>{{item.OwningUserName}}</p>
+                        <p>{{item.name}}</p>
                     </div>
                     <div class="rBox">
                         <div class="top">
@@ -19,39 +19,68 @@
                 <p class="text">
                     {{item.Description}}
                 </p>
+                <div class="imgList">
+                    <div class="imgs">
+                        <van-image v-for="(v,i) in item.imgs" :key="i" @click.stop="getPreviewImage(item,v)" width="100" height="100" :src="v.path" />
+                    </div>
+                </div>
+                <p class="location" v-if="item.Location">
+                    <i class="iconfont icon-dizhi"></i>
+                    {{item.Location}}
+                </p>
                 <div class="more_btn">
-                    <div class="btn">转发</div>
-                    <div class="btn">评论</div>
+                    <div class="btn">
+                        <i class="iconfont icon-zhuanjiao"></i>
+                        转发
+                    </div>
+                    <div class="btn">
+                        <i class="iconfont icon-pinglun"></i>
+                        评论</div>
                     <div class="btn" @click.stop="getLike(item)">
+                        <i class="iconfont icon-zan"></i>
                         赞
                         <span>{{item.NumOfLike}}</span>
                     </div>
                 </div>
             </div>
         </div>
+        <CommunityMy v-if="activeIdx==2" />
+        <Drag v-if="activeIdx==1" />
         <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
             <div class="box_wrap">
-                <div class="box" @click="getWriteJournal">
-                    <p></p>
-                    <p>写日志</p>
+                <div class="box" :class="{'active':activeIdx==0}" @click="getBottomTab(0)">
+                    <p>
+                        <i class="iconfont icon-xierizhi"></i>
+                    </p>
+                    <p>首页</p>
                 </div>
-                <div class="box">
-                    <p></p>
-                    <p>看日志</p>
+                <!-- <div class="box">
+                    <p>
+                        <i class="iconfont icon-kanrizhi"></i>
+                    </p>
+                    <p>私信</p>
+                </div> -->
+                <div class="box" :class="{'active':activeIdx==1}" @click="getBottomTab(1)">
+                    <p>
+                        <i class="iconfont icon-kanrizhi"></i>
+                    </p>
+                    <p>消息</p>
                 </div>
-                <div class="box">
-                    <p></p>
-                    <p>统计</p>
+                <div class="box" :class="{'active':activeIdx==2}" @click="getBottomTab(2)">
+                    <p>
+                        <i class="iconfont icon-shezhi"></i>
+                    </p>
+                    <p>我的</p>
                 </div>
-                <div class="box">
-                    <p></p>
-                    <p>设置</p>
-                </div>
+            </div>
+            <div class="clues-add-button" v-if="activeIdx==0" @click="getWriteJournal" :class="{'active':isModelmes}">
+                <i class="iconfont icon-icon-add-3-copy"></i>
             </div>
         </div>
         <van-action-sheet
             :show="show"
             :round="false"
+            z-index="999"
             cancel-text="取消"
             @close="onClose"
             @cancel="onClose"
@@ -64,14 +93,22 @@
     </div>
 </template>
 <script>
+import {splitName} from '@/utils/splitName';
+import CommunityMy from '@/components/community/communityMy';
+import Drag from '@/components/Drag';
 export default {
+    components:{
+        CommunityMy,
+        Drag
+    },
     data(){
         return {
             pageNumber:1,
             pageSize:25,
             list:[],
             show:false,
-            id:""
+            id:"",
+            activeIdx:0
         }
     },
     computed:{
@@ -97,6 +134,10 @@ export default {
                 }
             }).then(res=>{
                 this.list = res.listData;
+                this.list.map(item=>{
+                    item.name = splitName(item.OwningUserName);
+                    return item;
+                })
             })
         },
         getLike(item){
@@ -154,6 +195,19 @@ export default {
         getWriteJournal(){
             const url = '/pages/community/sendDynamic/main';
             wx.navigateTo({url:url});
+        },
+        getPreviewImage(item,v){
+            var path = v.path;
+            var temp = item.imgs.map(one=>one.path);
+            wx.previewImage({
+                current: path, // 当前显示图片的http链接
+                urls: temp
+                // 需要预览的图片http链接列表
+            })
+
+        },
+        getBottomTab(idx){
+            this.activeIdx = idx;
         }
     },
         // 下拉刷新
@@ -169,7 +223,9 @@ export default {
 }
 </script>
 <style lang="scss">
-    .wrap{
+@import '../../../static/css/journal.css';
+@import '../../../static/css/icon.css';
+.wrap{
         width: 100%;
         height: 100%;
         overflow: hidden;
@@ -214,12 +270,42 @@ export default {
                 color: #333333;
                 border-bottom: 1rpx solid #e2e3e5;
             }
+            .imgList{
+                padding: 10rpx 0;
+                .imgs{
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                }
+                .imgs::after{
+                    content: '';
+                    width: 100px;
+                }
+            }
+            .location{
+                font-size: 28rpx;
+                color: #666666;
+                padding-top: 10rpx;
+                display: flex;
+                align-items: center;
+                i{
+                    padding-right: 20rpx;
+                }
+            }
             .more_btn{
                 font-size: 28rpx;
                 color: #526992;
                 padding: 24rpx 0;
                 display: flex;
                 justify-content: space-around;
+                .btn{
+                    display: flex;
+                    align-items: center;
+                    .iconfont{
+                        margin-right: 20rpx;
+                    }
+                }
             }
         }
         .footer{
@@ -236,7 +322,31 @@ export default {
                     font-size: 22rpx;
                     color: #a1a5a6;
                 }
+                .box.active{
+                    color: #3399ff;
+                }
             }
+        }
+        .clues-add-button {
+            position: fixed;
+            right: 20px;
+            bottom: 80px;
+            // bottom: 40px;
+            background: #049bfb;
+            width: 48px;
+            height: 48px;
+            z-index: 1002;
+            border-radius: 50%;
+            color: #fff;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0rpx 5rpx 12rpx 0rpx rgba(0, 0, 0, 0.3);
+            i{
+                font-size: 35rpx;
+            }
+
         }
         .sheetWrap{
             background: #fff;

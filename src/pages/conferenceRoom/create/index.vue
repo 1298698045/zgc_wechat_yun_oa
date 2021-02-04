@@ -530,6 +530,10 @@ export default {
                         margin-top: 10rpx!important;
                     }
                 }
+                .checkboxGroup::after{
+                    content: '';
+                    width: 66px;
+                }
             }
             .rowWrap{
                 background: #fff;

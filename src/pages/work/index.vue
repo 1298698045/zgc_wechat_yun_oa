@@ -294,7 +294,8 @@ export default {
                 const url = '/pages/hr/overTimeApply/main';
                 wx.navigateTo({url:url});
             }else if(item.id==30020){
-                const url = '/pages/hr/personnelFiles/main';
+                // const url = '/pages/hr/personnelFiles/main';
+                const url = '/pages/personnelFiles/main';
                 wx.navigateTo({url:url});
             }else if(item.id==30091){
                 const url = '/pages/hr/holidayAccount/main';
@@ -305,14 +306,11 @@ export default {
             }else if(item.id==5003){
                 const url = '/pages/meeting/notice/main';
                 wx.navigateTo({url:url});
-            }else if(item.id==30036){
-                const url = '/pages/hr/businesstravel/main';
+            }else if(item.id==110){
+                const url = '/pages/journalModule/main';
                 wx.navigateTo({url:url});
-            }else if(item.id==30296){
-                const url = '/pages/hr/Business/main';
-                wx.navigateTo({url:url});
-            }else if(item.id==30027){
-                const url = '/pages/hr/deptTransfer/main';
+            }else if(item.id==301){
+                const url = '/pages/signIn/main';
                 wx.navigateTo({url:url});
             }
         },

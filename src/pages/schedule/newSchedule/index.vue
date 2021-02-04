@@ -972,6 +972,17 @@ export default {
       startTime = this.RemoveChinese(startTime);
       this.startDay = this.getWeekDay(startTime);
       // console.log('this.time',this.time);
+      let nDate = new Date(this.startTime.replace(/-/g,'/'));
+      let yy = nDate.getFullYear();
+      let mm = nDate.getMonth()+1;
+      let dd = nDate.getDate();
+      let h = nDate.getHours();
+      let min = nDate.getMinutes();
+      let endTime = `${yy}-${mm}-${Number(h)=='23'?dd+1:dd} ${
+        Number(h)=='23'?'00':
+        Number(h) + Number(1)
+      }:${min}`;
+      this.getCurrent(this.startTime,endTime);
     },
     endbindMultiPickerChange(e) {
       this.endmultiIndex = e.target.value;

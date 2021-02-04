@@ -23,14 +23,20 @@
             </div>
         </div>
         <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
-            <div class="box" :class="{'active':disabled}" @click="getSubmit">
-                <p>提交</p>
+            <div class="box_wrap">
+                <div class="box" :class="{'active':disabled}" @click="getSubmit(1)">
+                    <p>保存</p>
+                </div>
+                <div class="box" :class="{'active':disabled}" @click="getSubmit(2)">
+                    <p>提交</p>
+                </div>
             </div>
         </div>
     </div>
 </template>
 <script>
 import HeadRow from '@/components/questionnaire/HeadRow';
+import {message} from '@/utils/message';
 export default {
     components:{
         HeadRow
@@ -120,7 +126,7 @@ export default {
             console.log(e);
             item.value = e.mp.detail;
         },
-        getSubmit(){
+        getSubmit(statusCode){
             try{
                 this.list.forEach(item=>{
                     if(item.value==''){
@@ -134,7 +140,8 @@ export default {
                 })
                 let obj = {};
                 let params = {};
-                params.statusCode = this.detail.StatusCode;
+                // params.statusCode = this.detail.StatusCode;
+                params.statusCode = statusCode;
                 params.surveyId = this.detail.SurveyId;
                 let temp = [];
                 this.list.forEach(item=>{
@@ -171,10 +178,12 @@ export default {
                         message:JSON.stringify(obj)
                     }
                 }).then(res=>{
-                    console.log(res);
-                    wx.navigateBack({
-                        delta:1
-                    })
+                    if(res.status===1){
+                        message.toast({
+                            title:res.msg,
+                            delta:1
+                        })
+                    }
                 })
             }catch(e){
                 console.log(e);
@@ -236,20 +245,24 @@ export default {
             position: fixed;
             bottom: 0;
             background: #fff;
-            .box{
-                padding: 24rpx 25rpx;
-                opacity: .4;
-                p{
-                    text-align: center;
-                    line-height: 88rpx;
-                    font-size: 34rpx;
-                    color: #fff;
-                    background: #3399ff;
-                    border-radius: 7rpx;
+            .box_wrap{
+                display: flex;
+                .box{
+                    flex: 1;
+                    padding: 24rpx 25rpx;
+                    opacity: .4;
+                    p{
+                        text-align: center;
+                        line-height: 88rpx;
+                        font-size: 34rpx;
+                        color: #fff;
+                        background: #3399ff;
+                        border-radius: 7rpx;
+                    }
                 }
-            }
-            .box.active{
-                opacity: 1;
+                .box.active{
+                    opacity: 1;
+                }
             }
         }
     }

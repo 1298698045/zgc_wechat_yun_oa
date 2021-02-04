@@ -7,7 +7,7 @@
         <div class="center">
             <div class="row" v-if="current=='tab1'" v-for="(item,index) in list" :key="index">
                 <div class="lBox">
-                    <p>{{item.owningUserName}}</p>
+                    <p>{{item.name}}</p>
                 </div>
                 <div class="rBox">
                     <p>
@@ -61,6 +61,7 @@
     </div>
 </template>
 <script>
+import { splitName } from '@/utils/splitName';
 export default {
     data(){
         return {
@@ -100,6 +101,10 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.list = res.listData;
+                this.list.map(item=>{
+                    item.name = splitName(item.owningUserName);
+                    return item;
+                })
             })
         },
         handleChange(e){

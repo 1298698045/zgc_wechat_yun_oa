@@ -55,7 +55,8 @@
                 "create/main",
                 "preview/main",
                 "detail/main",
-                "joinDetail/main"
+                "joinDetail/main",
+                "peopleDetail/main"
             ]
         },
         {
@@ -170,7 +171,9 @@
                 "organizer/main",
                 "pubGroup/main",
                 "pubGroup/group/main",
-                "pubGroup/department/main"
+                "pubGroup/department/main",
+                "createGroup/main",
+                "externalMailList/main"
             ]
         },
         {
@@ -191,7 +194,8 @@
             "pages": [
                 "main",
                 "detail/main",
-                "preview/main"
+                "preview/main",
+                "surveyPeople/main"
             ]
         },
         {
@@ -218,8 +222,29 @@
                 "businesstravel/main",
                 "goOut/main",
                 "weRunData/main",
-                "detail/main",
-                "deptTransfer/main"
+                "detail/main"
+            ]
+        },
+        {
+            "root":"pages/journalModule",
+            "pages":[
+                "main",
+                "writeJournal/main",
+                "detail/main"
+            ]
+        },
+        {
+            "root":"pages/signIn",
+            "pages":[
+                "main",
+                "fillIn/main",
+                "signSetting/main"
+            ]
+        },
+        {
+            "root":"pages/personnelFiles",
+            "pages":[
+                "main"
             ]
         }
     ],

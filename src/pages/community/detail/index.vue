@@ -4,27 +4,26 @@
             <div class="content">
                 <div class="row">
                     <div class="avatar">
-                        <p>崔曼</p>
+                        <p>{{info.name}}</p>
                     </div>
                     <div class="rBox">
                         <div class="top">
-                            <p class="name">崔曼</p>
+                            <p class="name">{{info.OwningUserName}}</p>
                         </div>
                         <div class="info">
-                            信息中心    04-04  10:30
+                            信息中心    {{info.ModifiedOn}}
                         </div>
                     </div>
                 </div>
-                <p class="text">1.医院召开全体人员培训；
-                    2.学习规章制度；
-                    3.财务流程；
+                <p class="text">
+                    {{info.Description}}
                 </p>
             </div>
             <div class="container">
                 <div class="comment_wrap">
                     <div class="row_box">
                         <div class="tabs">
-                            <p :class="{'active':idx==index}" v-for="(item,index) in tabs" :key="index" @click="getTab(item,index)">{{item}}</p>
+                            <p class="active">评论 {{Comment}}</p>
                         </div>
                         <div class="zan">
                             <p>赞 401</p>
@@ -32,7 +31,7 @@
                     </div>
                     <div class="comment">
                         <div class="box" v-for="(item,index) in list" :key="index">
-                            <div class="avatar">{{item.CreatedByName}}</div>
+                            <div class="avatar">{{item.name}}</div>
                             <div class="left_cont">
                                 <div class="name">
                                     <p>{{item.CreatedByName}}</p>
@@ -48,9 +47,18 @@
         </div>
         <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
             <div class="box">
-                <p>转发</p>
-                <p @click="getComment">评论</p>
-                <p>赞</p>
+                <div class="btn">
+                    <i class="iconfont icon-zhuanjiao"></i>
+                    转发
+                </div>
+                <div class="btn"  @click="getComment">
+                    <i class="iconfont icon-pinglun"></i>
+                    评论</div>
+                <div class="btn" @click.stop="getLike">
+                    <i class="iconfont icon-zan"></i>
+                    赞
+                    <span></span>
+                </div>
             </div>
         </div>
         <div class="keyboard" v-if="isFocus" :style="{'bottom':keyboardHeight+'px'}" catchtouchmove="true">
@@ -64,18 +72,21 @@
     </div>
 </template>
 <script>
+import {splitName} from '@/utils/splitName';
 export default {
     data(){
         return {
             idx:0,
-            tabs:['转发 321','评论 56'],
             keyboardHeight:"",
             isFocus:false,
             id:"",
             PageSize:20,
             pageNumber:1,
             keyboard:true,
-            list:[]
+            list:[],
+            info:"",
+            UserStatics:{},
+            Comment:""
         }
     },
     computed:{
@@ -92,6 +103,7 @@ export default {
             console.log(res.height,'res');
             this.keyboardHeight = res.height;
         })
+        this.getDetail();
         this.queryComment();
     },
     methods:{
@@ -102,16 +114,23 @@ export default {
                     method:this.$api.community.queryComment,
                     SessionKey:this.sessionkey,
                     scope:"Comment",
+                    CommentId:this.id,
                     PageSize:this.PageSize,
                     pageNumber:this.pageNumber
                 }
             }).then(res=>{
-                console.log(res);
                 this.list = res.listData;
+                this.list.map(item=>{
+                    item.name = splitName(item.CreatedByName);
+                    return item;
+                })
             })
         },
         getTab(item,index){
             this.idx = index;
+            if(this.idx==1){
+                this.queryComment();
+            }
         },
         getComment(){
             this.isFocus = true;
@@ -121,6 +140,39 @@ export default {
         },
         getFocus(){
             this.isFocus = true;
+        },
+        getDetail(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:this.$api.community.detail,
+                    SessionKey:this.sessionkey,
+                    id:this.id
+                }
+            }).then(res=>{
+                this.info = res.listData[0];
+                this.info.name = splitName(this.info.OwningUserName);
+            })
+        },
+        getLike(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:this.$api.community.like,
+                    SessionKey:this.sessionkey,
+                    id:this.id,
+                    ObjTypeCode:6000,
+                    action:'like'
+                }
+            }).then(res=>{
+                if(res.status===1){
+                    wx.showToast({
+                        title:res.msg,
+                        icon:"none",
+                        duration:2000
+                    })
+                }
+            })
         },
         getSubmit(){
             this.keyboard = true;
@@ -134,7 +186,6 @@ export default {
                     objTypeCode:6000
                 }
             }).then(res=>{
-                console.log(res);
                 this.queryComment();
                 this.isFocus = false;
             })
@@ -150,7 +201,6 @@ export default {
                     action:'like'
                 }
             }).then(res=>{
-                console.log(res);
                 this.queryComment();
             })
         }
@@ -158,6 +208,7 @@ export default {
 }
 </script>
 <style lang="scss">
+@import '../../../../static/css/journal.css';
     .wrap{
         width: 100%;
         height: 100%;
@@ -230,9 +281,12 @@ export default {
                 }
                 .comment{
                     padding: 0 38rpx;
+                    .box:last-child .left_cont{
+                        border: none;
+                    }
                     .box{
                         display: flex;
-                        padding: 26rpx 0;
+                        // padding: 26rpx 0;
                         .avatar{
                             width: 75rpx;
                             height: 75rpx;
@@ -242,10 +296,13 @@ export default {
                             background: #3399ff;
                             font-size: 21rpx;
                             color: #ffffff;
+                            margin-top: 26rpx;
                         }
                         .left_cont{
                             flex: 1;
                             margin-left: 20rpx;
+                            padding: 26rpx 0;
+                            border-bottom: 1rpx solid #e2e3e5;
                             .name{
                                 font-size: 28rpx;
                                 color: #3399ff;
@@ -278,10 +335,16 @@ export default {
             .box{
                 display: flex;
                 padding: 24rpx 0;
-                p{
-                    flex: 1;
-                    text-align: center;
+                justify-content: space-around;
+                align-content: center;
+                .btn{
+                    display: flex;
+                    align-items: center;
                     font-size: 28rpx;
+                    color: #526992;
+                    i{
+                        margin-right: 20rpx;
+                    }
                 }
             }
         }

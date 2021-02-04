@@ -21,14 +21,14 @@
                     <div class="rowTime">
                         <div class="lMin">
                             <p>{{startMonth}}月{{startDate}}日</p>
-                            <p>{{startDay}}</p>
+                            <p>{{startMin}}{{startDay}}</p>
                         </div>
                         <div class="num">
                             <span></span><p>{{mathNum}}</p><span></span>
                         </div>
                         <div class="lMin">
                             <p>{{endMonth}}月{{endDate}}日</p>
-                            <p>{{endDay}}</p>
+                            <p>{{endMin}}{{endDay}}</p>
                         </div>
                     </div>
                     <!-- <div class="rows">
@@ -387,7 +387,9 @@ export default {
             isEdit:false,
             audienceStatusCode:"",
             scheduledStart:"",
-            scheduledEnd:""
+            scheduledEnd:"",
+            startMin:"",
+            endMin:""
         }
     },
     computed:{
@@ -557,6 +559,10 @@ export default {
                 this.scheduledEnd = scheduledEnd;
                 let date = new Date(scheduledStart);
                 let endDate = new Date(scheduledEnd);
+                let startHour = date.getHours()<10?'0'+date.getHours():date.getHours();
+                let endHour = endDate.getHours()<10?'0'+endDate.getHours():endDate.getHours();
+                let startMin = date.getMinutes()<10?'0'+date.getMinutes():date.getMinutes();
+                let endMin = endDate.getMinutes()<10?'0'+endDate.getMinutes():endDate.getMinutes();
                 this.startMonth = date.getMonth()+1<10?'0'+(date.getMonth()+1):date.getMonth()+1;
                 this.startDate = date.getDate()<10?'0'+date.getDate():date.getDate();
                 this.endMonth =  endDate.getMonth()+1<10?'0'+(endDate.getMonth()+1):endDate.getMonth()+1;
@@ -564,6 +570,8 @@ export default {
                 this.startDay = this.getWeekDay(date);
                 this.endDay = this.getWeekDay(endDate);
                 this.mathNum = this.intervalTime(date,endDate);
+                this.startMin = `${startHour}:${startMin}`;
+                this.endMin = `${endHour}:${endMin}`;
             })
         },
         getWeekDay(date){

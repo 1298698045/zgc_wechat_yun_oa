@@ -18,6 +18,8 @@
         "van-radio-group": "/static/vant/radio-group/index",
         "van-radio": "/static/vant/radio/index",
         "van-action-sheet": "/static/vant/action-sheet/index",
-        "van-icon": "/static/vant/icon/index"
+        "van-icon": "/static/vant/icon/index",
+        "i-radio-group": "/static/view/radio-group/index",
+        "i-radio": "/static/view/radio/index"
     }
 }

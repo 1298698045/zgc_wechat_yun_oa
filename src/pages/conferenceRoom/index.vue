@@ -1,6 +1,6 @@
 <template>
     <div class="wrap">
-        <div class="tabs">
+        <div class="tabs" v-if="sign!='add'">
             <i-tabs :current="current"  @change="handleChangeTabs">
                 <i-tab key="tab1" title="预约会议室"></i-tab>
                 <i-tab key="tab2" title="我的预约"></i-tab>
@@ -9,7 +9,7 @@
             </i-tabs>
         </div>
         <div class="container" v-if="current=='tab1'">
-            <div class="header">
+            <div class="header" v-if="sign!='add'">
                 <picker mode="date" fields="month" @change="bindDateChange">
                     <div class="lBox">
                         <div>
@@ -31,7 +31,7 @@
                     </scroll-view>
                 </div>
             </div>
-            <div class="center">
+            <div class="center" :class="{'active':sign=='add'}">
                 <div class="content" v-for="(v,i) in list" :key="i">
                     <h3 @click="getDetail(v)">{{v.Name}}</h3>
                     <div class="tagWrap">
@@ -859,6 +859,9 @@ export default {
                         }
                     }
                 }
+            }
+            .center.active{
+                margin-top: 0!important;
             }
             .center{
                 margin-top: 117px;

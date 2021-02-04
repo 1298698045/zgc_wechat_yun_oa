@@ -96,6 +96,7 @@
 </template>
 <script>
 import { mapState, mapMutations } from 'vuex';
+import { message } from '@/utils/message';
 export default {
     data(){
         return {
@@ -498,10 +499,12 @@ export default {
                     peoples:this.peoples
                 }
             }).then(res=>{
-                console.log(res);
-                wx.navigateBack({
-                    delta: 1
-                })
+                if(res.status==1){
+                    message.toast({
+                        title:res.msg,
+                        delta:1
+                    })
+                }
             })
         }
     }
