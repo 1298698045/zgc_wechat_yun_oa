@@ -77,7 +77,7 @@ export default {
         Object.assign(this.$data,this.$options.data());
         this.Name = options.Name + '    ' + wx.getStorageSync('businessUnitName')+' '+wx.getStorageSync('fullName');
         this.departName = options.departName;
-        this.BusinessUnitId = options.departId;
+        this.BusinessUnitId = this.BusinessUnitId = wx.getStorageSync('businessUnitId');
         this.ProcessId = options.ProcessId;
     },
     methods:{

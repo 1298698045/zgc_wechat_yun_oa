@@ -563,14 +563,26 @@ export default {
     getSubmitStep(){
         for(let k=0;k<this.stepList.length;k++){
             if(this.stepList[k].Selected){
-                break;
-            }else {
-                wx.showToast({
-                    title:"请添加办理人员",
-                    icon:"none",
-                    duration:2000
-                })
-                return false;
+                let isBook = this.stepList[k].ParticipantMember.some(d=>d.Selected);
+                if(isBook){
+                    break;
+                }else{
+                    wx.showToast({
+                        title:"请添加办理人员",
+                        icon:"none",
+                        duration:2000
+                    })
+                    return false;
+                }
+            }else{
+                if(k==this.stepList.length-1){
+                    wx.showToast({
+                        title:"请添加办理人员",
+                        icon:"none",
+                        duration:2000
+                    })
+                    return false;
+                }
             }
         }
         const data = {

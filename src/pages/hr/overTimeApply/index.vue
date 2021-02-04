@@ -40,6 +40,20 @@
             />
           </p>
         </div>
+        <picker @change="pickerEmpCategory" :value="EmpCategoryIdx" range-key="label" :range="EmpCategoryList">
+          <div class="rowWrap">
+            <p class="label">
+              岗位类别
+              <span>*</span>
+            </p>
+            <p class="name">
+              <span
+                :class="EmpCategoryList[EmpCategoryIdx]?'active':''"
+              >{{EmpCategoryList[EmpCategoryIdx]?EmpCategoryList[EmpCategoryIdx].label:'请选择'}}</span>
+              <i-icon type="enter" color="#cccccc" />
+            </p>
+          </div>
+        </picker>
         <picker
           @change="pickerApplyTime"
           mode="multiSelector"
@@ -53,6 +67,20 @@
             </p>
             <p class="name">
               <span>{{applyTime}}</span>
+              <i-icon type="enter" color="#cccccc" />
+            </p>
+          </div>
+        </picker>
+        <picker @change="pickerOvertimeCategory" :value="OvertimeCategoryIdx" range-key="label" :range="OvertimeCategoryList">
+          <div class="rowWrap">
+            <p class="label">
+              值班总类
+              <span>*</span>
+            </p>
+            <p class="name">
+              <span
+                :class="OvertimeCategoryList[OvertimeCategoryIdx]?'active':''"
+              >{{OvertimeCategoryList[OvertimeCategoryIdx]?OvertimeCategoryList[OvertimeCategoryIdx].label:'请选择'}}</span>
               <i-icon type="enter" color="#cccccc" />
             </p>
           </div>
@@ -211,7 +239,13 @@ export default {
       isShow:false,
       processIdName:"",
       current:0,
-      describe:""
+      describe:"",
+      EmpCategoryCode:"",
+      EmpCategoryList:[],
+      EmpCategoryIdx:"",
+      OvertimeCategory:"", // 值班总类
+      OvertimeCategoryList:[],
+      OvertimeCategoryIdx:""
     };
   },
   computed: {
@@ -322,6 +356,8 @@ export default {
     this.getCurrent();
     this.defaultTime();
     this.queryType();
+    this.queryTypeEmpCategory();
+    this.queryTypeOvertimeCategory();
   },
   methods: {
     onChange(e){
@@ -338,6 +374,34 @@ export default {
         }
       }).then(res=>{
         this.leaveList = res;
+      })
+    },
+    // 岗位类别
+    queryTypeEmpCategory(){
+      this.$httpWX.get({
+        url:this.$api.message.queryList,
+        data:{
+          SessionKey:this.sessionkey,
+          method:this.$api.public.leaveQuery,
+          objectTypeCode:30037,
+          name:"EmpCategoryCode"
+        }
+      }).then(res=>{
+        this.EmpCategoryList = res;
+      })
+    },
+    // 值班总类
+    queryTypeOvertimeCategory(){
+      this.$httpWX.get({
+        url:this.$api.message.queryList,
+        data:{
+          SessionKey:this.sessionkey,
+          method:this.$api.public.leaveQuery,
+          objectTypeCode:30037,
+          name:"OvertimeCategory"
+        }
+      }).then(res=>{
+        this.OvertimeCategoryList = res;
       })
     },
     // 创建实例
@@ -429,7 +493,9 @@ export default {
                         EndTime:this.endTime,
                         OverTimeHours:this.iDays,
                         OvertimeType:this.OvertimeType,
-                        Location:this.address
+                        Location:this.address,
+                        EmpCategoryCode:this.EmpCategoryCode,
+                        OvertimeCategory:this.OvertimeCategory
                       }
                     }
                   }
@@ -485,6 +551,14 @@ export default {
       this.leaveIdx = e.mp.detail.value;
       this.OvertimeType = this.leaveList[this.leaveIdx].value;
     },
+    pickerEmpCategory(e){
+      this.EmpCategoryIdx = e.mp.detail.value;
+      this.EmpCategoryCode = this.EmpCategoryList[this.EmpCategoryIdx].value;
+    },
+    pickerOvertimeCategory(e){
+      this.OvertimeCategoryIdx = e.mp.detail.value;
+      this.OvertimeCategory = this.OvertimeCategoryList[this.OvertimeCategoryIdx].value;
+    },
     pickerApplyTime(e){
       this.ApplyMultiIndex = e.target.value;
       const index = this.multiIndex;
@@ -518,7 +592,8 @@ export default {
           excludeFreeTime: true,
           excludeDates: []
         });
-      this.iDays = iDays+'小时';
+      // this.iDays = iDays+'小时';
+      this.iDays = iDays;
     },
     pickerEndTime(e) {
       this.endMultiIndex = e.target.value;
@@ -541,7 +616,8 @@ export default {
           excludeDates: []
         });
       console.log(iDays,'iDays');
-      this.iDays = iDays+'小时';
+      // this.iDays = iDays+'小时';
+      this.iDays = iDays;
     },
     // 正则去除汉字
     RemoveChinese(strValue) {
@@ -646,6 +722,9 @@ export default {
     padding: 31rpx 33rpx;
     color: #3399ff;
     font-size: 26rpx;
+  }
+  .container{
+    padding-bottom: 100px;
   }
   .content {
     background: #fff;
