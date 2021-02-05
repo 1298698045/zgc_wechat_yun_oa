@@ -10,6 +10,7 @@
       <movable-area style="width: 100%; margin: auto; height: 180px">
         <div v-for="(item, index) in choose_list" :key="index">
           <div
+          :id="'a_'+item.id"
             v-if="item.status == true"
             class="application"
             :data-index="index"
@@ -46,31 +47,6 @@
           </view>
         </movable-view>
       </movable-area>
-    </div>
-    <div style="margin-top: 20px">
-      <h2 class="title">全部应用</h2>
-      <div class="funslist">
-        <div v-for="(item, index) in all_list" :key="index">
-          <div class="application1">
-            <img class="fi-img" :src="item.src" />
-            <view class="fi-text">{{ item.name }}</view>
-            <view
-              class="fi-badge"
-              v-if="item.status == true && status == true"
-              @click="alldelfun(item.id, index)"
-              >-</view
-            >
-            <view
-              class="fi-badge"
-              v-if="item.status == false && status == true"
-              style="background: #1892e0"
-              @click="alladdfun(item.id, index)"
-              >+</view
-            >
-          </div>
-        </div>
-        <div style="clear: both"></div>
-      </div>
     </div>
   </div>
 </template>
@@ -134,31 +110,59 @@ export default {
       choose_list: [
         {
           id: 1,
-          name: "我的课程",
-          src: "../../static/image/new_11.png",
-          url: "../studentTimetab/main",
-          status: true,
+          name: "我的课程1",
+          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          status: true
         },
         {
           id: 2,
-          name: "点击报名",
-          src: "../../static/image/new_13.png",
-          url: "../student/main",
-          status: true,
+          name: "点击报名2",
+          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          status: true
         },
         {
           id: 3,
-          name: "学生菜谱",
-          src: "../../static/image/new_14.png",
-          url: "../studentMenu/main",
-          status: true,
+          name: "学生菜谱3",
+          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          status: true
         },
         {
           id: 4,
-          name: "请假申请",
-          src: "../../static/image/new_15.png",
-          url: "../studentLeave/main",
-          status: true,
+          name: "请假申请4",
+          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          status: true
+        },
+        {
+          id: 5,
+          name: "我的课程5",
+          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          status: true
+        },
+        {
+          id: 6,
+          name: "点击报名6",
+          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          status: true
+        },
+        {
+          id: 7,
+          name: "学生菜谱7",
+          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          status: true
+        },
+        {
+          id: 8,
+          name: "请假申请8",
+          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          status: true
         },
       ],
       beginIndex: null,
@@ -167,9 +171,43 @@ export default {
     };
   },
   onLoad(){
-
+    // let left = 0,
+    // right = 75,
+    // top = 0,
+    // bottom = 75;
+    // let index = 0
+    
+    // for (let i = 1; i < this.choose_list.length; i++) {
+    //   index++
+    //   if(index==4){
+    //     index = 0
+    //     top += 95
+    //     bottom += 95
+    //   }else{
+    //     left  += 85
+    //     right += 85
+    //   }
+    //   this.choose_list[i].left = left
+    //   this.choose_list[i].right = right
+    //   this.choose_list[i].top = top
+    //   this.choose_list[i].bottom = bottom
+    // }
+    
+    
   },
   methods: {
+    getRect(){
+      this.choose_list.forEach((item)=>{
+        // console.log(item.id)
+        wx.createSelectorQuery().select('#a_'+item.id).boundingClientRect(function(rect){
+          item.left = rect.left;
+          item.right = rect.right;
+          item.top = rect.top;
+          item.bottom = rect.bottom;
+        }).exec();
+      })
+      console.log(this.choose_list);
+    },
     //编辑
     edit() {
       this.status = !this.status;
@@ -195,7 +233,10 @@ export default {
       }
     },
     //长按
-    longtap(e) {
+   async longtap(e) {
+      const w = await setTimeout(()=>{
+        this.getRect();
+      },500)
       if (this.status == true) {
         this.x = e.currentTarget.offsetLeft;
         this.y = e.currentTarget.offsetTop;
@@ -218,17 +259,17 @@ export default {
       }
       const endx = e.mp.changedTouches[0].pageX;
       const endy = e.mp.changedTouches[0].pageY;
-      for (var j = 0; j < that.all_list.length; j++) {
-        const item = that.all_list[j];
+      
+      for (var j = 0; j < that.choose_list.length; j++) {
+        const item = that.choose_list[j];
         if (
           endx > item.left &&
           endx < item.right &&
-          endy > item.top &&
-          endy < item.bottom
+          endy > item.top - 20 &&
+          endy < item.bottom - 20
         ) {
             
-          var endIndex = item.id;
-          endIndex = endIndex-1
+          var endIndex = j;
           const beginIndex = that.beginIndex;
           console.log(endIndex,'endIndex')
             console.log(beginIndex,'beginIndex')
@@ -303,8 +344,8 @@ export default {
 }
 .application,
 .application1 {
-  width: 75px;
-  height: 75px;
+  width: 74px;
+  height: 74px;
   margin-left: 5px;
   margin-right: 5px;
   float: left;

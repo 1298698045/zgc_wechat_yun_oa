@@ -45,7 +45,7 @@
             </div>
         </div>
         <CommunityMy v-if="activeIdx==2" />
-        <Drag v-if="activeIdx==1" />
+        <!-- <Drag v-if="activeIdx==1" /> -->
         <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
             <div class="box_wrap">
                 <div class="box" :class="{'active':activeIdx==0}" @click="getBottomTab(0)">
