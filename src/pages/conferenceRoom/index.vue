@@ -306,6 +306,7 @@ export default {
         this.getConferenceAdmin();
     },
     onLoad(options){
+        Object.assign(this.$data,this.$options.data());
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         this.sign = options.sign;

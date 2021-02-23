@@ -18,30 +18,30 @@
                         <i-tab key="tab9" title="选项9"></i-tab>
                     </i-tabs>
                 </div>
-                <div class="more">
-
+                <div class="more" @click="getClassification">
+                    <i class="iconfont icon-gengduo"></i>
                 </div>
             </div>
             <div class="screen">
-                <div class="select">
-                    <van-dropdown-menu>
-                        <!-- <van-dropdown-item id="item" title="所有编制">
-                            <div class="list">
-                                <p class="name" @change="changeDropDown" :class="{'active':num==index}" v-for="(item,index) in listMenu" :key="index" @click="getCheck(item,index)">{{item}}</p>
-                            </div>
-                        </van-dropdown-item> -->
-                        <van-dropdown-item :value=" value1 " :options=" listMenu " />
-                    </van-dropdown-menu>
-                </div>
+                 <picker @change="bindPickerChange" :value="index" range-key="text" :range="listMenu">
+                    <div class="select">
+                        {{listMenu[index].text}}
+                        <span class="jiantou"></span>
+                    </div>
+                </picker>
                 <div class="right">
-                    <div class="box" @click="getSwitch"></div>
-                    <div class="box"></div>
+                    <div class="box" @click="getSwitch">
+                        <i class="iconfont" :class="!isBook?'icon-liebiaoxianshi':'icon-datumoshi'"></i>
+                    </div>
+                    <div class="box" @click="getScreen">
+                        <i class="iconfont icon-shaixuan1"></i>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="center" v-if="isBook==false">
             <div class="content">
-                <div class="box_card" v-for="item in list">
+                <div class="box_card" v-for="(item,index) in list" :key="index" @click="getDetail">
                     <div class="imgs">
 
                     </div>
@@ -77,6 +77,46 @@
                 </div>
             </div>
         </div>
+        <van-popup
+            :show="show"
+            position="top"
+            z-index="9999"
+            custom-style="width:100%;height: 100vh;"
+            @close="onClose"
+        >
+            <div class="screenWrap">
+                <div class="contWrap">
+                    <div class="rowWrap">
+                    <div class="status">
+                        <span class="radius"></span>
+                        <span class="text">状态</span>
+                    </div>
+                    <div class="rowCont">
+                        <p class="tag" :class="{'active':statusIdx==index}" v-for="(item,index) in tagList" :key="index" @click="getChoiceStatus(index)">{{item}}</p>
+                    </div>
+                    </div>
+                    <div class="rowWrap">
+                    <div class="status">
+                        <span class="radius success"></span>
+                        <span class="text">类型</span>
+                    </div>
+                    <div class="collapse" v-for="(item,index) in optionList" :key="index">
+                        <div class="title" v-if="item.lengths>0" @click="item.lengths>4?getOpen(item,index):''">
+                        <p class="name">{{item.Name}}</p>
+                        <p class="text" v-if="item.lengths>4">{{item.isBook?'展开':'收起'}}</p>
+                        </div>
+                        <div class="contentWrap">
+                        <!-- <p class="item" :class="{'active':item.num==i}" v-for="(v,i) in item.isBook?item.array:item.Items" :key="i" @click="getOptions(item,index,v,i)">{{v.Name}}</p> -->
+                        <p class="item" :class="{'active':v.isBook}" v-for="(v,i) in item.isBook?item.array:item.Items" :key="i" @click="getOptions(item,index,v,i)">{{v.Name}}</p>
+                        </div>
+                    </div>  
+                    </div>
+                </div>
+                <div class="bottom"  :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
+                    <van-button type="primary" color="#3399ff" block @click="getSubmit">确定</van-button>
+                </div>
+            </div>
+        </van-popup>
         <!-- <drag-sort :imgSrcs="files" @change="onDragSortChange" /> -->
     </div>
 </template>
@@ -86,10 +126,16 @@ export default {
      components: {
         dragSort
     },
+    computed:{
+        isModelmes(){
+            return wx.getStorageSync('isModelmes');
+        }
+    },
     data(){
         return {
             current:"tab1",
             itemTitle:"所有编制",
+            index:0,
             listMenu:[
                 {
                     text:"所有编制",
@@ -154,6 +200,24 @@ export default {
                 {
                     name:"8"
                 }
+            ],
+            show:false,
+            optionList:[
+                {
+                    Id:1,
+                    Name:"123",
+                    Items:[
+                        {
+                            Name:"院办"
+                        },
+                        {
+                            Name:"管理"
+                        },
+                        {
+                            Name:"专业技术"
+                        }
+                    ]
+                }
             ]
         }
     },
@@ -164,6 +228,10 @@ export default {
         handleChangeScroll(e){
             this.current = e.mp.detail.key;
         },
+
+        bindPickerChange(e){
+            this.index = e.mp.detail.value;
+        },
         getCheck(item,index){
             this.num = index;
             this.itemTitle = item;
@@ -172,10 +240,60 @@ export default {
         onDragSortChange(data) {
             this.files = data
         },
+        getClassification(){
+            const url = '/pages/personnelFiles/classification/main';
+            wx.navigateTo({url:url});
+        },
+        getScreen(){
+            this.show = true;
+        },
+        getSubmit(){
+            this.show = false;
+        },
+        getDetail(){
+            // const url = '/pages/hr/personnelFiles/main';
+            const url = '/pages/personnelFiles/detail/main';
+            wx.navigateTo({url:url});
+        }
     }
 }
 </script>
 <style lang="scss">
+@font-face {
+    font-family: 'iconfont';
+    src: url('data:font/truetype;charset=utf-8;base64,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') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #7B8187;
+  font-size: 18px;
+}
+
+.icon-gengduo:before {
+  content: "\e601";
+}
+
+.icon-shaixuan1:before {
+  content: "\e650";
+}
+
+.icon-liebiaoxianshi:before {
+  content: "\e65c";
+}
+
+.icon-datumoshi:before {
+  content: "\e65e";
+}
+
+
+
     .wrap{
         .header{
             background: #fff;
@@ -211,6 +329,9 @@ export default {
                     background: #fff;
                     box-shadow: -12rpx 0rpx 9rpx 0rpx rgba(0, 0, 0, 0.05);
                     z-index: 999;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
                 }
             }
             .screen{
@@ -219,18 +340,23 @@ export default {
                 align-content: center;
                 border-bottom: 1rpx solid #e2e4e3;
                 .select{
-                    // width: 135rpx;
-                    .list{
-                        .name{
-                            padding-left: 33rpx;
-                            line-height: 104rpx;
-                            border-bottom: 1rpx solid #e2e4e3;
-                            font-size: 26rpx;
-                            color: #999999;
-                        }
-                        .name.active{
-                            color: #3399ff;
-                        }
+                    font-size: 26rpx;
+                    color: #999999;
+                    line-height: 104rpx;
+                    padding-left: 33rpx;
+                    display: flex;
+                    align-items: center;
+                    .jiantou:before{
+                        width: 0;
+                        border-top: 15rpx solid #999999;
+                        border-bottom: 15rpx solid transparent;
+                        border-left: 15rpx solid transparent;
+                        border-right: 15rpx solid transparent;
+                        content: '';
+                        display: block;
+                        margin-top: 10rpx;
+                        margin-left: 20rpx;
+
                     }
                 }
                 .right{
@@ -238,7 +364,9 @@ export default {
                     .box{
                         width: 104rpx;
                         height: 104rpx;
-                        background: #ccc;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
                     }
                 }
             }
@@ -330,6 +458,117 @@ export default {
                     border-radius: 3rpx;
                 }
             }
+        }
+        .screenWrap{
+            .contWrap {
+                background: #fff;
+                .rowWrap{
+                    padding: 0 34rpx;
+                    .status{
+                        padding: 20rpx 0;
+                        .radius{
+                        display: inline-block;
+                        width: 21rpx;
+                        height: 21rpx;
+                        background: #3399ff;
+                        border-radius: 50%;
+                        }
+                        .success{
+                        background: #39c1b3;
+                        }
+                        .text{
+                        color: #333333;
+                        font-size: 25rpx;
+                        margin-left: 10rpx;
+                        }
+                    }
+                    .rowCont{
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        .tag{
+                        width: 200rpx;
+                        height: 69rpx;
+                        line-height: 69rpx;
+                        text-align: center;
+                        // background: #dfeffe;
+                        background: #f4f4f4;
+                        font-size: 28rpx;
+                        color: #666666;
+                        border-radius: 7rpx;
+                        margin-bottom: 20rpx;
+                        }
+                        .active{
+                        background: #dfeffe;
+                        color: #3399ff;
+                        }
+                    }
+                    .collapse{
+                        .title{
+                        display: flex;
+                        justify-content: space-between;
+                        padding: 20rpx 0;
+                        .name{
+                            font-size: 33rpx;
+                            color: #333333;
+                            font-weight: bold;
+                        }
+                        .text{
+                            font-size: 26rpx;
+                            color: #999999;
+                        }
+                        }
+                        .contentWrap{
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        .item{
+                            width: 321rpx;
+                            height: 69rpx;
+                            line-height: 69rpx;
+                            border-radius: 7rpx;
+                            background: #f4f4f4;
+                            font-size: 28rpx;
+                            color: #333333;
+                            margin-bottom: 20rpx;
+                            padding-left: 20rpx;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                        }
+                        .item.active{
+                            background: #dbf5ec;
+                            color: #39c1b3;
+                        }
+                        }
+                    }
+                }
+                .title {
+                    font-size: 28rpx;
+                    font-weight: bold;
+                }
+                .rowBox {
+                    display: flex;
+                    flex-flow: wrap;
+                    justify-content: space-between;
+                    padding: 10rpx 20rpx;
+                    p {
+                    width: 45%;
+                    height: 30px;
+                    line-height: 30px;
+                    font-size: 14px;
+                    background: #f4f4f4;
+                    color: #666666;
+                    border-radius: 10rpx;
+                    padding-left: 10rpx;
+                    margin: 10rpx 0;
+                    }
+                    p.active {
+                    background: #dbf5ec;
+                    color: #39c1b3;
+                    }
+                }
+                }
         }
     }
 </style>

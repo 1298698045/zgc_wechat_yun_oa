@@ -38,6 +38,9 @@
                 </div>
             </div> -->
         </div>
+        <div class="clues-add-button" @click="onCluesAddBtnClick" :class="{'active':isModelmes}">
+            <i class="iconfont icon-icon-add-3-copy"></i>
+        </div>
     </div>
 </template>
 <script>
@@ -85,11 +88,16 @@ export default {
         getDetail(item){
             const url = '/pages/mailList/contacts/main?id='+item.groupId+'&name='+item.name;
             wx.navigateTo({url:url});
+        },
+        onCluesAddBtnClick(){
+            const url = '/pages/publics/createGroup/main';
+            wx.navigateTo({url:url});
         }
     }
 }
 </script>
 <style lang="scss">
+@import '../../../../static/css/icon.css';
     .wrap{
         width: 100%;
         height: 100%;
@@ -136,6 +144,27 @@ export default {
                     }
                 }
             }
+        }
+        .clues-add-button {
+            position: fixed;
+            right: 20px;
+            // bottom: 80px;
+            bottom: 40px;
+            background: #049bfb;
+            width: 48px;
+            height: 48px;
+            z-index: 1002;
+            border-radius: 50%;
+            color: #fff;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0rpx 5rpx 12rpx 0rpx rgba(0, 0, 0, 0.3);
+            i{
+                font-size: 35rpx;
+            }
+
         }
     }
 </style>

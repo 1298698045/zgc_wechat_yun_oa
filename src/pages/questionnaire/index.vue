@@ -8,13 +8,13 @@
         <div class="center" v-for="(item,index) in list" :key="index" @click="getDetail(item)">
             <div class="content">
                 <div class="row">
-                    <div class="Avatar">{{item.CreatedByName||'崔曼'}}</div>
+                    <div class="Avatar">{{item.newName||''}}</div>
                     <div class="info_r">
                         <p class="name">
-                            {{item.CreatedByName||'崔曼'}}
+                            {{item.CreatedByName||''}}
                         </p>
                         <p class="text">
-                            信息中心   {{item.CreatedOn}}
+                            {{item.DeptName || ''}}   {{item.CreatedOn}}
                         </p>
                     </div>
                 </div>
@@ -35,6 +35,7 @@
     </div>
 </template>
 <script>
+import {splitName} from '@/utils/splitName';
 export default {
     data(){
         return {
@@ -59,7 +60,7 @@ export default {
             if(this.current=='tab1'){
                 this.scope = 0;
             }else if(this.current=='tab2'){
-                this.scope = 1;
+                this.scope = 100;
             }else {
                 this.scope = 2;
             }
@@ -79,6 +80,10 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.list = res.listData;
+                this.list.map(item=>{
+                    item.newName = splitName(item.CreatedByName);
+                    return item;
+                })
             })
         },
         getDetail(item){

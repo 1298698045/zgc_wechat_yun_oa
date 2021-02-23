@@ -154,6 +154,9 @@ export default {
             },
             selectListName:state=>{
                 return state.mailList.selectListName;
+            },
+            selectListNameCC:state=>{
+                return state.mailList.selectListNameCC;
             }
         }),
         ...mapGetters([
@@ -254,13 +257,23 @@ export default {
                     }
                     return item;
                 })
-                this.selectListName.forEach(v=>{
-                    this.list.forEach(one=>{
-                        if(v.id==one.ValueId){
-                            one.checked = true;
-                        }
+                if(this.cc=='cc'){
+                    this.selectListNameCC.forEach(v=>{
+                        this.list.forEach(one=>{
+                            if(v.id==one.ValueId){
+                                one.checked = true;
+                            }
+                        })
                     })
-                })
+                }else {
+                    this.selectListName.forEach(v=>{
+                        this.list.forEach(one=>{
+                            if(v.id==one.ValueId){
+                                one.checked = true;
+                            }
+                        })
+                    })
+                }
                 // this.list.map(item=>{
                 //     const name = item.FullName.substr(1);
                 //     item.name = name;

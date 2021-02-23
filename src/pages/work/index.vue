@@ -315,6 +315,9 @@ export default {
             }else if(item.id==30027){
                 const url = '/pages/hr/deptTransfer/main';
                 wx.navigateTo({url:url});
+            }else if(item.id==303){
+                const url = '/pages/scheduling/main';
+                wx.navigateTo({url:url});
             }
         },
         getOpenPhoto(){

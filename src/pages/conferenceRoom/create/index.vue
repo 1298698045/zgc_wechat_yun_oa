@@ -138,7 +138,7 @@ export default {
             id:"",
             StatusCode:0,
             tagList:[
-              '电脑','投影','多媒体','视频同步','其他'
+              
             ],
             AttachInfo:"",
             sessionkey:""

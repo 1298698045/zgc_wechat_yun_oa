@@ -9,7 +9,8 @@
         "pages/schedule/newSchedule/main",
         "pages/schedule/detail/main",
         "pages/meetingEntry/main",
-        "pages/work/admin/main"
+        "pages/work/admin/main",
+        "pages/scheduling/main"
     ],
     "subpackages": [{
             "root": "pages/todoBusiness/",
@@ -99,7 +100,8 @@
                 "copyFile/main",
                 "myFile/moveFile/main",
                 "myFile/twoMoveFile/main",
-                "shareFile/detail/main"
+                "shareFile/detail/main",
+                "recycleBin/main"
             ]
         },
         {
@@ -245,7 +247,9 @@
         {
             "root":"pages/personnelFiles",
             "pages":[
-                "main"
+                "main",
+                "classification/main",
+                "detail/main"
             ]
         }
     ],

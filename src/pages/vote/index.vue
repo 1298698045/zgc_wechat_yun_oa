@@ -596,7 +596,7 @@ export default {
                     }
                     .checkbox_wrap{
                         .van-checkbox__icon-wrap{
-                            margin-top: 20rpx;
+                            // margin-top: 20rpx;
                         }
                         .check{
                             padding: 31rpx 0;

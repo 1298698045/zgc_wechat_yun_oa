@@ -5,26 +5,32 @@
             启用新消息通知，不错过重要新消息!
         </i-notice-bar> -->
         <div class="center" :class="{'active':list.length>8}">
-            <div class="content" :class="{active:num==index}" v-for="(item,index) in list" :key="index" @touchstart="touchstart(item,index)" @touchend="touchend" @click="handleSelelct(item,index)">
-                <i-row>
-                    <i-col span="4" i-class="left">
-                        <div class="imgWrap">
-                            <img :src="imgUrl+item.Icon" alt="">
-                        </div>
-                    </i-col>
-                    <i-col span="15" i-class="centerCol">
-                        <p class="topText">
-                            {{item.Name}}
-                            <!-- {{index==1?'新闻':index==2?'优盘':'待办事务'}} -->
-                        </p>
-                        <p class="minText">查看{{item.Name}}的内容</p>
-                    </i-col>
-                    <i-col span="5" class="rightCol">
-                        <p class="time">{{item.time}}</p>
-                        <span :class="{'radius':item.Quantity<10}" v-if="item.Quantity>0">{{item.Quantity}}</span>
-                        <!-- <i-badge count="66" i-class-alone="demo-badge-alone" /> -->
-                    </i-col>
-                </i-row>
+            <div class="content" :class="{active:num==index}" v-for="(item,index) in list" :key="index">
+                <van-swipe-cell :right-width=" 135 " :left-width=" 0 ">
+                    <i-row i-class="row"  @touchstart="touchstart(item,index)" @touchend="touchend" @click="handleSelelct(item,index)">
+                        <i-col span="4" i-class="left">
+                            <div class="imgWrap">
+                                <img :src="imgUrl+item.Icon" alt="">
+                            </div>
+                        </i-col>
+                        <i-col span="15" i-class="centerCol">
+                            <p class="topText">
+                                {{item.Name}}
+                                <!-- {{index==1?'新闻':index==2?'优盘':'待办事务'}} -->
+                            </p>
+                            <p class="minText">查看{{item.Name}}的内容</p>
+                        </i-col>
+                        <i-col span="5" class="rightCol">
+                            <p class="time">{{item.time}}</p>
+                            <span :class="{'radius':item.Quantity<10}" v-if="item.Quantity>0">{{item.Quantity}}</span>
+                            <!-- <i-badge count="66" i-class-alone="demo-badge-alone" /> -->
+                        </i-col>
+                    </i-row>
+                    <view slot="right" class="moreBox">
+                        <p class="top" @click="getTop(item)">置顶</p>
+                        <p class="del" @click="getRowDel(item,index)">删除</p>
+                    </view>
+                </van-swipe-cell>
             </div>
         </div>
         <vue-tab-bar
@@ -210,6 +216,48 @@ export default {
                 const url = '/pages/signIn/main';
                 wx.navigateTo({url:url});
             }
+        },
+        // 删除
+        getRowDel(item,index){
+            let that = this;
+            wx.showModal({
+                title: '',
+                content: `确定要删除${item.Name}吗？`,
+                success:(res)=>{
+                    if (res.confirm) {
+                        that.list.splice(index,1)
+                        // that.getDelete(item);
+                    } else if (res.cancel) {
+
+                    }
+                }
+            })
+        },
+        getDelete(item){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:this.$api.public.delete,
+                    SessionKey:this.sessionkey,
+                    ObjTypeCode:"20501",
+                    Id:item.ModuleId
+                }
+            }).then(res=>{
+                console.warn(res);
+            })
+        },
+        // 置顶
+        getTop(item){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:this.$api.msg.update,
+                    SessionKey:this.sessionkey,
+                    objectTypeCode:item.ObjectTypeCode
+                }
+            }).then(res=>{
+                this.getQuery();
+            })
         }
     }
 }
@@ -236,9 +284,12 @@ export default {
                 border-bottom: none;
             }
             .content{
-                padding: 20rpx;
+                // padding: 20rpx;
                 background: #fff;
                 border-bottom: 1rpx solid #e2e3e5;
+                .row{
+                    padding: 20rpx;
+                }
                 .left{
                     .imgWrap{
                         width: 100rpx;
@@ -287,6 +338,29 @@ export default {
                         border-radius: 50%;
                         text-align: center;
                         font-size: 17rpx;
+                    }
+                }
+                .moreBox{
+                    display: flex;
+                    height: 100%;
+                    .top{
+                        width: 160rpx;
+                        background: #3399ff;
+                        color: #fff;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 28rpx;
+                    }
+                    .del{
+                        width: 111rpx;
+                        background: #ff6666;
+                        color: #fff;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 28rpx;
+
                     }
                 }
             }

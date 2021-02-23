@@ -3,6 +3,9 @@
         <div class="header back">
             <van-search :value="value" placeholder="请输入搜索关键词" />
         </div>
+        <div class="recyclebin" @click="getRouteBin">
+            回收站：我在“我的文件”删除了6个文件
+        </div>
         <div class="center back">
             <div class="rowWrap" @click="getLately">
                 <p class="imgBox">
@@ -97,6 +100,11 @@ export default {
         getCompanyFile(){
             const url = '/pages/usbDrive/shareFile/main?srchType='+'org'+'&id='+'10010000-0000-0000-0000-000000000002';
             wx.navigateTo({url:url});
+        },
+        // 回收站
+        getRouteBin(){
+            const url = '/pages/usbDrive/recycleBin/main';
+            wx.navigateTo({url:url});
         }
     }
 }
@@ -105,8 +113,15 @@ export default {
     .back{
         background: #fff;
     }
+    .recyclebin{
+        background: #fff;
+        padding: 20rpx 32rpx 31rpx 32rpx;
+        color: #333333;
+        font-size: 28rpx;
+    }
     .center{ 
         padding: 20rpx;
+        margin-top: 16rpx;
         .rowWrap{
             display: flex;
             padding: 17rpx 0;

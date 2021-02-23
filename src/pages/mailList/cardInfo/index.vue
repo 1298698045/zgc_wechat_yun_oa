@@ -70,7 +70,7 @@
                     </p>
                     <p>呼叫</p>
                 </div>
-                 <div class="imgWrap">
+                 <div class="imgWrap" @click="getEmail">
                     <p>
                         <img src="https://oa.zgchospital.com/img/wechat/05.3.1.Mail.png" alt="">
                     </p>
@@ -87,6 +87,7 @@
     </div>
 </template>
 <script>
+import {mapMutations} from 'vuex';
 export default {
     data(){
         return {
@@ -109,6 +110,7 @@ export default {
         this.getQueryInfo();
     },
     methods:{
+        ...mapMutations(['getListName']),
         getQueryInfo(){
             this.$httpWX.get({
                 url:this.$api.message.queryList,
@@ -143,6 +145,17 @@ export default {
             wx.makePhoneCall({
                 phoneNumber: this.info.mobile //仅为示例，并非真实的电话号码
             })
+        },
+        getEmail(){
+            let listName = [
+                {
+                    id:this.info.id,
+                    FullName:this.info.fullName
+                }
+            ]
+            this.getListName(listName);
+            const url = '/pages/email/writeMail/main';
+            wx.navigateTo({url:url});
         }
     }
 }

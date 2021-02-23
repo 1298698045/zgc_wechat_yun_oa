@@ -28,7 +28,7 @@
         </div>
         
         <div class="center" v-if="!isTime">
-            <van-checkbox-group :value="result" @change="changeGroup">
+            <van-checkbox-group :value="result" @change="changeGroup" @click.stop>
             <!-- folders -->
                 <div class="content" :class="electionShow?'contentActive':''" @click="getOpen" v-for="(item,index) in folders" :key="index">
                     <div class="radioWrap" v-if="electionShow">
@@ -50,11 +50,11 @@
                     </div>
                 </div>
                 <!-- files -->
-                <div class="content" :class="electionShow?'contentActive':''" v-for="(item,index) in files" :key="index"  @click="getPreviewImage(item)">
+                <div class="content" :class="electionShow?'contentActive':''" v-for="(item,index) in files" :key="index">
                     <div class="radioWrap" v-if="electionShow">
                         <van-checkbox :name="item.id+item.str" custom-class="radio"></van-checkbox>
                     </div>
-                    <div class="img">
+                    <div class="img"  @click.stop="getPreviewImage(item)">
                         <p>
                             <img v-if="item.fileExtension=='jpg'||item.fileExtension=='png'" :src="item.link" alt="">
                             <img v-if="item.fileExtension=='rar'" :src="photoUrl+'rar.png'" alt="">

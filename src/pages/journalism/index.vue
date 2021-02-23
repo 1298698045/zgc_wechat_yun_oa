@@ -204,9 +204,10 @@ export default {
     },
     onShow(){
         this.pageNumber = 1;
-        this.getMyTag().then(res=>{
-            this.getQuery();
-        });
+        this.getQuery();
+        // this.getMyTag().then(res=>{
+        //     this.getQuery();
+        // });
     },
     onLoad(options){
         Object.assign(this.$data,this.$options.data());    
@@ -363,7 +364,8 @@ export default {
         getSelect(item,index){
             this.tagId = item.ValueId;
             this.numIdx = index;
-            this.current_scroll = item.ItemName; // 频道
+            this.current_name = item.ItemName;
+            this.current_scroll = item.ItemId; // 频道
             this.showPopup = false;
             this.getQuery();
         },

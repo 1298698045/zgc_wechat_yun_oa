@@ -1,3 +1,5 @@
+
+
 const v = '/rest';
 const api = {
     pathUrl: "https://oa.zgchospital.com",
@@ -203,6 +205,11 @@ const api = {
         checkin:"hr.attend.out.checkin",
         attendcheck:"hr.attendcheck.gettimes",// 获取签到次数
         getdaily:"hr.attenddetail.getdaily" //查询一天的打卡记录
+    },
+    // 排班
+    scheduling:{
+        query:"workshift.monthowner.getlist",
+        calendar:"calendar.holiday.getlist"
     }
 }
 export default api;

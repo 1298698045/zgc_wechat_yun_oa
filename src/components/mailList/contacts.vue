@@ -63,6 +63,9 @@ export default {
             },
             selectListName:state=>{
                 return state.mailList.selectListName;
+            },
+            selectListNameCC:state=>{
+                return state.mailList.selectListNameCC;
             }
         })
     },
@@ -125,16 +128,29 @@ export default {
                         }
                     })
                 })
-                this.selectListName.forEach(one=>{
-                    this.list.forEach(t=>{
-                        t.item.forEach(s=>{
-                            if(one.id==s.ValueId){
-                                this.$set(s,'checked',true);
-                                s.checked = true;
-                            }
+                if(this.cc=='cc'){
+                    this.selectListNameCC.forEach(one=>{
+                        this.list.forEach(t=>{
+                            t.item.forEach(s=>{
+                                if(one.id==s.ValueId){
+                                    this.$set(s,'checked',true);
+                                    s.checked = true;
+                                }
+                            })
                         })
                     })
-                })
+                }else {
+                    this.selectListName.forEach(one=>{
+                        this.list.forEach(t=>{
+                            t.item.forEach(s=>{
+                                if(one.id==s.ValueId){
+                                    this.$set(s,'checked',true);
+                                    s.checked = true;
+                                }
+                            })
+                        })
+                    })
+                }
                 this.indexList = indexList;
                 let unitDataTemp = [];
                 this.unitData = res.unitData.forEach(item=>{

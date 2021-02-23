@@ -111,57 +111,57 @@ export default {
         {
           id: 1,
           name: "我的课程1",
-          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
-          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          src: "https://oa.zgchospital.com//img/icons/chatter.png",
+          url: "https://oa.zgchospital.com//img/icons/chatter.png",
           status: true
         },
         {
           id: 2,
           name: "点击报名2",
-          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
-          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          src: "https://oa.zgchospital.com//img/icons/chatter.png",
+          url: "https://oa.zgchospital.com//img/icons/chatter.png",
           status: true
         },
         {
           id: 3,
           name: "学生菜谱3",
-          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
-          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          src: "https://oa.zgchospital.com//img/icons/chatter.png",
+          url: "https://oa.zgchospital.com//img/icons/chatter.png",
           status: true
         },
         {
           id: 4,
           name: "请假申请4",
-          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
-          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          src: "https://oa.zgchospital.com//img/icons/chatter.png",
+          url: "https://oa.zgchospital.com//img/icons/chatter.png",
           status: true
         },
         {
           id: 5,
           name: "我的课程5",
-          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
-          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          src: "https://oa.zgchospital.com//img/icons/chatter.png",
+          url: "https://oa.zgchospital.com//img/icons/chatter.png",
           status: true
         },
         {
           id: 6,
           name: "点击报名6",
-          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
-          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          src: "https://oa.zgchospital.com//img/icons/chatter.png",
+          url: "https://oa.zgchospital.com//img/icons/chatter.png",
           status: true
         },
         {
           id: 7,
           name: "学生菜谱7",
-          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
-          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          src: "https://oa.zgchospital.com//img/icons/chatter.png",
+          url: "https://oa.zgchospital.com//img/icons/chatter.png",
           status: true
         },
         {
           id: 8,
           name: "请假申请8",
-          src: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
-          url: "https://wx.phxinfo.com.cn//img/icons/chatter.png",
+          src: "https://oa.zgchospital.com//img/icons/chatter.png",
+          url: "https://oa.zgchospital.com//img/icons/chatter.png",
           status: true
         },
       ],

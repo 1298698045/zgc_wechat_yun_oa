@@ -4,7 +4,7 @@
       <p class="Avatar">{{detail.CreatedByName}}</p>
       <div class="rBox">
         <p class="name">{{detail.CreatedByName}}</p>
-        <p class="info">信息中心 {{detail.CreatedOn}}</p>
+        <p class="info">{{detail.DeptName || ''}} {{detail.CreatedOn}}</p>
       </div>
     </div>
     <h3>{{detail.Name}}</h3>

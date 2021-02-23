@@ -219,7 +219,7 @@
                     </div>
                 </div>
             </div>
-            <div class="footer" v-if="!overlayShow" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
+            <div class="footer_meeting" v-if="!overlayShow" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
                 <div class="boxWrap">
                     <div class="lBox">
                         <div class="box" @click="getComment">
@@ -289,6 +289,7 @@
                 </div>
             </van-action-sheet>
         </div>
+        <Task v-if="current=='tab2'" />
         <Summarys v-if="current=='tab3'" :detailInfo="detailInfo" :current="current" :name="detailInfo.name" :Meetingid="detailInfo.valueId" :isEdit="isEdit" ref="child" />
         <Topics v-if="current=='tab4'" :current="current" :name="detailInfo.name" :Meetingid="detailInfo.valueId" :isEdit="isEdit" ref="child"  />
         <mapList @childFn="getChildFn" @cancel="getCancelChild" v-if="isShow" />
@@ -300,7 +301,8 @@ import Topics from "@/components/summary/topics";
 import mapList from '@/components/mapList';
 import QQMapWX from '@/utils/qqmap-wx-jssdk.js';
 import {mapState, mapMutations} from 'vuex';
-import { message } from '@/utils/message'
+import { message } from '@/utils/message';
+import Task from '@/components/schedule/task';
 var qqmapsdk = new QQMapWX({
     key: 'UVRBZ-UN2WU-KMJV6-2DAPJ-JW5QE-C5BYC' // 必填
 }); 
@@ -308,7 +310,8 @@ export default {
     components:{
         Summarys,
         mapList,
-        Topics
+        Topics,
+        Task
     },
     data(){
         return {
@@ -1262,7 +1265,7 @@ export default {
                 }
             }
         }
-        .footer{
+        .footer_meeting{
             width: 100%;
             position: fixed;
             bottom: 20rpx;
