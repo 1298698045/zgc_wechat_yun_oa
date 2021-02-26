@@ -59,13 +59,14 @@
             </div>
             <div class="navTab">
                 <div class="tab">
-                    <van-tabs :active="active" color="#3399ff" :swipeable="true" title-active-color="#3399ff">
-                        <van-tab title="全部"></van-tab>
+                    <van-tabs :active="active" color="#3399ff" @change="clickTabs" :swipeable="true" title-active-color="#3399ff">
+                        <!-- <van-tab title="全部"></van-tab>
                         <van-tab title="未读(2)"></van-tab>
                         <van-tab title="我发出的"></van-tab>
                         <van-tab title="我收到的"></van-tab>
                         <van-tab title="日报"></van-tab>
-                        <van-tab title="周报"></van-tab>
+                        <van-tab title="周报"></van-tab> -->
+                        <van-tab :title="item.name" :name="item.scope" v-for="(item,index) in tagList" :key="index"></van-tab>
                     </van-tabs>
                 </div>
                 <div class="more" @click="getOpenScreen">
@@ -83,7 +84,7 @@
                             <p @click.stop="getMore(item)"><i-icon type="more" color="#999999" size="20" /></p>
                         </div>
                         <div class="info">
-                            信息中心    {{item.CreatedOn}}
+                            {{item.DeptName}}    {{item.CreatedOn}}
                         </div>
                     </div>
                 </div>
@@ -101,8 +102,8 @@
                 </p>
                 <div class="more_btn">
                     <div class="btn">
-                        <i class="iconfont icon-zhuanjiao"></i>
-                        阅读数量
+                        <i class="iconfont icon-chuanyue"></i>
+                        阅读数量&nbsp;&nbsp;{{item.ReadQty}}
                     </div>
                     <div class="btn">
                         <i class="iconfont icon-pinglun"></i>
@@ -126,7 +127,7 @@
             @cancel="onClose"
         >
             <div class="sheetWrap">
-                <p>收藏</p>
+                <p @click="getFavor">收藏</p>
                 <p @click="getDelete">删除</p>
             </div>
         </van-action-sheet>
@@ -190,7 +191,7 @@
                 <div class="popFooter" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
                     <div class="box_wrap">
                         <div class="btn cancel" @click="getCancelPop">取消</div>
-                        <div class="btn">完成</div>
+                        <div class="btn" @click="getComplete">完成</div>
                     </div>
                 </div>
             </div>
@@ -210,6 +211,7 @@
 <script>
 import { splitName } from '@/utils/splitName';
 import {mapState,mapMutations} from 'vuex';
+import {message} from '@/utils/message';
 export default {
     data(){
         return {
@@ -231,18 +233,51 @@ export default {
                     name:"设置"
                 }
             ],
+            tagList:[
+                {
+                    name:"全部",
+                    scope:'all'
+                },
+                {
+                    name:"未读",
+                    scope:'read'
+                },
+                {
+                    name:"我发出的",
+                    scope:'me'
+                },
+                {
+                    name:"我收到的",
+                    scope:'get'
+                },
+                {
+                    name:"日报",
+                    scope:'me',
+                    type:'3'
+                },
+                {
+                    name:"周报",
+                    scope:'me',
+                    type:'2'
+                }
+            ],
             idx:0,
             active:"标签 1",
             list:[],
             show:false,
             search:"",
+            isPage:false,
             pageNumber:1,
             pageSize:20,
             screenShow:false,
             num:0,
             startTime:"",
             endTime:"",
-            checked:false
+            checked:false,
+            scope:'all',
+            type:'',
+            WorklogId:"",
+            status:''
         }
     },
     computed:{
@@ -274,6 +309,18 @@ export default {
         }
     },
     methods:{
+        clickTabs(e){
+            this.pageNumber = 1;
+            this.scope = e.mp.detail.name;
+            let index = e.mp.detail.index;
+            this.status = '';
+            this.startTime = '';
+            this.endTime = '';
+            if(index==4||index==5){
+                this.type = this.tagList[index].type;
+            }
+            this.getQuery();
+        },
         getWrite(type){
             const url = '/pages/journalModule/writeJournal/main?type='+type;
             wx.navigateTo({url:url});
@@ -288,13 +335,61 @@ export default {
             }
         },
         changeSearch(e){
-            this.search = e.mp.detail.value;
+            this.search = e.mp.detail;
+            this.getQuery();
         },
         getMore(item){
+            this.WorklogId = item.WorklogId;
             this.show = true;
         },
         onClose(){
             this.show = false;
+        },
+        getDelete(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    SessionKey:this.sessionkey,
+                    method:this.$api.journal.del,
+                    id:this.WorklogId
+                }
+            }).then(res=>{
+                let that = this;
+                message.toast({
+                    title:res.msg,
+                    delta:0,
+                    success:()=>{
+                        setTimeout(() => {
+                            that.show = false;
+                            that.getQuery();
+                        }, 1000);
+                    }
+                })
+            })
+        },
+        getFavor(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    SessionKey:this.sessionkey,
+                    method:this.$api.journal.favor,
+                    contentId:this.WorklogId,
+                    isFavor:true
+                }
+            }).then(res=>{
+                message.toast({
+                    title:res.msg,
+                    delta:0,
+                    success:()=>{
+                        this.show = false;
+                    }
+                })
+            })
+        },
+        // 筛选
+        getComplete(){
+            this.screenShow = false;
+            this.getQuery();
         },
         getQuery(){
             this.$httpWX.get({
@@ -302,13 +397,29 @@ export default {
                 data:{
                     method:this.$api.journal.query,
                     SessionKey:this.sessionkey,
-                    owningUser:this.userId,
+                    // owningUser:this.userId,
                     search:this.search,
                     pageNumber:this.pageNumber,
-                    pageSize:this.pageSize
+                    pageSize:this.pageSize,
+                    scope:this.scope,
+                    type:this.type,
+                    startTime:this.startTime,
+                    endTime:this.endTime,
+                    status:this.status
                 }
             }).then(res=>{
-                this.list = res.listData;
+                if(res.listData==""){
+                    this.isPage = false;
+                }else {
+                    this.isPage = true;
+                }
+                let result = [];
+                if(this.pageNumber==1){
+                    result = res.listData;
+                }else {
+                    result = this.listData.concat(res.listData);
+                }
+                this.list = result;
                 this.list.map(item=>{
                     item.name = splitName(item.OwningUserName);
                     return item;
@@ -365,6 +476,11 @@ export default {
         },
         onChangeSwitch(e){
             this.checked = e.mp.detail;
+            if(this.checked){
+                this.status = 1;
+            }else {
+                this.status = 2;
+            }
         },
         getOpenScreen(){
             this.screenShow = true;
@@ -381,6 +497,20 @@ export default {
                 urls: temp
                 // 需要预览的图片http链接列表
             })
+        }
+    },
+    onPullDownRefresh() {
+        this.pageNumber = 1;
+        this.getQuery();
+        wx.stopPullDownRefresh();
+    },
+    /**
+     * 页面上拉触底事件的处理函数
+     */
+    onReachBottom() {
+        if(this.isPage){
+            this.pageNumber++;
+            this.getQuery();
         }
     }
 }

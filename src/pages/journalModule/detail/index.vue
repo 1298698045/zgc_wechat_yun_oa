@@ -11,12 +11,12 @@
                             <p class="name">{{info.OwningUserName}}</p>
                         </div>
                         <div class="info">
-                            信息中心    {{info.ModifiedOn}}
+                            {{info.DeptName}}    {{info.CreatedOn}}
                         </div>
                     </div>
                 </div>
                 <p class="text">
-                    {{info.Description}}
+                    {{info.ContentBody}}
                 </p>
             </div>
             <div class="container">
@@ -27,9 +27,9 @@
                                 {{item.name}} {{item.num}}
                             </p>
                         </div>
-                        <div class="zan">
-                            <p>赞 401</p>
-                        </div>
+                        <!-- <div class="zan">
+                            <p>赞 {{info.LikeQty}}</p>
+                        </div> -->
                     </div>
                     <div class="comment" v-if="idx==0">
                         <div class="box" v-for="(item,index) in list" :key="index">
@@ -37,21 +37,37 @@
                             <div class="left_cont">
                                 <div class="name">
                                     <p>{{item.CreatedByName}}</p>
-                                    <p class="num" @click="getLikeItem(item)">{{item.LikeQty}}</p>
+                                    <p class="num" @click="getLikeItem(item)">
+                                        <i class="iconfont icon-zan"></i>
+                                        <span v-if="item.LikeQty>0">
+                                            {{item.LikeQty}}
+                                        </span>
+                                    </p>
                                 </div>
                                 <p class="text">{{item.Comment}}</p>
-                                <p class="info">信息中心    {{item.CreatedOn}}</p>
+                                <p class="info">{{item.DeptName}}    {{item.CreatedOn}}</p>
                             </div>
                         </div>
                     </div>
                     <div class="comment" v-if="idx==1">
-                        <div class="box" v-for="(item,index) in list" :key="index">
+                        <div class="box" v-for="(item,index) in readList" :key="index">
                             <div class="avatar">{{item.name}}</div>
                             <div class="left_cont">
                                 <div class="name">
                                     <p>{{item.CreatedByName}}</p>
                                 </div>
-                                <p class="info">信息中心    {{item.CreatedOn}}</p>
+                                <p class="info">{{item.DeptName}}    {{item.CreatedOn}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comment" v-if="idx==2">
+                        <div class="box" v-for="(item,index) in likeList" :key="index">
+                            <div class="avatar">{{item.name}}</div>
+                            <div class="left_cont">
+                                <div class="name">
+                                    <p>{{item.CreatedByName}}</p>
+                                </div>
+                                <p class="info">{{item.DeptName}}    {{item.CreatedOn}}</p>
                             </div>
                         </div>
                     </div>
@@ -61,8 +77,8 @@
         <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
             <div class="box">
                 <div class="btn">
-                    <i class="iconfont icon-web-icon-"></i>
-                    转发
+                    <i class="iconfont icon-chuanyue"></i>
+                    阅读数量 {{info.ReadQty}}
                 </div>
                 <div class="btn"  @click="getComment">
                     <i class="iconfont icon-pinglun"></i>
@@ -97,7 +113,7 @@ export default {
             pageNumber:1,
             keyboard:true,
             list:[],
-            info:"",
+            info:{},
             UserStatics:{},
             Comment:"",
             tabs:[
@@ -108,8 +124,14 @@ export default {
                 {
                     name:"已读",
                     num:"" 
+                },
+                {
+                    name:"赞",
+                    num:""
                 }
-            ]
+            ],
+            readList:[],
+            likeList:[]
         }
     },
     computed:{
@@ -130,6 +152,40 @@ export default {
         this.queryComment();
     },
     methods:{
+        // 点赞列表
+        getLikeQuery(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:this.$api.journal.likeQuery,
+                    SessionKey:this.sessionkey,
+                    id:this.id
+                }
+            }).then(res=>{
+                this.likeList = res.listData;
+                this.likeList.map(item=>{
+                    item.name = splitName(item.CreatedByName);
+                    return item;
+                })
+            })
+        },
+        queryReadQuery(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    Sessionkey:this.sessionkey,
+                    method:this.$api.journal.query,
+                    scope:'read',
+                    id:this.id
+                }
+            }).then(res=>{
+                this.readList = res.listData;
+                this.readList.map(item=>{
+                    item.name = splitName(item.CreatedByName);
+                    return item;
+                })
+            })
+        },
         queryComment(){
             this.$httpWX.get({
                 url:this.$api.message.queryList,
@@ -154,6 +210,10 @@ export default {
             this.idx = index;
             if(this.idx==0){
                 this.queryComment();
+            }else if(index==1){
+                this.queryReadQuery();
+            }else if(index==2){
+                this.getLikeQuery();
             }
         },
         getComment(){
@@ -174,8 +234,11 @@ export default {
                     Id:this.id
                 }
             }).then(res=>{
-                this.info = res.listData[0];
+                this.info = res.listData;
                 this.info.name = splitName(this.info.OwningUserName);
+                this.tabs[0].num = this.info.CommentQty;
+                this.tabs[1].num = this.info.ReadQty;
+                this.tabs[2].num = this.info.LikeQty;
             })
         },
         getLike(){
@@ -221,11 +284,19 @@ export default {
                     method:this.$api.community.like,
                     SessionKey:this.sessionkey,
                     objectid:5500,
-                    id:item.ChatterId,
+                    id:item.CommentId,
                     action:'like'
                 }
             }).then(res=>{
-                this.queryComment();
+                message.toast({
+                    title:res.msg,
+                    delta:0,
+                    success:()=>{
+                        setTimeout(()=>{
+                            this.queryComment();
+                        },1000)
+                    }
+                })
             })
         }
     }
@@ -376,6 +447,14 @@ export default {
                                 .num{
                                     color: #999999;
                                     font-size:25rpx;
+                                    display: flex;
+                                    align-items: center;
+                                    span{
+                                        margin-left: 10rpx;
+                                    }
+                                }
+                                .num.active{
+                                    color: #ff6666;
                                 }
                             }
                             .text{

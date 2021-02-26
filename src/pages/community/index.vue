@@ -12,7 +12,7 @@
                             <p @click.stop="getMore(item)"><i-icon type="more" color="#999999" size="20" /></p>
                         </div>
                         <div class="info">
-                            信息中心    {{item.CreatedOn}}
+                            {{item.DeptName}}    {{item.CreatedOn}}
                         </div>
                     </div>
                 </div>
@@ -30,15 +30,17 @@
                 </p>
                 <div class="more_btn">
                     <div class="btn">
-                        <i class="iconfont icon-zhuanjiao"></i>
-                        转发
+                        <i class="iconfont icon-chuanyue"></i>
+                        阅读数量 {{item.NumOfForward}}
                     </div>
                     <div class="btn">
                         <i class="iconfont icon-pinglun"></i>
-                        评论</div>
-                    <div class="btn" @click.stop="getLike(item)">
-                        <i class="iconfont icon-zan"></i>
-                        赞
+                        评论 {{item.NumOfComment}}</div>
+                    <div class="btn" @click.stop="getLike(item)" :class="{'active':item.HasLike!='false'}">
+                        <i class="iconfont icon-zan" :class="{'active':item.HasLike!='false'}"></i>
+                        <span v-if="item.HasLike=='false'" >
+                            赞
+                        </span>
                         <span>{{item.NumOfLike}}</span>
                     </div>
                 </div>
@@ -103,6 +105,7 @@ export default {
     },
     data(){
         return {
+            isPage:false,
             pageNumber:1,
             pageSize:25,
             list:[],
@@ -133,6 +136,17 @@ export default {
                     pageSize:this.pageSize
                 }
             }).then(res=>{
+                if(res.listData==""){
+                    this.isPage = false;
+                }else {
+                    this.isPage = true;
+                }
+                let result = [];
+                if(this.pageNumber==1){
+                    result = res.listData;
+                }else {
+                    result = this.listData.concat(res.listData);
+                }
                 this.list = res.listData;
                 this.list.map(item=>{
                     item.name = splitName(item.OwningUserName);
@@ -141,6 +155,12 @@ export default {
             })
         },
         getLike(item){
+            let action = 'like';
+            if(item.HasLike=='false'){
+                action = 'like'
+            }else {
+                action = 'dislike';
+            }
             this.$httpWX.get({
                 url:this.$api.message.queryList,
                 data:{
@@ -148,14 +168,19 @@ export default {
                     SessionKey:this.sessionkey,
                     id:item.ChatterId,
                     ObjTypeCode:6000,
-                    action:'like'
+                    action:action
                 }
             }).then(res=>{
                 if(res.status==1){
                     wx.showToast({
                         title:res.msg,
                         icon:"none",
-                        duration:2000
+                        duration:2000,
+                        success:()=>{
+                            setTimeout(()=>{
+                                this.getQuery();
+                            },1000)
+                        }
                     })
                 }
             })
@@ -189,7 +214,8 @@ export default {
             })
         },
         getDetail(item){
-            const url = '/pages/community/detail/main?id='+item.ChatterId;
+            const url = '/pages/community/detail/main?id='+item.ChatterId+'&DeptName='+item.DeptName
+            +'&NumOfLike='+item.NumOfLike+'&NumOfComment='+item.NumOfComment;
             wx.navigateTo({url:url});
         },
         getWriteJournal(){
@@ -210,8 +236,8 @@ export default {
             this.activeIdx = idx;
         }
     },
-        // 下拉刷新
     onPullDownRefresh() {
+        this.pageNumber = 1;
         this.getQuery();
         wx.stopPullDownRefresh();
     },
@@ -219,6 +245,10 @@ export default {
      * 页面上拉触底事件的处理函数
      */
     onReachBottom() {
+        if(this.isPage){
+            this.pageNumber++;
+            this.getQuery();
+        }
     }
 }
 </script>
@@ -229,6 +259,9 @@ export default {
         width: 100%;
         height: 100%;
         overflow: hidden;
+        .center{
+            padding-bottom: 100px;
+        }
         .content{
             padding: 0 33rpx;
             background: #fff;
@@ -305,6 +338,12 @@ export default {
                     .iconfont{
                         margin-right: 20rpx;
                     }
+                    .iconfont.active{
+                        color: #FF6666;
+                    }
+                }
+                .btn.active{
+                    color: #FF6666;
                 }
             }
         }

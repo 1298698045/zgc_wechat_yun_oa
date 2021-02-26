@@ -1,18 +1,20 @@
 <template>
   <div class="wrap">
-    <div class="header">
-      <div class="lBox">
-        <i-tabs :current="current" @change="handleChange">
-            <i-tab key="tab1" title="列表"></i-tab>
-            <i-tab key="tab2" title="日"></i-tab>
-            <i-tab key="tab3" title="月"></i-tab>
-        </i-tabs>
-      </div>
-      <div class="rBox">
-        <p><i-icon type="search" size="20" /></p>
+    <div class="header_flex">
+      <div class="header">
+        <div class="lBox">
+          <i-tabs :current="current" @change="handleChange">
+              <i-tab key="tab1" title="列表"></i-tab>
+              <i-tab key="tab2" title="日"></i-tab>
+              <i-tab key="tab3" title="月"></i-tab>
+          </i-tabs>
+        </div>
+        <div class="rBox">
+          <p><i-icon type="search" size="20" /></p>
+        </div>
       </div>
     </div>
-    <div v-if="current!='tab3'">
+    <div class="calendar_top" v-if="current!='tab3'">
       <SwiperCalendar ref="childSwiper" @change="getChangeSwiper" />
       <!-- <div class="calendar" v-if="current=='tab1'">
         <lxCalendar ref="child" @change="changeDate"></lxCalendar>
@@ -68,7 +70,7 @@
     </div>
     <day-table v-if="current=='tab2'" :dayList="dayList" :chooseDate="date" scrollHeight="height:calc(100vh)" @bookMeeting='bookMeeting($event)'>  </day-table>
     <div class="contDate" v-if="current=='tab3'">
-      <MonthTable :listData="list" @change="changeHandle" />
+      <MonthTable :listData="list" />
       <!-- <Calendar
       :months="months"
       :value="calDate"
@@ -288,7 +290,7 @@ export default {
       }else if(this.current=='tab3'){
         let m = new Date().getMonth()+1;
         let y = new Date().getFullYear();
-        this.getDateInfo(m,y);
+        // this.getDateInfo(m,y);
       }
     },
     getDayQuery(){
@@ -440,18 +442,27 @@ export default {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    .header{
-      display: flex;
-      background: #fff;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2rpx solid #e2e3e5;
-      .lBox{
-        width: 50%;
+    .header_flex{
+      width: 100%;
+      position: fixed;
+      top: 0;
+      z-index: 9999;
+      .header{
+        display: flex;
+        background: #fff;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2rpx solid #e2e3e5;
+        .lBox{
+          width: 50%;
+        }
+        .rBox{
+          padding-right: 33rpx;
+        }
       }
-      .rBox{
-        padding-right: 33rpx;
-      }
+    }
+    .calendar_top{
+      margin-top: 43px;
     }
     .calendar{
       background: #fff;
@@ -569,6 +580,7 @@ export default {
       }
     }
     .contDate{
+      margin-top: 43px;
       .cont{
         width: 100%;
         background: #fff;

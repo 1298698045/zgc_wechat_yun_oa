@@ -631,7 +631,7 @@ export default {
                 success:res=>{
                   setTimeout(()=>{
                     this.current = 1;
-                    this.getQuery();
+                    // this.getQuery();
                   },1000)
                 }
               })

@@ -11,7 +11,7 @@
                             <p class="name">{{info.OwningUserName}}</p>
                         </div>
                         <div class="info">
-                            信息中心    {{info.ModifiedOn}}
+                            {{DeptName}}    {{info.ModifiedOn}}
                         </div>
                     </div>
                 </div>
@@ -23,22 +23,39 @@
                 <div class="comment_wrap">
                     <div class="row_box">
                         <div class="tabs">
-                            <p class="active">评论 {{Comment}}</p>
+                            <p :class="{'active':num==0}" @click="getNum(0)">评论 {{NumOfComment}}</p>
+                            <p :class="{'active':num==1}" @click="getNum(1)">赞 {{NumOfLike}}</p>
                         </div>
-                        <div class="zan">
-                            <p>赞 401</p>
-                        </div>
+                        <!-- <div class="zan">
+                            <p>赞 {{NumOfLike}}</p>
+                        </div> -->
                     </div>
-                    <div class="comment">
+                    <div class="comment" v-if="num==0">
                         <div class="box" v-for="(item,index) in list" :key="index">
                             <div class="avatar">{{item.name}}</div>
                             <div class="left_cont">
                                 <div class="name">
                                     <p>{{item.CreatedByName}}</p>
-                                    <p class="num" @click="getLikeItem(item)">{{item.LikeQty}}</p>
+                                    <p class="num" @click="getLikeItem(item)">
+                                        <i class="iconfont icon-zan"></i>
+                                        <span v-if="item.LikeQty>0">
+                                            {{item.LikeQty}}
+                                        </span>
+                                    </p>
                                 </div>
                                 <p class="text">{{item.Comment}}</p>
-                                <p class="info">信息中心    {{item.CreatedOn}}</p>
+                                <p class="info">{{item.DeptName}}    {{item.CreatedOn}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comment" v-if="num==1">
+                        <div class="box" v-for="(item,index) in likeList" :key="index">
+                            <div class="avatar">{{item.name}}</div>
+                            <div class="left_cont">
+                                <div class="name">
+                                    <p>{{item.CreatedByName}}</p>
+                                </div>
+                                <p class="info">{{item.DeptName}}    {{item.CreatedOn}}</p>
                             </div>
                         </div>
                     </div>
@@ -48,15 +65,15 @@
         <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
             <div class="box">
                 <div class="btn">
-                    <i class="iconfont icon-zhuanjiao"></i>
-                    转发
+                    <i class="iconfont icon-chuanyue"></i>
+                    阅读数量 {{info.NumOfForward}}
                 </div>
                 <div class="btn"  @click="getComment">
                     <i class="iconfont icon-pinglun"></i>
-                    评论</div>
+                    评论 {{info.NumOfComment}}</div>
                 <div class="btn" @click.stop="getLike">
                     <i class="iconfont icon-zan"></i>
-                    赞
+                    赞 {{info.NumOfLike}}
                     <span></span>
                 </div>
             </div>
@@ -64,7 +81,7 @@
         <div class="keyboard" v-if="isFocus" :style="{'bottom':keyboardHeight+'px'}" catchtouchmove="true">
             <div class="inp_box">
                 <p>
-                    <input type="text" v-model="comment" :hold-keyboard="keyboard" :auto-focus="true" :adjust-position="false" @blur="getBlur">
+                    <input type="text" v-model="content" :hold-keyboard="keyboard" :auto-focus="true" :adjust-position="false" @blur="getBlur">
                 </p>
                 <p @click.stop="getSubmit">发送</p>
             </div>
@@ -73,6 +90,7 @@
 </template>
 <script>
 import {splitName} from '@/utils/splitName';
+import {message} from '@/utils/message';
 export default {
     data(){
         return {
@@ -86,7 +104,14 @@ export default {
             list:[],
             info:"",
             UserStatics:{},
-            Comment:""
+            Comment:"",
+            content:"",
+            height:"",
+            DeptName:'',
+            NumOfLike:'',
+            NumOfComment:'',
+            num:0,
+            likeList:[]
         }
     },
     computed:{
@@ -99,6 +124,10 @@ export default {
     },
     onLoad(options){
         this.id = options.id;
+        this.DeptName = options.DeptName;
+        this.NumOfLike = options.NumOfLike;
+        this.NumOfComment = options.NumOfComment;
+        this.height = wx.getSystemInfoSync().windowHeight;
         wx.onKeyboardHeightChange(res => { //监听键盘高度变化
             console.log(res.height,'res');
             this.keyboardHeight = res.height;
@@ -107,6 +136,23 @@ export default {
         this.queryComment();
     },
     methods:{
+        // 点赞列表
+        getLikeQuery(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:this.$api.journal.likeQuery,
+                    SessionKey:this.sessionkey,
+                    id:this.id
+                }
+            }).then(res=>{
+                this.likeList = res.listData;
+                this.likeList.map(item=>{
+                    item.name = splitName(item.CreatedByName);
+                    return item;
+                })
+            })
+        },
         queryComment(){
             this.$httpWX.get({
                 url:this.$api.message.queryList,
@@ -116,7 +162,8 @@ export default {
                     scope:"Comment",
                     CommentId:this.id,
                     PageSize:this.PageSize,
-                    pageNumber:this.pageNumber
+                    pageNumber:this.pageNumber,
+                    objTypeCode:6000
                 }
             }).then(res=>{
                 this.list = res.listData;
@@ -134,6 +181,7 @@ export default {
         },
         getComment(){
             this.isFocus = true;
+            console.log(this.isFocus)
         },
         getBlur(e){
             this.isFocus = false;
@@ -182,11 +230,12 @@ export default {
                     method:this.$api.community.comment,
                     SessionKey:this.sessionkey,
                     objectid:this.id,
-                    comments:this.comment,
+                    comments:this.content,
                     objTypeCode:6000
                 }
             }).then(res=>{
                 this.queryComment();
+                this.content = '';
                 this.isFocus = false;
             })
         },
@@ -201,8 +250,25 @@ export default {
                     action:'like'
                 }
             }).then(res=>{
-                this.queryComment();
+                let that = this;
+                message.toast({
+                    title:res.msg,
+                    delta:0,
+                    success:()=>{
+                        setTimeout(()=>{
+                            this.queryComment();
+                        },1000)
+                    }
+                })
             })
+        },
+        getNum(num){
+            this.num = num;
+            if(this.num==0){
+                this.queryComment();
+            }else {
+                this.getLikeQuery();
+            }
         }
     }
 }
@@ -259,9 +325,9 @@ export default {
                 margin-top: 17rpx;
                 background: #fff;
                 .row_box{
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
+                    // display: flex;
+                    // justify-content: space-between;
+                    // align-items: center;
                     border-bottom: 1rpx solid #e2e3e5;
                     padding: 0 38rpx;
                     font-size: 29rpx;
@@ -269,6 +335,7 @@ export default {
                     font-weight: bold;
                     .tabs{
                         display: flex;
+                        justify-content: space-between;
                         p{
                             width: 146rpx;
                             text-align: center;
@@ -311,6 +378,14 @@ export default {
                                 .num{
                                     color: #999999;
                                     font-size:25rpx;
+                                    display: flex;
+                                    align-items: center;
+                                    span{
+                                        margin-left: 10rpx;
+                                    }
+                                }
+                                .num.active{
+                                    color: #ff6666;
                                 }
                             }
                             .text{

@@ -1,5 +1,3 @@
-
-
 const v = '/rest';
 const api = {
     pathUrl: "https://oa.zgchospital.com",
@@ -199,7 +197,10 @@ const api = {
     journal:{
         send: "worklog.reportcontent.send",
         query: "worklog.reports.search", //获取当前用户的所有日志
-        detail: "worklog.reportcontent.get"
+        detail: "worklog.reportcontent.get",
+        del:"worklog.report.delete",
+        favor:"worklog.click.favors", //收藏
+        likeQuery:"object.likes.getlist"
     },
     sign:{
         checkin:"hr.attend.out.checkin",

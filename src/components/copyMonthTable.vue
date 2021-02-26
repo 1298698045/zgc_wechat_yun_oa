@@ -21,13 +21,17 @@
                 <block>
                     <swiper-item class="items" v-for="(item,idx) in currentList" :key="idx">
                         <div class="tr bg-g">
-                            <div class="td" v-for="(v,index) in item" :key="index">
+                            <div class="td" v-for="(v,index) in item" :key="index" @click="v.subject?getDetail(v):''">
                                 <div class="times"> 
                                     <p class="day">{{v.day}}</p>
                                     <p class="lunar" :class="{'active':v.Sat}" v-if="v.lunar||v.Sat">{{v.Sat?v.Sat:v.lunar.IDayCn}}</p>
                                 </div>
-                                <div class="tag_box" v-if="v.tag">
-                                    <p class="tag" v-for="(one,oneIdx) in v.tagList" :key="oneIdx">{{one}}</p>
+                                <p class="cont_a" v-if="v.day">
+                                    <span class="radius gre" v-if="v.subject"></span>
+                                    <span class="text">{{v.subject}}</span>
+                                </p>
+                                <div class="td_active" v-if="v.subject">
+
                                 </div>
                             </div>
                         </div>
@@ -40,6 +44,8 @@
 <script>
 import calendar from '@/utils/Calendar-lunar';
 export default {
+    name:'MonthTable',
+    props:['listData'],
     data(){
         return {
             list:[],
@@ -47,102 +53,40 @@ export default {
             current:1,
             currentList:[],
             currDay:"",
-            endDay:"",
-            Year:"",
-            Month:""
+            endDay:""
+        }
+    },
+    watch:{
+        listData(val){
+            console.log(val,'watch')
+            this.list = val;
         }
     },
     onLoad(){
-        Object.assign(this.$data,this.$options.data());
-        // console.log(calendar.calendar.solar2lunar(2021,2,22))
         // console.log(this.getCurrentMonthFirst(),this.getCurrentMonthLast());
         let date = new Date();
         let y = date.getFullYear() 
         let m = date.getMonth()+1;
         let d = date.getDate();
-        this.Year = y;
-        this.Month = m;
         this.date = `${y}-${m}-${d}`;
         let currDay = new Date(this.getCurrentMonthFirst()).getDay();
         let endDay = new Date(this.getCurrentMonthLast()).getDate();
         this.currDay = currDay;
         this.endDay = endDay;
-        
-        // this.queryList();
         // this.now();
-    },
-    computed:{
-        sessionkey(){
-            return wx.getStorageSync('sessionkey');
-        }
     },
     mounted(){
         this.$nextTick(()=>{
             setTimeout(() => {
+                console.log(this.$parent.list,'0-0-00-0-0-')
+                this.list = this.$parent.list;
                 this.now();
             }, 1000);
         })
     },
     methods:{
-        // 节假日
-        dayQuery(){
-            this.$httpWX.get({
-                url:this.$api.message.queryList,
-                data:{
-                    method:this.$api.scheduling.calendar,
-                    SessionKey:this.sessionkey,
-                    Year:this.Year,
-                    Month:this.Month
-                }
-            }).then(res=>{
-                let rows = res.rows;
-                rows.forEach(item=>{
-                    let startTime = item.Holiday.split(' ')[0];
-                    this.currentList[this.current].forEach(v=>{
-                        if(v.currDate){
-                            let isBook = this.isSameDay(startTime,v.currDate.replace(/-/g,'/'));
-                            if(isBook){
-                                this.$set(v,'Sat',item.Name);
-                            }
-                        }
-                    })
-                })
-                // console.log(this.currentList[this.current],'-------------------------');
-            })
-        },
-        queryList(){
-            this.$httpWX.get({
-                url:this.$api.message.queryList,
-                data:{
-                    method:this.$api.scheduling.query,
-                    SessionKey:this.sessionkey,
-                    Year:this.Year,
-                    Month:this.Month
-                }
-            }).then(res=>{
-                this.list = res.Data;
-                console.log(this.list,'数据')
-                this.currentList[this.current].forEach(one=>{
-                    if(one.currDate){
-                        this.$set(one,'tagList',[]);
-                    }
-                })
-                this.list.forEach(item=>{
-                    let startTime = item.workday.split(' ')[0];
-                    this.currentList[this.current].forEach(v=>{
-                        if(v.currDate){
-                            let isBook = this.isSameDay(startTime,v.currDate.replace(/-/g,'/'));
-                            if(isBook){
-                                v.tagList.push(item.shifttypecodename);
-                                this.$set(v,'tag',item.shifttypecodename);
-                            }
-                        }
-                    })
-                })
-                // console.log(this.currentList[this.current],'this.currentList[this.current]');
-            })
-        },
         getCurrent(e){
+            // console.log(e,'--------------');
             let current = e.mp.detail.current;
             if(current == this.currentList.length-1){
                 this.current = current;
@@ -187,17 +131,12 @@ export default {
                     this.getAddList(currDay2,dayNum2)
                 }, 100);
             }else {
-                this.current = current;
                 this.date = this.currentList[current][0].date;
             }
-            this.Year = new Date(this.date.replace(/-/g,'/')).getFullYear();
-            this.Month = new Date(this.date.replace(/-/g,'/')).getMonth()+1;
-            this.queryList();
-            this.dayQuery()
-            // this.$emit('change',{
-            //     date:this.date,
-            //     current:current
-            // })
+            this.$emit('change',{
+                date:this.date,
+                current:current
+            })
         },
         onday(){
             let date = new Date(this.date.replace(/-/g,'/')); //获取日期  日期是2020-07 写成你自己的
@@ -225,7 +164,7 @@ export default {
             }
             return CurrentDate;
         },
-       async now(){
+        now(){
             let d = this.getPreMonth(this.date);
             let preTemp = d.split('-');
             console.log(preTemp,'prossdf')
@@ -242,14 +181,59 @@ export default {
             let now = this.setDate(this.currDay,this.endDay,this.date);
             let next = this.setDate(currDay2,dayNum,d2);
             this.currentList = [pre,now,next];
-            console.log(this.currentList,'currentList----')
-            let w = await  this.getAddList(this.currDay,this.endDay);
-            this.queryList();
-            this.dayQuery();
+            this.getAddList(this.currDay,this.endDay);
             
         },
         getAddList(currDay,len){
-            console.log(currDay,len);
+            console.log(this.list,this.current,'listlist')
+            for(let i=0;i<this.list.length;i++){
+                console.log(this.list[i].scheduledStart,this.list[i].scheduledEnd);
+                let diffDays = this.getComputation(this.list[i].scheduledStart,this.list[i].scheduledEnd)
+                let isStart = this.getIsCurrMonth(this.list[i].scheduledStart);
+                let isEnd = this.getIsCurrMonth(this.list[i].scheduledEnd);
+                console.log(isStart,isEnd,'sljkdl');
+                if(!isStart&&isEnd){
+                   let starIdx = this.currentList[this.current].findIndex(one=>one.currDate?this.isToday(one.currDate,this.list[i].scheduledStart):'');
+                    let endIdx = this.currentList[this.current].findIndex(one=>one.currDate?this.isToday(one.currDate,this.list[i].scheduledEnd):'');
+                    //    debugger
+                    if(starIdx==endIdx){
+                        this.currentList[this.current][starIdx].subject = this.list[i].subject;
+                        this.currentList[this.current][starIdx].isShow = false;
+                    }
+                    for(var q=currDay;q<endIdx;q++){
+                        console.log(this.currentList[this.current][q],'this.currentList[this.current][q]')
+                        this.currentList[this.current][q].subject = this.list[i].subject;
+                        this.currentList[this.current][q].isShow = false;
+                    }
+                }else if(isStart&&isEnd){
+                    console.log(this.currentList[this.current],'----------this.currentList[this.current]');
+                    let starIdx = this.currentList[this.current].findIndex(one=>one.currDate?this.isToday(one.currDate,this.list[i].scheduledStart):'');
+                    let endIdx = this.currentList[this.current].findIndex(one=>one.currDate?this.isToday(one.currDate,this.list[i].scheduledEnd):'');
+                    //    debugger
+                    if(starIdx==endIdx){
+                        this.currentList[this.current][starIdx].subject = this.list[i].subject;
+                        this.currentList[this.current][starIdx].isShow = false;
+                    }
+                    // for(var q=starIdx;q<endIdx+1;q++){
+                    //     console.log(this.currentList[this.current][q],'-------this.currentList[this.current][q]')
+                    //     this.currentList[this.current][q].subject = this.list[i].subject;
+                    // }
+                }
+                else if(isStart&&!isEnd){
+                    let index = this.currentList[this.current].findIndex(one=>one.currDate?this.isToday(one.currDate,this.list[i].scheduledStart):'');
+                    console.log(index,currDay,'index')
+                    for(var q=index;q<len;q++){
+                        console.log(this.currentList[this.current][q],'this.currentList[this.current][q]')
+                        this.currentList[this.current][q].subject = this.list[i].subject;
+                        this.currentList[this.current][q].isShow = false;
+                    }
+                }
+                console.log(this.currentList,'currentlist')
+                // this.currentList[this.current].forEach(item=>{
+                //     console.log(item,'-------------------------0000')
+                //     let day = item.currDate;
+                // })
+            }
         },
         isToday(str,date){
             console.log(str,date);
@@ -287,6 +271,9 @@ export default {
             return beginDayDiff;
         },
         setDate(currDay,endDay,date){
+            // for(let i=0;i<this.list.length;i++){
+            //     console.log(this.list[i].scheduledStart,endDay,date,'-');
+            // }
             let myDate = new Date(date.replace(/-/g,'/'));
             let y = myDate.getFullYear();
             let m = myDate.getMonth()+1;
@@ -454,12 +441,9 @@ export default {
         
             var t2 = year2 + '-' + month2 + '-' + day2;
             return t2;
-        },
-        // 判断两个日期是否为同一天
-        isSameDay(startTime, endTime) {
-            const startTimeMs = new Date(startTime).setHours(0,0,0,0);
-            const endTimeMs = new Date(endTime).setHours(0,0,0,0);
-            return startTimeMs === endTimeMs ? true : false
+        }, 
+        getDetail(v){
+            v.isShow = true;
         }
     }
 }
@@ -507,6 +491,7 @@ page{
                 border-right: 1rpx solid #e2e3e5;
                 border-bottom: 1rpx solid #e2e3e5;
                 box-sizing: border-box;
+                position: relative;
                 .times{
                     display: flex;
                     justify-content: space-between;
@@ -524,19 +509,6 @@ page{
                     }
                     .lunar.active{
                         color: #ff4444;
-                    }
-                }
-                .tag_box{
-                    padding: 0 10rpx;
-                    .tag{
-                        width: 100%;
-                        padding: 10rpx 0;
-                        font-size: 20rpx;
-                        color: #fff;
-                        background: #3399ff;
-                        text-align: center;
-                        border-radius: 5rpx;
-                        margin-top: 8rpx;
                     }
                 }
                 .cont_a{
@@ -562,6 +534,13 @@ page{
                         overflow: hidden;
                         text-overflow: ellipsis;
                     }
+                }
+                .td_active{
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,.5);
+                    bottom: 0;
                 }
             }
         }

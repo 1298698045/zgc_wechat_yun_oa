@@ -122,6 +122,7 @@ export default {
                         BusinessUnitIdName:item.DeptName
                     })
                     this.stepList[index].ParticipantMember = this.getUnique(this.stepList[index].ParticipantMember);
+                    console.log(this.stepList[index].ParticipantMember,'this.stepList[index].ParticipantMember')
                     this.stepList[index].Selected = true;
                 })
             }
@@ -141,11 +142,22 @@ export default {
         // })
     },
     methods:{
+        ...mapMutations(['getClear']),
         getUnique(arr){
             const res = new Map();
             return arr.filter((item)=>!res.has(item.UserId)&&res.set(item.UserId,1));
         },
-        ...mapMutations(['getClear']),
+        unique(arr){
+            for(var i=0;i<arr.length;i++){
+                for(var j=i+1; j < arr.length; j++){
+                    if(arr[i].UserId==arr[j].UserId){
+                        arr.splice(j,1);
+                        j--;
+                    }
+                }
+            }
+            return arr;
+        },
         getStepQuery(){
             this.$httpWX.get({
                 url:this.$api.message.queryList,
@@ -264,7 +276,7 @@ export default {
                             setTimeout(() => {
                                 that.getClear([]);
                                 that.$parent.current = 1;
-                                that.$parent.getQuery();
+                                // that.$parent.getQuery();
                                 // wx.navigateBack({
                                 //     delta: 1
                                 // })
