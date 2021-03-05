@@ -118,6 +118,7 @@
 <script>
 import mapList from '../../../components/mapList';
 import { mapState } from 'vuex';
+import {message} from '@/utils/message';
 export default {
     components:{
         mapList
@@ -359,9 +360,12 @@ export default {
                     },
                     success (res){
                         console.log(res);
-                        wx.navigateBack({
-                            delta: 1
-                        })
+                        if(res.status*1===1){
+                            message.toast({
+                                title:'提交成功',
+                                delta:1
+                            })
+                        }
                     }
                 })
             }else {
@@ -383,9 +387,12 @@ export default {
                     }
                 }).then(res=>{
                     console.log(res);
-                    wx.navigateBack({
-                        delta: 1
-                    })
+                    if(res.status*1===1){
+                        message.toast({
+                            title:'提交成功',
+                            delta:1
+                        })
+                    }
                 })
             }
         }

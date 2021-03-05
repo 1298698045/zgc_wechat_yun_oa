@@ -16,7 +16,10 @@
                 </p>
             </div>
             <div class="rightBox">
-                <h3>{{item.CreatedOn}}</h3>
+                <div class="row">
+                    <p class="h3_time">{{item.CreatedOn}}</p>
+                    <p class="status">{{item.statusName}}</p>
+                </div>
                 <div class="boxWrap">
                     <p class="title">{{item.ToActivityName}}</p>
                     <p class="name">
@@ -60,6 +63,13 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.list = res.rows;
+                this.list.map(item=>{
+                    const name = item.StateCode == 0 ?'草稿':item.StateCode == 1?'流转中':
+                    item.StateCode == 2 ? '挂起' :item.StateCode == '3'?'已完成':item.StateCode==4?'已终止'
+                    :item.StateCode == 5 ? '退回' :'';
+                    item.statusName = name;
+                    return item;
+                })
             })
         },
         getTab(i){
@@ -152,9 +162,17 @@ page{
             .rightBox{
                 flex: 1;
                 margin-left: 43rpx;
-                h3{
-                    font-size: 24rpx;
-                    color: #999999;
+                .row{
+                    display: flex;
+                    justify-content: space-between;
+                    .h3_time{
+                        font-size: 24rpx;
+                        color: #999999;
+                    }
+                    .status{
+                        font-size: 24rpx;
+                        color: #999999;
+                    }
                 }
                 .boxWrap{
                     width: 100%;

@@ -518,6 +518,7 @@ export default {
         changeText(e,v,i){
             console.log(e,v);
             this.list[i].value = e.mp.detail.value;
+            this.params.parentRecord.fields[v.id] = e.mp.detail.value; //  传值
             // v.value = e.mp.detail.value;
         },
         unique(arr){
@@ -859,6 +860,7 @@ export default {
                     this.Balance = res.balanceAmount;
                     const index =  this.list.findIndex((item)=>item.id=='BalanceAmount');
                     this.list[index].value = this.Balance;
+                    this.params.parentRecord.fields.BalanceAmount = this.Balance;
                 }
                 // if(res.rows!=''){
                 //     this.Balance = res.rows[0].Balance;
