@@ -516,7 +516,7 @@ export default {
             wx.createSelectorQuery().select('#'+id).boundingClientRect(rect=>{
                 console.log(rect.top,'===')
                 if(rect.top>200){
-                    this.modalHeight = rect.top - 250;
+                    this.modalHeight = rect.top - 150;
                 }else {
                     this.modalHeight = rect.top + 100;
                 }
@@ -673,7 +673,7 @@ page{
         .td_Modal{
             width: 350px;
             // height: auto;
-            height: 250px;
+            min-height: 150px;
             overflow: scroll;
             position: absolute;
             left: 12px;

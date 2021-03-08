@@ -134,29 +134,6 @@
                     </van-checkbox-group>
                 </div>
             </van-cell-group>
-            <!-- <van-cell-group custom-class="cell" v-if="item.type=='Text'">
-                <div class="box">
-                    <p class="label">{{item.label}}:</p>
-                    <textarea v-model="item.value" name="" id="" cols="30" rows="10"></textarea>
-                </div>
-            </van-cell-group> -->
-            <!-- <van-checkbox-group :value="result" @change="function(e){onChangeGroup(e)}">
-                <van-cell-group custom-class="cell">
-                    <van-cell
-                        title="复选框1"
-                        value-class="value-class"
-                        clickable
-                        data-index="1"
-                        @click="toggle"
-                    >
-                    <van-checkbox
-                        @tap="noop"
-                        :class="'checkboxes-'+1"
-                        name="1"
-                    />
-                    </van-cell>
-                </van-cell-group>
-            </van-checkbox-group> -->
             <van-cell-group custom-class="cell" v-if="item.type=='U'||item.type=='O'||item.type=='Y_MD'||item.type=='Y'">
                 <van-cell custom-class="title" :required="item.required||item.require||false" value-class="cellValue" :title="item.label" is-link :value="item.value" @click="!item.readonly?getOpenModal(item,index):''" />
             </van-cell-group>
@@ -304,7 +281,7 @@
                     <div v-for="(item,index) in testLists" :key="index">
                         <h3>
                             <!-- <van-checkbox :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item)}">{{item.ToActivityName}}</van-checkbox> -->
-                            <van-checkbox  custom-class="checkbox" :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item,index)}">
+                            <van-checkbox :disabled="HasMatched&&item.Selected?true:false" custom-class="checkbox" :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item,index)}">
                                 {{item.ToActivityName}}
                             </van-checkbox>
                         </h3>
@@ -402,7 +379,8 @@ export default {
             leaveType:"", // 假期类型
             Balance:"", // 假期余额
             startTime:"",
-            endTime:""
+            endTime:"",
+            HasMatched:false
         }
     },
     computed:{
@@ -450,15 +428,6 @@ export default {
             // console.log(temp,'temptemp')
             return temp;
         }
-        // filterObj(){
-        //     let obj = {};
-        //     for(let key in this.record){
-        //         if(this.record[key]!=null){
-        //             obj[key] = this.record[key];
-        //         }
-        //     }
-        //     return obj;
-        // }
     },
     onUnload(){
         this.getClear([]);
@@ -468,8 +437,8 @@ export default {
         Object.assign(this.$data,this.$options.data());
         this.getClear([]);
         // this.testLists = testList.listData;
-        console.log(mockData,dataList,testList,'mockData');
-        console.log(serachList,'serachList');
+        // console.log(mockData,dataList,testList,'mockData');
+        // console.log(serachList,'serachList');
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         this.fullName = wx.getStorageSync('fullName');
@@ -477,7 +446,6 @@ export default {
         this.ProcessId = options.ProcessId;
         this.RuleLogId = options.RuleLogId;
         this.ProcessInstanceId = options.ProcessInstanceId;
-        console.log(list,'123');
         this.params.processId = options.ProcessId;
         this.params.parentRecord.id = options.ProcessInstanceId;
         this.createdByName = wx.getStorageSync('fullName');
@@ -912,24 +880,34 @@ export default {
                 this.testLists = res.transitions;
                 this.fromActivityId = res.fromActivityId;
                 this.SplitType = res.SplitType;
+                this.HasMatched = res.HasMatched; // 校验是否可以选择其他节点 true不可
             })
         },
         changeAll(e,item){
-            item.Selected = e.mp.detail;
-            // item.ParticipantMember.forEach(v=>{
-            //     v.Selected = item.Selected;
-            // })
-            if (!item.Selected) {
-                item.ParticipantMember.forEach(v=>{
-                    v.Selected = false;
+            if(this.HasMatched){
+                wx.showToast({
+                    title:'不能选择当前节点',
+                    icon:'none',
+                    duration:2000
                 })
-                if (this.SplitType == 'or') {
-                    if (item.Selected) {
-                        item.ParticipantMember.forEach((v, idx) => {
-                            if (idx != index) {
-                                v.Selected = false;
-                            }
-                        })
+                return false;
+            }else {
+                item.Selected = e.mp.detail;
+                // item.ParticipantMember.forEach(v=>{
+                //     v.Selected = item.Selected;
+                // })
+                if (!item.Selected) {
+                    item.ParticipantMember.forEach(v=>{
+                        v.Selected = false;
+                    })
+                    if (this.SplitType == 'or') {
+                        if (item.Selected) {
+                            item.ParticipantMember.forEach((v, idx) => {
+                                if (idx != index) {
+                                    v.Selected = false;
+                                }
+                            })
+                        }
                     }
                 }
             }
@@ -975,7 +953,8 @@ export default {
                             }
                         }else {
                             wx.showToast({
-                                title:"人员不能为空",
+                                // title:"人员不能为空",
+                                title:`${item.ToActivityName}人员不能为空`,
                                 icon:'none',
                                 duration:2000
                             })

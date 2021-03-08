@@ -189,7 +189,7 @@
                                 </div>
                                 <div class="default" slot="icon" v-else></div>
                             </van-checkbox> -->
-                            <van-checkbox  custom-class="checkbox" :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item,index)}">
+                            <van-checkbox :disabled="HasMatched&&item.Selected?true:false"  custom-class="checkbox" :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item,index)}">
                                 {{item.ToActivityName}}
                             </van-checkbox>
                         </h3>
@@ -316,7 +316,8 @@ export default {
             SplitType:'',
             processIdName:'',
             isFinal:false,
-            draft:false // 我发起-草稿状态
+            draft:false, // 我发起-草稿状态
+            HasMatched:false
         }
     },
     computed:{
@@ -451,21 +452,30 @@ export default {
             })
         },
         changeAll(e,item,index){
-            item.Selected = e.mp.detail;
-            // item.ParticipantMember.forEach(v=>{
-            //     v.Selected = item.Selected;
-            // })
-            if (!item.Selected) {
-                item.ParticipantMember.forEach(v=>{
-                    v.Selected = false;
+            if(this.HasMatched){
+                wx.showToast({
+                    title:'不能选择当前节点',
+                    icon:'none',
+                    duration:2000
                 })
-                if (this.SplitType == 'or') {
-                    if (item.Selected) {
-                        item.ParticipantMember.forEach((v, idx) => {
-                            if (idx != index) {
-                                v.Selected = false;
-                            }
-                        })
+                return false;
+            }else {
+                item.Selected = e.mp.detail;
+                // item.ParticipantMember.forEach(v=>{
+                //     v.Selected = item.Selected;
+                // })
+                if (!item.Selected) {
+                    item.ParticipantMember.forEach(v=>{
+                        v.Selected = false;
+                    })
+                    if (this.SplitType == 'or') {
+                        if (item.Selected) {
+                            item.ParticipantMember.forEach((v, idx) => {
+                                if (idx != index) {
+                                    v.Selected = false;
+                                }
+                            })
+                        }
                     }
                 }
             }
@@ -823,6 +833,7 @@ export default {
                 this.SplitType = res.SplitType;
                 this.isFinal = res.isFinal;
                 this.fromActivityId = res.fromActivityId;
+                this.HasMatched = res.HasMatched;
             })
 
         },

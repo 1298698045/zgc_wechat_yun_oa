@@ -25,7 +25,6 @@
                         :label="item.label"
                         :placeholder="item.helpText"
                         input-align="right"
-                        right-icon="arrow"
                     />
                 </picker>
             </van-cell-group>
@@ -55,7 +54,6 @@
                          :disabled="disabled"
                         :label="item.label"
                         input-align="right"
-                        right-icon="arrow"
                         :placeholder="item.helpText"
                     />
                 </picker>
@@ -127,31 +125,8 @@
                     </van-radio-group>
                 </div>
             </van-cell-group>
-            <!-- <van-cell-group custom-class="cell" v-if="item.type=='Text'">
-                <div class="box">
-                    <p class="label">{{item.label}}:</p>
-                    <textarea v-model="item.value" name="" id="" cols="30" rows="10"></textarea>
-                </div>
-            </van-cell-group> -->
-            <!-- <van-checkbox-group :value="result" @change="function(e){onChangeGroup(e)}">
-                <van-cell-group custom-class="cell">
-                    <van-cell
-                        title="复选框1"
-                        value-class="value-class"
-                        clickable
-                        data-index="1"
-                        @click="toggle"
-                    >
-                    <van-checkbox
-                        @tap="noop"
-                        :class="'checkboxes-'+1"
-                        name="1"
-                    />
-                    </van-cell>
-                </van-cell-group>
-            </van-checkbox-group> -->
             <van-cell-group custom-class="cell" v-if="item.type=='U'||item.type=='O'||item.type=='Y_MD'||item.type=='Y'">
-                <van-cell :required="item.required||false" value-class="cellValue" title-style="font-size:34rpx;" :title="item.label" is-link :value="item.value" @click="!disabled?getOpenModal(item,index):''" />
+                <van-cell :required="item.required||false" value-class="cellValue" title-style="font-size:34rpx;" :title="item.label" :is-link="false" :value="item.value" @click="!disabled?getOpenModal(item,index):''" />
             </van-cell-group>
             <div class="switch" v-if="item.type=='H'||item.type=='MC'">
                 <p>

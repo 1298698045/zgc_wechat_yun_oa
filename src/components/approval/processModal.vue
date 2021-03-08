@@ -20,7 +20,7 @@
                 <div class="cont">
                     <div v-for="(item,index) in stepList" :key="index">
                         <h3>
-                            <van-checkbox  custom-class="checkbox" :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item,index)}">
+                            <van-checkbox :disabled="HasMatched&&item.Selected?true:false"  custom-class="checkbox" :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item,index)}">
                                 {{item.ToActivityName}}
                             </van-checkbox>
                         </h3>
@@ -76,7 +76,8 @@ export default {
             stepList:[],
             RuleLogId:"",
             ProcessInstanceId:"",
-            fromActivityId:[]
+            fromActivityId:[],
+            HasMatched:false
         }
     },
     watch:{
@@ -170,6 +171,7 @@ export default {
             }).then(res=>{
                 this.stepList = res.transitions;
                 this.fromActivityId = res.fromActivityId;
+                this.HasMatched = res.HasMatched; // 校验是否可以选择其他节点 true不可
             })
         },
         getAddPeople(item){
@@ -178,10 +180,19 @@ export default {
             wx.navigateTo({url:url});
         },
         changeAll(e,item){
-            item.Selected = e.mp.detail;
-            item.ParticipantMember.forEach(v=>{
-                v.Selected = item.Selected;
-            })
+            if(this.HasMatched){
+                wx.showToast({
+                    title:'不能选择当前节点',
+                    icon:'none',
+                    duration:2000
+                })
+                return false;
+            }else{
+                item.Selected = e.mp.detail;
+                item.ParticipantMember.forEach(v=>{
+                    v.Selected = item.Selected;
+                })
+            }
         },
         onCloseAgree(){
             this.agreeShow = false;
@@ -207,7 +218,8 @@ export default {
                         break;
                     }else{
                         wx.showToast({
-                            title:"请添加办理人员",
+                            // title:"请添加办理人员",
+                            title:`${this.stepList[k].ToActivityName}人员不能为空`,
                             icon:"none",
                             duration:2000
                         })

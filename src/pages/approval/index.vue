@@ -8,7 +8,7 @@
                         <img src="https://oa.zgchospital.com/img/wechat/04.9.IApprove.png" alt="">
                     </p>
                     <p>我审批的</p>
-                    <span>2</span>
+                    <!-- <span>2</span> -->
                 </div>
                 <div class="box" @click="getMyLaunch">
                     <p class="imgs">
@@ -100,6 +100,7 @@ export default {
         this.index = 0;
     },
     onLoad(){
+        Object.assign(this.$data,this.$options.data());
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         let list = [{}];

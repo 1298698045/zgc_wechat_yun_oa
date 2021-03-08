@@ -9,8 +9,7 @@
         "pages/schedule/newSchedule/main",
         "pages/schedule/detail/main",
         "pages/meetingEntry/main",
-        "pages/work/admin/main",
-        "pages/scheduling/main"
+        "pages/work/admin/main"
     ],
     "subpackages": [{
             "root": "pages/todoBusiness/",
@@ -250,6 +249,13 @@
                 "main",
                 "classification/main",
                 "detail/main"
+            ]
+        },
+        {
+            "root":"pages/scheduling",
+            "pages":[
+                "main",
+                "departScheduling/main"
             ]
         }
     ],

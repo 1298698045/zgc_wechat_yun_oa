@@ -126,6 +126,8 @@
                 <van-button type="info" block @click="getSave">提交</van-button>
             </div>
         </div>
+        <ProcessModal ref="refProcess" :processId="ProcessId" :processIdName="processIdName"
+     :RuleLogId="RuleLogId" :ProcessInstanceId="ProcessInstanceId" :describe="BEZ" />
     </div>
     <!-- 查看数据 -->
     <div class="dataWrap" v-if="current==1">
@@ -135,84 +137,17 @@
     <div class="approved">
       
     </div>
-    
-    <van-popup
-            :show="agreeShow"
-            position="bottom"
-            custom-style="width:100%;height: auto;"
-            @close="onCloseAgree"
-            overlay-style="background: #333;opacity: .5;">
-            <div class="agreeWrap">
-                <div class="header">
-                    <div>
-                        <p class="radius">{{createdByName}}</p>
-                    </div>
-                    <div>
-                        <div class="h3">{{createdByName}}提交的流程申请表</div>
-                        <p><span>标题：</span>生物医学研究伦理审查审批表</p>
-                    </div>
-                </div>  
-                <div class="cont">
-                    <div v-for="(item,index) in stepList" :key="index">
-                        <h3>
-                            <van-checkbox use-icon-slot custom-class="checkbox" :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item)}">
-                                
-                                {{item.ToActivityName}}
-                                <div class="slot" slot="icon" v-if="item.Selected">
-                                    <p></p>
-                                </div>
-                                <div class="default" slot="icon" v-else></div>
-                            </van-checkbox>
-                        </h3>
-                        <div class="box">
-                            <div class="row" v-for="(v,i) in item.ParticipantMember" :key="i">
-                                <van-checkbox :name="v.UserId" :value="v.Selected" @change="(e)=>{changeItem(e,item,v)}">{{v.FullName}}/{{v.BusinessUnitIdName}}</van-checkbox>
-                            </div>
-                            <div class="rows">
-                                <p class="add" @click="getAddPeople(item)">
-                                    <i-icon type="add" size="30" color="#3399ff" />
-                                    <span>
-                                        添加办理人员
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="popupRow">
-                        <div class="row">
-                            <p>通知</p>
-                            <p>
-                                <span>应用内</span>
-                                <span>&nbsp;短信</span>
-                            </p>
-                        </div>
-                        <div class="text">
-                            流程事务:[ 05 绍兴第二医院医共体分院招标关于采购事项的审批单 信息中心 崔曼 ]，请您查阅！
-                        </div>
-                    </div>  
-                    <div class="textarea">
-                        <p>留言</p>
-                        <textarea v-model="description" name="" placeholder="请输入内容" id="" cols="30" rows="10"></textarea>
-                    </div>
-                </div>
-                <div class="fot" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}" style="z-Index:9999">
-                    <div class="box">
-                        <p @click="onCloseAgree">取消</p>  
-                        <!-- <p>上一环节</p> -->
-                        <p @click="getSubmitStep">提交</p>  
-                    </div>
-                </div> 
-            </div>
-        </van-popup>
   </div>
 </template>
 <script>
 import { getTotal } from '@/utils/iDays';
 import {mapState,mapMutations} from 'vuex';
+import ProcessModal from '@/components/approval/processModal';
 import ShowData from '@/components/showData';
 export default {
   components:{
-    ShowData
+    ShowData,
+    ProcessModal
   },
   data() {
     return {
@@ -227,10 +162,9 @@ export default {
       startTime: "",
       endTime: "",
       imgList: [],
-      agreeShow:false,
-      stepList:[],
       createdByName:"测试",
       ProcessId:"f2c7f44d-72c4-4658-8456-25c44d4fb997",
+      processIdName:"",
       current:0,
       ProcessInstanceId:'',
       leaveType:'', // 请假类型
@@ -341,26 +275,6 @@ export default {
             return state.mailList.selectListName;
         }
     }),
-    processList(){
-        let temp = [];
-            let ToActivityId = wx.getStorageSync('ToActivityId');
-            let index = this.stepList.findIndex(v=>v.ToActivityId===ToActivityId);
-            if(this.selectListName!=''){
-                this.selectListName.forEach(item=>{
-                    this.stepList[index].ParticipantMember.push({
-                        UserId:item.id,
-                        FullName:item.FullName,
-                        Selected:true,
-                        BusinessUnitIdName:item.DeptName
-                    })
-                    this.stepList[index].ParticipantMember = this.unique(this.stepList[index].ParticipantMember);
-                    console.log(this.stepList[index].ParticipantMember,'this.stepList[index].ParticipantMember')
-                    this.stepList[index].Selected = true;
-                })
-            }
-            temp = this.stepList;
-            return temp;
-    },
     UserId(){
       return wx.getStorageSync('userId');
     },
@@ -455,6 +369,7 @@ export default {
           if(res.actions[0].state=='SUCCESS'){
               this.ProcessInstanceId = res.actions[0].returnValue.ProcessInstanceId;
               this.RuleLogId = res.actions[0].returnValue.RuleLogId;
+              this.processIdName = res.actions[0].returnValue.Name;
           }
       })
       return ret;
@@ -534,8 +449,11 @@ export default {
                     message:JSON.stringify(obj)
                 }
             }).then(res=>{
-              this.agreeShow = true;
-              this.getStepQuery();
+                // this.agreeShow = true;
+                // this.getStepQuery();
+                console.log(res,this.$refs.refProcess)
+                this.$refs.refProcess.agreeShow = true;
+                this.$refs.refProcess.getStepQuery();
             })
           })
         }
@@ -560,89 +478,6 @@ export default {
             this.stepList = res.transitions;
             this.fromActivityId = res.fromActivityId;
         })
-    },
-    getSubmitStep(){
-        for(let k=0;k<this.stepList.length;k++){
-            if(this.stepList[k].Selected){
-                let isBook = this.stepList[k].ParticipantMember.some(d=>d.Selected);
-                if(isBook){
-                    break;
-                }else{
-                    wx.showToast({
-                        title:"请添加办理人员",
-                        icon:"none",
-                        duration:2000
-                    })
-                    return false;
-                }
-            }else{
-                if(k==this.stepList.length-1){
-                    wx.showToast({
-                        title:"请添加办理人员",
-                        icon:"none",
-                        duration:2000
-                    })
-                    return false;
-                }
-            }
-        }
-        const data = {
-            actions:[]
-        };
-        let temp = [];
-        for(let i=0;i<this.stepList.length;i++){
-            for(let j=0; j<this.stepList[i].ParticipantMember.length;j++){
-                if(this.stepList[i].ParticipantMember[j].Selected){
-                    temp.push(this.stepList[i].ParticipantMember[j].UserId);
-                }
-            }
-        }
-        let transitions = this.stepList.map(item=>({
-            toActivityId: item.ToActivityId,
-            transitionId: item.TransitionId,
-            participators: temp
-        }))
-        data.actions.push({
-            params:{
-                processId: this.processId,
-                name: '请假审批单',
-                processInstanceId: this.ProcessInstanceId,
-                ruleLogId: this.RuleLogId,
-                fromActivityId: this.fromActivityId,
-                description: this.Description,
-                // fromActivityId:this.fromActivityId,
-                transitions: transitions
-            }
-        });
-        this.$httpWX.post({
-            url:this.$api.message.queryList+'?method='+this.$api.approval.accept,
-            data:{
-                // method:this.$api.approval.accept,
-                SessionKey:this.sessionkey,
-                message:JSON.stringify(data)
-            }
-        }).then(res=>{
-            this.agreeShow = false;
-            let status = res.actions[0].state
-            if(status=='SUCCESS'){
-              wx.showToast({
-                title: "提交成功",
-                icon:"success",
-                duration:2000,
-                success:res=>{
-                  setTimeout(()=>{
-                    this.current = 1;
-                    // this.getQuery();
-                  },1000)
-                }
-              })
-            }
-        })
-    },
-    getAddPeople(item){
-        wx.setStorageSync('ToActivityId',item.ToActivityId)
-        const url = '/pages/publics/mailList/main?sign='+'process';
-        wx.navigateTo({url:url});
     },
     getCurrent(){
         let date = new Date(this.time.replace(/-/g,'/'));
@@ -749,28 +584,7 @@ export default {
     },
     getCloseImg(index){
       this.imgList.splice(index,1);
-    },
-    changeAll(e,item){
-        item.Selected = e.mp.detail;
-        item.ParticipantMember.forEach(v=>{
-            v.Selected = item.Selected;
-        })
-    },
-    onCloseAgree(){
-        this.agreeShow = false;
-    },
-    changeItem(e,item,v){
-        v.Selected = e.mp.detail;
-        console.log(item.ParticipantMember.every(one=>one.Selected==true))
-        for(let i=0;i<item.ParticipantMember.length;i++){
-            if(item.ParticipantMember[i].Selected){
-                item.Selected = true;
-                break;
-            }else {
-                item.Selected = false;
-            }
-        }
-    },
+    }
   },
       // 下拉刷新
     onPullDownRefresh() {

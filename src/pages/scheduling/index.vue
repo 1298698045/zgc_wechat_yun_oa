@@ -35,6 +35,7 @@
                 </block>
             </swiper>
         </div>
+        <button @click="getRouter">部门排班</button>
     </div>
 </template>
 <script>
@@ -84,6 +85,10 @@ export default {
         })
     },
     methods:{
+        getRouter(){
+            const url = '/pages/scheduling/departScheduling/main';
+            wx.navigateTo({url:url})
+        },
         // 节假日
         dayQuery(){
             this.$httpWX.get({
