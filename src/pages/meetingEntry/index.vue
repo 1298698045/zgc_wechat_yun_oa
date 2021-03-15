@@ -206,7 +206,22 @@ export default {
             wx.navigateTo({url:url});
         },
         onCluesAddBtnClick(){
-            const url = "/pages/schedule/newSchedule/main?meetingSign="+0;
+            let date = new Date();
+            let hour = date.getHours();
+            let min = date.getMinutes();
+            let ss = date.getSeconds();
+            let startTime = `${this.year}-${this.month}-${this.day} ${hour}:${min}`;
+            let nDate = new Date(startTime.replace(/-/g,'/'));
+            let yy = nDate.getFullYear();
+            let mm = nDate.getMonth()+1;
+            let dd = nDate.getDate();
+            let h = nDate.getHours();
+            let nmin = nDate.getMinutes();
+            let endTime = `${yy}-${mm}-${Number(h)=='23'?dd+1:dd} ${
+                Number(h)=='23'?'00':
+                Number(h) + Number(1)
+            }:${nmin}`;
+            const url = "/pages/schedule/newSchedule/main?meetingSign="+0+'&startTime='+startTime+'&endTime='+endTime;
             wx.navigateTo({url:url});
         }
     },

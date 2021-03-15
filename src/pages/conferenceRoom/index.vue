@@ -287,7 +287,8 @@ export default {
             sessionkey:"",
             statusIdx:"",
             sign:"",
-            finishedList:[]
+            finishedList:[],
+            startTime:""
         }
     },
     computed:{
@@ -300,23 +301,24 @@ export default {
     },
     onShow(){
         this.scrollLeft = this.day * 50;
-        let date = new Date(), month = date.getMonth()+1;
+        let date = new Date(this.startTime.replace(/-/g,'/')), month = date.getMonth()+1;
         this.getEveryDay(date, month);
         this.getQuery();
         this.getConferenceAdmin();
     },
     onLoad(options){
         Object.assign(this.$data,this.$options.data());
+        this.startTime = options.startTime;
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         this.sign = options.sign;
-        this.timestamp = Date.parse(new Date());
-        var currenMyDate = new Date();     //获取当前年份(2位)
+        this.timestamp = Date.parse(new Date(this.startTime.replace(/-/g,'/')));
+        var currenMyDate = new Date(this.startTime.replace(/-/g,'/'));     //获取当前年份(2位)
         var currenYear=currenMyDate.getFullYear();    //获取完整的年份(4位,1970-????)
         var currenMonth=currenMyDate.getMonth();       //获取当前月份(0-11,0代表1月)
         var currenDay=currenMyDate.getDate();        //获取当前日(1-31)
         this.currenDayNow=currenYear+'-'+(currenMonth+1)+"-"+currenDay;
-        let myDate = new Date();
+        let myDate = new Date(this.startTime.replace(/-/g,'/'));
         this.year = myDate.getFullYear();
         this.month = myDate.getMonth()+1;
         this.day = myDate.getDate();

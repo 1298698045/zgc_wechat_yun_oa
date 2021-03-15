@@ -210,7 +210,8 @@ const api = {
     // 排班
     scheduling:{
         query:"workshift.monthowner.getlist",
-        calendar:"calendar.holiday.getlist"
+        calendar:"calendar.holiday.getlist",
+        departQuery:"workshift.dept.employee.search"
     }
 }
 export default api;

@@ -64,15 +64,24 @@
                     </p>
                 </div>
             </div>
-            <div class="tr tr_cont" id="table_tr" v-for="(item,index) in 1" :key="index">
-                <div class="td td_name_cont" :class="{'active_td':activeIdx==0}" :style="{'height':tdHeight+'px'}" @click="getCheck(1)"></div>
-                <div class="td" :style="{'height':tdHeight+'px'}"></div>
-                <div class="td" :style="{'height':tdHeight+'px'}"></div>
-                <div class="td" :style="{'height':tdHeight+'px'}"></div>
-                <div class="td" :style="{'height':tdHeight+'px'}"></div>
-                <div class="td" :style="{'height':tdHeight+'px'}"></div>
-                <div class="td" :style="{'height':tdHeight+'px'}"></div>
-                <div class="td" :style="{'height':tdHeight+'px'}"></div>
+            <div class="tr tr_cont" id="table_tr" v-for="(item,index) in list" :key="index">
+                <div class="td td_name_cont" :style="{'height':tdHeight+'px','line-height':tdHeight+'px'}" @click="getCheck(1)">
+                    {{item.Name}}
+                </div>
+                <div class="td tds" v-for="(v,idx) in item.AttendData" :key="idx" :style="{'height':tdHeight+'px'}">
+                    <p>
+                        <span v-for="(self,i) in v.Shifts" :key="i">{{self.WorkShiftIdName}}</span>
+                    </p>
+                </div>
+                <!--
+                    <div class="td" :style="{'height':tdHeight+'px'}"></div>
+                    <div class="td" :style="{'height':tdHeight+'px'}"></div>
+                    <div class="td" :style="{'height':tdHeight+'px'}"></div>
+                    <div class="td" :style="{'height':tdHeight+'px'}"></div>
+                    <div class="td" :style="{'height':tdHeight+'px'}"></div>
+                    <div class="td" :style="{'height':tdHeight+'px'}"></div>
+                    <div class="td" :style="{'height':tdHeight+'px'}"></div>
+                -->
             </div>
         </div>
     </div>
@@ -83,7 +92,12 @@ export default {
         return {
             tdHeight:"",
             currentList:[],
-            activeIdx:0
+            activeIdx:0,
+            list:[
+                {
+                    AttendDate:[]
+                }
+            ]
         }
     },
     computed:{
@@ -98,15 +112,29 @@ export default {
                 })
             })
             return temp;
+        },
+        sessionkey(){
+            return wx.getStorageSync('sessionkey')
+        },
+        unitId(){
+            return wx.getStorageSync('businessUnitId');
+        },
+        startTime(){
+            return this.startTime = this.currentList[0];
+        },
+        endTime(){
+            return this.startTime = this.currentList[this.currentList.length-1];
         }
     },
     onLoad(){
-        wx.createSelectorQuery().select('#table_tr .td').boundingClientRect(rect=>{
+        wx.createSelectorQuery().select('.td').boundingClientRect(rect=>{
           this.tdHeight = rect.width;
         }).exec();
         let date = new Date();
         let currentTime = date.getTime();
         this.currentList = this.getDates(currentTime);
+        this.getQuery();
+        // this.startTime = this.
         // this.currentList.forEach(item=>{
         //     let newDate = new Date(item.replace(/-/g,'/'));
         //     const time = newDate.getDate() >= 10 ? newDate.getDate() : '0'+newDate.getDate();
@@ -117,6 +145,21 @@ export default {
         // })
     },
     methods:{
+        getQuery(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    SessionKey:this.sessionkey,
+                    method:this.$api.scheduling.departQuery,
+                    unitId:this.unitId,
+                    startDate:this.startTime,
+                    endDate:this.endTime,
+                    unitType:10
+                }
+            }).then(res=>{
+                this.list = res.listData;
+            })
+        },
         getDates(currentTime) {//JS获取当前周从星期一到星期天的日期
             var currentDate = new Date(currentTime)
             var timesStamp = currentDate.getTime();
@@ -131,11 +174,13 @@ export default {
         getPrevTime(){
             let startTime = new Date(this.timeList[0].time.replace(/-/g,'/')).getTime() - 7 * 24 * 60 * 60 * 1000;
             this.currentList = this.getDates(startTime);
+            this.getQuery();
         },
         // 下一周
         getNextTime(){
             let startTime = new Date(this.timeList[0].time.replace(/-/g,'/')).getTime() + 7 * 24 * 60 * 60 * 1000;
             this.currentList = this.getDates(startTime);
+            this.getQuery();
         },
         getCheck(index){
             this.num = index;
@@ -196,9 +241,18 @@ export default {
                 .td:nth-child(8){
                     border: none;
                 }
-                .td.active_td{
-                    border: 1px solid #333333;
+                .tds{
+                    display:flex;
+                    justify-content:center;
+                    align-items:center;
+                    span{
+                        font-size:20rpx;
+                        display:inline-block;
+                    }
                 }
+                // .td.active_td{
+                //     border: 1px solid #333333;
+                // }
             }
         }
     }

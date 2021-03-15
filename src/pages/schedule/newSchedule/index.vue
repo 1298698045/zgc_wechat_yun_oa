@@ -575,6 +575,18 @@ export default {
     this.copyEndTime = options.endTime;
     this.organizer.FullName = wx.getStorageSync("fullName");
     this.organizer.id = wx.getStorageSync("userId");
+    if(options.currDate){
+      this.checked = true;
+      let date = new Date(options.currDate.replace(/-/g,'/'));
+      let y = date.getFullYear();
+      let m = date.getMonth() + 1;
+      let d = date.getDate();
+      let currentDate = `${y}-${m}-${d}`;
+      this.startTime = `${currentDate} 00:00`;
+      this.endTime = `${currentDate} 23:59`;
+      this.getCurrent(this.startTime, this.endTime);
+      this.getPickerDefault(this.startTime, this.endTime);
+    }else
     if (options.startTime) {
       this.getCurrent(options.startTime, options.endTime);
       this.getPickerDefault(options.startTime, options.endTime);
@@ -781,7 +793,8 @@ export default {
     },
     // 会议室
     getConference() {
-      const url = "/pages/conferenceRoom/main?sign=" + "add";
+      console.log(this.startTime,'1231231');
+      const url = "/pages/conferenceRoom/main?sign=" + "add"+'&startTime='+this.startTime;
       wx.navigateTo({ url: url });
       // this.isConference = !this.isConference;
     },
@@ -965,6 +978,7 @@ export default {
       this.hours = this.RemoveChinese(hour) + ":" + this.RemoveChinese(minute);
       this.time = this.RemoveChinese(this.time);
       this.startTime = this.RemoveChinese(this.time);
+      console.log(this.startTime,'123==-=-=-=-=')
       this.copyStartTime =
         year + "-" + month + "-" + day + " " + hour + ":" + minute;
       this.copyStartTime = this.RemoveChinese(this.copyStartTime);
@@ -993,6 +1007,17 @@ export default {
       const day = this.newMultiArray[2][index[2]];
       const hour = this.newMultiArray[3][index[3]];
       const minute = this.newMultiArray[4][index[4]];
+      let oldTime = this.RemoveChinese(year + "-" + month + "-" + day + " " + hour + ":" + minute);
+      let startStamp = new Date(this.startTime.replace(/-/g,'/')).getTime(); // 开始时间戳
+      let endStamp = new Date(oldTime.replace(/-/g,'/')).getTime(); // 结束时间戳
+      if(endStamp<startStamp){
+        wx.showToast({
+          title:'请选择大于开始时间',
+          icon:'none',
+          duration:2000
+        })
+        return false;
+      }
       this.endTime = year + "-" + month + "-" + day + " " + hour + ":" + minute;
       this.endMonth = month;
       this.endDay = day;
